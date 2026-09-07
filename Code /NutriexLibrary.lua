@@ -3488,62 +3488,7 @@ function RayfieldLibrary:LoadConfiguration()
 end
 
 if useStudio then
-	local Window = RayfieldLibrary:CreateWindow({
-		Name = "Nutriex Example Window",
-		LoadingTitle = "Nutriex Interface Suite",
-		Theme = "Default",
-		Icon = 0,
-		LoadingSubtitle = "by CyberX",
-		ConfigurationSaving = {
-			Enabled = true,
-			FolderName = "NutriexConfigs",
-			FileName = "TestHub"
-		},
-		KeySystem = false
-	})
-
-	local Tab = Window:CreateTab("General", "key-round")
-
-	local Button = Tab:CreateButton({
-		Name = "Test Notification",
-		Callback = function()
-			NutriexLibrary:Notify({
-				Title = "Nutriex Hub",
-				Content = "Interface loaded successfully!",
-				Image = 4483362458
-			})
-		end,
-	})
-
-	local Slider = Tab:CreateSlider({
-		Name = "WalkSpeed",
-		Range = {16, 200},
-		Increment = 1,
-		Suffix = "WS",
-		CurrentValue = 16,
-		Flag = "SpeedSlider",
-		Callback = function(Value)
-			if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-				LocalPlayer.Character.Humanoid.WalkSpeed = Value
-			end
-		end,
-	})
-
-	local ThemeOptions = {}
-	for ThemeName, _ in pairs(NutriexLibrary.Theme) do
-		table.insert(ThemeOptions, ThemeName)
-	end
-
-	local Dropdown = Tab:CreateDropdown({
-		Name = "Select Theme",
-		Options = ThemeOptions,
-		CurrentOption = {"Default","Green","Blue","Purple","Orange","Red"},
-		MultipleOptions = false,
-		Flag = "ThemeDropdown",
-		Callback = function(Options)
-			Window:ModifyTheme(Options[1])
-		end,
-	})
+	print("hi")
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
