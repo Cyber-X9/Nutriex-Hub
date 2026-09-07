@@ -3588,7 +3588,7 @@ function RayfieldLibrary:LoadConfiguration()
 end
 
 if useStudio then
-	print("hi")
+	-- print("hi")
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
