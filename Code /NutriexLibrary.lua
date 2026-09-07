@@ -96,7 +96,7 @@ local function secureNotify(wType, title, content)
 	end)
 end
 local InterfaceBuild = 'UU2NX'
-local Release = "Build 1.749"
+local Release = "Version 1.210"
 local NutriexFolder = "Nutriex"
 local ConfigurationFolder = NutriexFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
@@ -301,90 +301,6 @@ local NutriexUI = {
 	PlaceholderColor = Color3.fromRGB(100, 100, 100)
 },
 
-		Ocean = {
-			TextColor = Color3.fromRGB(230, 240, 240),
-
-			Background = Color3.fromRGB(20, 30, 30),
-			Topbar = Color3.fromRGB(25, 40, 40),
-			Shadow = Color3.fromRGB(15, 20, 20),
-
-			NotificationBackground = Color3.fromRGB(25, 35, 35),
-			NotificationActionsBackground = Color3.fromRGB(230, 240, 240),
-
-			TabBackground = Color3.fromRGB(40, 60, 60),
-			TabStroke = Color3.fromRGB(50, 70, 70),
-			TabBackgroundSelected = Color3.fromRGB(100, 180, 180),
-			TabTextColor = Color3.fromRGB(210, 230, 230),
-			SelectedTabTextColor = Color3.fromRGB(20, 50, 50),
-
-			ElementBackground = Color3.fromRGB(30, 50, 50),
-			ElementBackgroundHover = Color3.fromRGB(40, 60, 60),
-			SecondaryElementBackground = Color3.fromRGB(30, 45, 45),
-			ElementStroke = Color3.fromRGB(45, 70, 70),
-			SecondaryElementStroke = Color3.fromRGB(40, 65, 65),
-
-			SliderBackground = Color3.fromRGB(0, 110, 110),
-			SliderProgress = Color3.fromRGB(0, 140, 140),
-			SliderStroke = Color3.fromRGB(0, 160, 160),
-
-			ToggleBackground = Color3.fromRGB(30, 50, 50),
-			ToggleEnabled = Color3.fromRGB(0, 130, 130),
-			ToggleDisabled = Color3.fromRGB(70, 90, 90),
-			ToggleEnabledStroke = Color3.fromRGB(0, 160, 160),
-			ToggleDisabledStroke = Color3.fromRGB(85, 105, 105),
-			ToggleEnabledOuterStroke = Color3.fromRGB(50, 100, 100),
-			ToggleDisabledOuterStroke = Color3.fromRGB(45, 65, 65),
-
-			DropdownSelected = Color3.fromRGB(30, 60, 60),
-			DropdownUnselected = Color3.fromRGB(25, 40, 40),
-
-			InputBackground = Color3.fromRGB(30, 50, 50),
-			InputStroke = Color3.fromRGB(50, 70, 70),
-			PlaceholderColor = Color3.fromRGB(140, 160, 160)
-		},
-		
-		Amethyst = {
-			TextColor = Color3.fromRGB(240, 240, 240),
-
-			Background = Color3.fromRGB(30, 20, 40),
-			Topbar = Color3.fromRGB(40, 25, 50),
-			Shadow = Color3.fromRGB(20, 15, 30),
-
-			NotificationBackground = Color3.fromRGB(35, 20, 40),
-			NotificationActionsBackground = Color3.fromRGB(240, 240, 250),
-
-			TabBackground = Color3.fromRGB(60, 40, 80),
-			TabStroke = Color3.fromRGB(70, 45, 90),
-			TabBackgroundSelected = Color3.fromRGB(180, 140, 200),
-			TabTextColor = Color3.fromRGB(230, 230, 240),
-			SelectedTabTextColor = Color3.fromRGB(50, 20, 50),
-
-			ElementBackground = Color3.fromRGB(45, 30, 60),
-			ElementBackgroundHover = Color3.fromRGB(50, 35, 70),
-			SecondaryElementBackground = Color3.fromRGB(40, 30, 55),
-			ElementStroke = Color3.fromRGB(70, 50, 85),
-			SecondaryElementStroke = Color3.fromRGB(65, 45, 80),
-
-			SliderBackground = Color3.fromRGB(100, 60, 150),
-			SliderProgress = Color3.fromRGB(130, 80, 180),
-			SliderStroke = Color3.fromRGB(150, 100, 200),
-
-			ToggleBackground = Color3.fromRGB(45, 30, 55),
-			ToggleEnabled = Color3.fromRGB(120, 60, 150),
-			ToggleDisabled = Color3.fromRGB(94, 47, 117),
-			ToggleEnabledStroke = Color3.fromRGB(140, 80, 170),
-			ToggleDisabledStroke = Color3.fromRGB(124, 71, 150),
-			ToggleEnabledOuterStroke = Color3.fromRGB(90, 40, 120),
-			ToggleDisabledOuterStroke = Color3.fromRGB(80, 50, 110),
-
-			DropdownSelected = Color3.fromRGB(50, 35, 70),
-			DropdownUnselected = Color3.fromRGB(35, 25, 50),
-
-			InputBackground = Color3.fromRGB(45, 30, 60),
-			InputStroke = Color3.fromRGB(80, 50, 110),
-			PlaceholderColor = Color3.fromRGB(178, 150, 200)
-		},
-
 		Green = {
 	TextColor = Color3.fromRGB(0, 255, 128),
 
@@ -426,48 +342,170 @@ local NutriexUI = {
 	InputStroke = Color3.fromRGB(0, 80, 40),
 	PlaceholderColor = Color3.fromRGB(0, 120, 60)
 },
+Blue = {
+	TextColor = Color3.fromRGB(0, 180, 255),
 
-      Blue = {
-			TextColor = Color3.fromRGB(230, 230, 230),
+	Background = Color3.fromRGB(5, 7, 12),
+	Topbar = Color3.fromRGB(10, 14, 22),
+	Shadow = Color3.fromRGB(0, 0, 0),
 
-			Background = Color3.fromRGB(20, 25, 30),
-			Topbar = Color3.fromRGB(30, 35, 40),
-			Shadow = Color3.fromRGB(15, 20, 25),
+	NotificationBackground = Color3.fromRGB(8, 12, 20),
+	NotificationActionsBackground = Color3.fromRGB(15, 22, 35),
 
-			NotificationBackground = Color3.fromRGB(25, 30, 35),
-			NotificationActionsBackground = Color3.fromRGB(45, 50, 55),
+	TabBackground = Color3.fromRGB(10, 15, 25),
+	TabStroke = Color3.fromRGB(0, 60, 120),
+	TabBackgroundSelected = Color3.fromRGB(0, 180, 255),
+	TabTextColor = Color3.fromRGB(0, 120, 200),
+	SelectedTabTextColor = Color3.fromRGB(5, 7, 12),
 
-			TabBackground = Color3.fromRGB(35, 40, 45),
-			TabStroke = Color3.fromRGB(45, 50, 60),
-			TabBackgroundSelected = Color3.fromRGB(40, 70, 100),
-			TabTextColor = Color3.fromRGB(200, 200, 200),
-			SelectedTabTextColor = Color3.fromRGB(255, 255, 255),
+	ElementBackground = Color3.fromRGB(8, 14, 24),
+	ElementBackgroundHover = Color3.fromRGB(12, 20, 32),
+	SecondaryElementBackground = Color3.fromRGB(5, 10, 18), 
+	ElementStroke = Color3.fromRGB(0, 50, 100),
+	SecondaryElementStroke = Color3.fromRGB(0, 35, 70),
 
-			ElementBackground = Color3.fromRGB(30, 35, 40),
-			ElementBackgroundHover = Color3.fromRGB(40, 45, 50),
-			SecondaryElementBackground = Color3.fromRGB(35, 40, 45), 
-			ElementStroke = Color3.fromRGB(45, 50, 60),
-			SecondaryElementStroke = Color3.fromRGB(40, 45, 55),
+	SliderBackground = Color3.fromRGB(15, 22, 35),
+	SliderProgress = Color3.fromRGB(0, 180, 255),
+	SliderStroke = Color3.fromRGB(0, 90, 180),
 
-			SliderBackground = Color3.fromRGB(0, 90, 180),
-			SliderProgress = Color3.fromRGB(0, 120, 210),
-			SliderStroke = Color3.fromRGB(0, 150, 240),
+	ToggleBackground = Color3.fromRGB(10, 15, 25),
+	ToggleEnabled = Color3.fromRGB(0, 180, 255),
+	ToggleDisabled = Color3.fromRGB(20, 28, 40),
+	ToggleEnabledStroke = Color3.fromRGB(0, 180, 255),
+	ToggleDisabledStroke = Color3.fromRGB(0, 60, 120),
+	ToggleEnabledOuterStroke = Color3.fromRGB(0, 130, 220),
+	ToggleDisabledOuterStroke = Color3.fromRGB(10, 20, 35),
 
-			ToggleBackground = Color3.fromRGB(35, 40, 45),
-			ToggleEnabled = Color3.fromRGB(0, 120, 210),
-			ToggleDisabled = Color3.fromRGB(70, 70, 80),
-			ToggleEnabledStroke = Color3.fromRGB(0, 150, 240),
-			ToggleDisabledStroke = Color3.fromRGB(75, 75, 85),
-			ToggleEnabledOuterStroke = Color3.fromRGB(20, 100, 180), 
-			ToggleDisabledOuterStroke = Color3.fromRGB(55, 55, 65),
+	DropdownSelected = Color3.fromRGB(12, 22, 38),
+	DropdownUnselected = Color3.fromRGB(8, 14, 24),
 
-			DropdownSelected = Color3.fromRGB(30, 70, 90),
-			DropdownUnselected = Color3.fromRGB(25, 30, 35),
+	InputBackground = Color3.fromRGB(6, 10, 18),
+	InputStroke = Color3.fromRGB(0, 60, 120),
+	PlaceholderColor = Color3.fromRGB(0, 90, 160)
+},
+Purple = {
+	TextColor = Color3.fromRGB(180, 100, 255),
 
-			InputBackground = Color3.fromRGB(25, 30, 35),
-			InputStroke = Color3.fromRGB(45, 50, 60), 
-			PlaceholderColor = Color3.fromRGB(150, 150, 160)
-		},
+	Background = Color3.fromRGB(9, 6, 14),
+	Topbar = Color3.fromRGB(16, 10, 24),
+	Shadow = Color3.fromRGB(0, 0, 0),
+
+	NotificationBackground = Color3.fromRGB(14, 8, 22),
+	NotificationActionsBackground = Color3.fromRGB(25, 14, 38),
+
+	TabBackground = Color3.fromRGB(18, 10, 28),
+	TabStroke = Color3.fromRGB(100, 40, 160),
+	TabBackgroundSelected = Color3.fromRGB(180, 100, 255),
+	TabTextColor = Color3.fromRGB(140, 70, 210),
+	SelectedTabTextColor = Color3.fromRGB(9, 6, 14),
+
+	ElementBackground = Color3.fromRGB(16, 9, 26),
+	ElementBackgroundHover = Color3.fromRGB(24, 13, 38),
+	SecondaryElementBackground = Color3.fromRGB(12, 7, 20), 
+	ElementStroke = Color3.fromRGB(80, 30, 130),
+	SecondaryElementStroke = Color3.fromRGB(55, 20, 90),
+
+	SliderBackground = Color3.fromRGB(25, 14, 38),
+	SliderProgress = Color3.fromRGB(180, 100, 255),
+	SliderStroke = Color3.fromRGB(130, 60, 200),
+
+	ToggleBackground = Color3.fromRGB(18, 10, 28),
+	ToggleEnabled = Color3.fromRGB(180, 100, 255),
+	ToggleDisabled = Color3.fromRGB(30, 16, 45),
+	ToggleEnabledStroke = Color3.fromRGB(180, 100, 255),
+	ToggleDisabledStroke = Color3.fromRGB(100, 40, 160),
+	ToggleEnabledOuterStroke = Color3.fromRGB(150, 80, 230),
+	ToggleDisabledOuterStroke = Color3.fromRGB(22, 10, 35),
+
+	DropdownSelected = Color3.fromRGB(25, 13, 40),
+	DropdownUnselected = Color3.fromRGB(16, 9, 26),
+
+	InputBackground = Color3.fromRGB(12, 7, 20),
+	InputStroke = Color3.fromRGB(100, 40, 160),
+	PlaceholderColor = Color3.fromRGB(120, 50, 180)
+},
+Red = {
+	TextColor = Color3.fromRGB(255, 65, 65),
+
+	Background = Color3.fromRGB(14, 6, 6),
+	Topbar = Color3.fromRGB(24, 10, 10),
+	Shadow = Color3.fromRGB(0, 0, 0),
+
+	NotificationBackground = Color3.fromRGB(22, 8, 8),
+	NotificationActionsBackground = Color3.fromRGB(38, 14, 14),
+
+	TabBackground = Color3.fromRGB(28, 10, 10),
+	TabStroke = Color3.fromRGB(160, 30, 30),
+	TabBackgroundSelected = Color3.fromRGB(255, 65, 65),
+	TabTextColor = Color3.fromRGB(210, 50, 50),
+	SelectedTabTextColor = Color3.fromRGB(14, 6, 6),
+
+	ElementBackground = Color3.fromRGB(26, 9, 9),
+	ElementBackgroundHover = Color3.fromRGB(38, 13, 13),
+	SecondaryElementBackground = Color3.fromRGB(20, 7, 7), 
+	ElementStroke = Color3.fromRGB(130, 25, 25),
+	SecondaryElementStroke = Color3.fromRGB(90, 18, 18),
+
+	SliderBackground = Color3.fromRGB(38, 14, 14),
+	SliderProgress = Color3.fromRGB(255, 65, 65),
+	SliderStroke = Color3.fromRGB(200, 45, 45),
+
+	ToggleBackground = Color3.fromRGB(28, 10, 10),
+	ToggleEnabled = Color3.fromRGB(255, 65, 65),
+	ToggleDisabled = Color3.fromRGB(45, 16, 16),
+	ToggleEnabledStroke = Color3.fromRGB(255, 65, 65),
+	ToggleDisabledStroke = Color3.fromRGB(160, 30, 30),
+	ToggleEnabledOuterStroke = Color3.fromRGB(230, 50, 50),
+	ToggleDisabledOuterStroke = Color3.fromRGB(35, 10, 10),
+
+	DropdownSelected = Color3.fromRGB(40, 13, 13),
+	DropdownUnselected = Color3.fromRGB(26, 9, 9),
+
+	InputBackground = Color3.fromRGB(20, 7, 7),
+	InputStroke = Color3.fromRGB(160, 30, 30),
+	PlaceholderColor = Color3.fromRGB(180, 40, 40)
+},
+Orange = {
+	TextColor = Color3.fromRGB(255, 140, 0),
+
+	Background = Color3.fromRGB(14, 9, 5),
+	Topbar = Color3.fromRGB(24, 15, 8),
+	Shadow = Color3.fromRGB(0, 0, 0),
+
+	NotificationBackground = Color3.fromRGB(22, 13, 7),
+	NotificationActionsBackground = Color3.fromRGB(38, 22, 12),
+
+	TabBackground = Color3.fromRGB(28, 16, 8),
+	TabStroke = Color3.fromRGB(160, 80, 0),
+	TabBackgroundSelected = Color3.fromRGB(255, 140, 0),
+	TabTextColor = Color3.fromRGB(210, 110, 0),
+	SelectedTabTextColor = Color3.fromRGB(14, 9, 5),
+
+	ElementBackground = Color3.fromRGB(26, 14, 7),
+	ElementBackgroundHover = Color3.fromRGB(38, 20, 10),
+	SecondaryElementBackground = Color3.fromRGB(20, 11, 6), 
+	ElementStroke = Color3.fromRGB(130, 65, 0),
+	SecondaryElementStroke = Color3.fromRGB(90, 45, 0),
+
+	SliderBackground = Color3.fromRGB(38, 22, 12),
+	SliderProgress = Color3.fromRGB(255, 140, 0),
+	SliderStroke = Color3.fromRGB(200, 100, 0),
+
+	ToggleBackground = Color3.fromRGB(28, 16, 8),
+	ToggleEnabled = Color3.fromRGB(255, 140, 0),
+	ToggleDisabled = Color3.fromRGB(45, 24, 10),
+	ToggleEnabledStroke = Color3.fromRGB(255, 140, 0),
+	ToggleDisabledStroke = Color3.fromRGB(160, 80, 0),
+	ToggleEnabledOuterStroke = Color3.fromRGB(230, 120, 0),
+	ToggleDisabledOuterStroke = Color3.fromRGB(35, 18, 8),
+
+	DropdownSelected = Color3.fromRGB(40, 20, 10),
+	DropdownUnselected = Color3.fromRGB(26, 14, 7),
+
+	InputBackground = Color3.fromRGB(20, 11, 6),
+	InputStroke = Color3.fromRGB(160, 80, 0),
+	PlaceholderColor = Color3.fromRGB(180, 90, 0)
+},
 	}
 }
 
@@ -537,7 +575,7 @@ end
 
 do
 	local AssetPath = NutriexFolder.."/Assets"
-	local AssetBaseURL = "https://github.com/SiriusSoftwareLtd/Nutriex/blob/main/assets/"
+	local AssetBaseURL = "https://github.com/SiriusSoftwareLtd/Rayfield/blob/main/assets/"
 
 	local assetFiles = {
 		["111263549366178"] = AssetBaseURL.."111263549366178.png?raw=true",
@@ -681,7 +719,7 @@ Nutriex.DisplayOrder = 100
 LoadingFrame.Version.Text = Release
 
 -- Thanks to Latte Softworks for the Lucide integration for Roblox
-local Icons = useStudio and require(script.Parent.icons) or loadWithTimeout('https://raw.githubusercontent.com/SiriusSoftwareLtd/Nutriex/refs/heads/main/icons.lua')
+local Icons = useStudio and require(script.Parent.icons) or loadWithTimeout('https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/refs/heads/main/icons.lua')
 -- Variables
 
 local CFileName = nil
@@ -1202,9 +1240,9 @@ local function Hide(notify: boolean?)
 	Debounce = true
 	if notify then
 		if useMobilePrompt then 
-			NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
+		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
 		else
-			NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "NutriexOpen")) .. ".", Duration = 7, Image = 4400697855})
+		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "NutriexOpen")) .. ".", Duration = 7, Image = 4400697855})
 		end
 	end
 
@@ -3640,220 +3678,12 @@ function NutriexUI:LoadConfiguration()
 		if success and loaded and not notified then
 			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "The configuration file for this script has been loaded from a previous session.", Image = 4384403532})
 		elseif not success and not notified then
-			warn('Nutriex Configurations Error | '..tostring(result))
+			warn('Nutriex Configurations Error | Result: '..tostring(result))
 			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
 		end
 	end
 
 	globalLoaded = true
-end
-
-if useStudio then
-	-- run w/ studio
-	
-	--local Window = NutriexUI:CreateWindow({
-	--	Name = "Nutriex Example Window",
-	--	LoadingTitle = "Nutriex Interface Suite",
-	--	Theme = 'Default',
-	--	Icon = 0,
-	--	LoadingSubtitle = "by Sirius",
-	--	ConfigurationSaving = {
-	--		Enabled = true,
-	--		FolderName = nil, -- Create a custom folder for your hub/game
-	--		FileName = "Big Hub52"
-	--	},
-	--	Discord = {
-	--		Enabled = false,
-	--		Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
-	--		RememberJoins = true -- Set this to false to make them join the discord every time they load it up
-	--	},
-	--	KeySystem = false, -- Set this to true to use our key system
-	--	KeySettings = {
-	--		Title = "Untitled",
-	--		Subtitle = "Key System",
-	--		Note = "No method of obtaining the key is provided",
-	--		FileName = "Key", -- It is recommended to use something unique as other scripts using Nutriex may overwrite your key file
-	--		SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-	--		GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Nutriex to get the key from
-	--		Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-	--	}
-	--})
-
-	--local Tab = Window:CreateTab("Tab Example", 'key-round') -- Title, Image
-	--local Tab2 = Window:CreateTab("Tab Example 2", 4483362458) -- Title, Image
-
-	--local Section = Tab2:CreateSection("Section")
-
-
-	--local ColorPicker = Tab2:CreateColorPicker({
-	--	Name = "Color Picker",
-	--	Color = Color3.fromRGB(255,255,255),
-	--	Flag = "ColorPicfsefker1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Value)
-	--		-- The function that takes place every time the color picker is moved/changed
-	--		-- The variable (Value) is a Color3fromRGB value based on which color is selected
-	--	end
-	--})
-
-	--local Slider = Tab2:CreateSlider({
-	--	Name = "Slider Example",
-	--	Range = {0, 100},
-	--	Increment = 10,
-	--	Suffix = "Bananas",
-	--	CurrentValue = 40,
-	--	Flag = "Slidefefsr1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Value)
-	--		-- The function that takes place when the slider changes
-	--		-- The variable (Value) is a number which correlates to the value the slider is currently at
-	--	end,
-	--})
-
-	--local Input = Tab2:CreateInput({
-	--	Name = "Input Example",
-	--	CurrentValue = '',
-	--	PlaceholderText = "Input Placeholder",
-	--	Flag = 'dawdawd',
-	--	RemoveTextAfterFocusLost = false,
-	--	Callback = function(Text)
-	--		-- The function that takes place when the input is changed
-	--		-- The variable (Text) is a string for the value in the text box
-	--	end,
-	--})
-
-
-	----NutriexUI:Notify({Title = "Nutriex Interface", Content = "Welcome to Nutriex. These - are the brand new notification design for Nutriex, with custom sizing and Nutriex calculated wait times.", Image = 4483362458})
-
-	--local Section = Tab:CreateSection("Section Example")
-
-	--local Button = Tab:CreateButton({
-	--	Name = "Change Theme",
-	--	Callback = function()
-	--		-- The function that takes place when the button is pressed
-	--		Window.ModifyTheme('DarkBlue')
-	--	end,
-	--})
-
-	--local Toggle = Tab:CreateToggle({
-	--	Name = "Toggle Example",
-	--	CurrentValue = false,
-	--	Flag = "Toggle1adwawd", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Value)
-	--		-- The function that takes place when the toggle is pressed
-	--		-- The variable (Value) is a boolean on whether the toggle is true or false
-	--	end,
-	--})
-
-	--local ColorPicker = Tab:CreateColorPicker({
-	--	Name = "Color Picker",
-	--	Color = Color3.fromRGB(255,255,255),
-	--	Flag = "ColorPicker1awd", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Value)
-	--		-- The function that takes place every time the color picker is moved/changed
-	--		-- The variable (Value) is a Color3fromRGB value based on which color is selected
-	--	end
-	--})
-
-	--local Slider = Tab:CreateSlider({
-	--	Name = "Slider Example",
-	--	Range = {0, 100},
-	--	Increment = 10,
-	--	Suffix = "Bananas",
-	--	CurrentValue = 40,
-	--	Flag = "Slider1dawd", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Value)
-	--		-- The function that takes place when the slider changes
-	--		-- The variable (Value) is a number which correlates to the value the slider is currently at
-	--	end,
-	--})
-
-	--local Input = Tab:CreateInput({
-	--	Name = "Input Example",
-	--	CurrentValue = "Helo",
-	--	PlaceholderText = "Adaptive Input",
-	--	RemoveTextAfterFocusLost = false,
-	--	Flag = 'Input1',
-	--	Callback = function(Text)
-	--		-- The function that takes place when the input is changed
-	--		-- The variable (Text) is a string for the value in the text box
-	--	end,
-	--})
-
-	--local thoptions = {}
-	--for themename, theme in pairs(NutriexUI.Theme) do
-	--	table.insert(thoptions, themename)
-	--end
-
-	--local Dropdown = Tab:CreateDropdown({
-	--	Name = "Theme",
-	--	Options = thoptions,
-	--	CurrentOption = {"Default"},
-	--	MultipleOptions = false,
-	--	Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Options)
-	--		--Window.ModifyTheme(Options[1])
-	--		-- The function that takes place when the selected option is changed
-	--		-- The variable (Options) is a table of strings for the current selected options
-	--	end,
-	--})
-
-
-	--Window.ModifyTheme({
-	--	TextColor = Color3.fromRGB(50, 55, 60),
-	--	Background = Color3.fromRGB(240, 245, 250),
-	--	Topbar = Color3.fromRGB(215, 225, 235),
-	--	Shadow = Color3.fromRGB(200, 210, 220),
-
-	--	NotificationBackground = Color3.fromRGB(210, 220, 230),
-	--	NotificationActionsBackground = Color3.fromRGB(225, 230, 240),
-
-	--	TabBackground = Color3.fromRGB(200, 210, 220),
-	--	TabStroke = Color3.fromRGB(180, 190, 200),
-	--	TabBackgroundSelected = Color3.fromRGB(175, 185, 200),
-	--	TabTextColor = Color3.fromRGB(50, 55, 60),
-	--	SelectedTabTextColor = Color3.fromRGB(30, 35, 40),
-
-	--	ElementBackground = Color3.fromRGB(210, 220, 230),
-	--	ElementBackgroundHover = Color3.fromRGB(220, 230, 240),
-	--	SecondaryElementBackground = Color3.fromRGB(200, 210, 220),
-	--	ElementStroke = Color3.fromRGB(190, 200, 210),
-	--	SecondaryElementStroke = Color3.fromRGB(180, 190, 200),
-
-	--	SliderBackground = Color3.fromRGB(200, 220, 235),  -- Lighter shade
-	--	SliderProgress = Color3.fromRGB(70, 130, 180),
-	--	SliderStroke = Color3.fromRGB(150, 180, 220),
-
-	--	ToggleBackground = Color3.fromRGB(210, 220, 230),
-	--	ToggleEnabled = Color3.fromRGB(70, 160, 210),
-	--	ToggleDisabled = Color3.fromRGB(180, 180, 180),
-	--	ToggleEnabledStroke = Color3.fromRGB(60, 150, 200),
-	--	ToggleDisabledStroke = Color3.fromRGB(140, 140, 140),
-	--	ToggleEnabledOuterStroke = Color3.fromRGB(100, 120, 140),
-	--	ToggleDisabledOuterStroke = Color3.fromRGB(120, 120, 130),
-
-	--	DropdownSelected = Color3.fromRGB(220, 230, 240),
-	--	DropdownUnselected = Color3.fromRGB(200, 210, 220),
-
-	--	InputBackground = Color3.fromRGB(220, 230, 240),
-	--	InputStroke = Color3.fromRGB(180, 190, 200),
-	--	PlaceholderColor = Color3.fromRGB(150, 150, 150)
-	--})
-
-	--local Keybind = Tab:CreateKeybind({
-	--	Name = "Keybind Example",
-	--	CurrentKeybind = "Q",
-	--	HoldToInteract = false,
-	--	Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-	--	Callback = function(Keybind)
-	--		-- The function that takes place when the keybind is pressed
-	--		-- The variable (Keybind) is a boolean for whether the keybind is being held or not (HoldToInteract needs to be true)
-	--	end,
-	--})
-
-	--local Label = Tab:CreateLabel("Label Example")
-
-	--local Label2 = Tab:CreateLabel("Warning", 4483362458, Color3.fromRGB(255, 159, 49),  true)
-
-	--local Paragraph = Tab:CreateParagraph({Title = "Paragraph Example", Content = "Paragraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph ExampleParagraph Example"})
 end
 
 if CEnabled and Main:FindFirstChild('Notice') then
