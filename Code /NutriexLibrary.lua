@@ -1,6 +1,10 @@
 --[[
-  Rayfield Modified By CyberX 
+  Rayfield UI Library 
+  -------------------
+  • Modified and Optimized by CyberX 
+  • Created By Sirius
 ]]
+
 local function getService(name)
 	local service = game:GetService(name)
 	return if cloneref then cloneref(service) else service
@@ -18,11 +22,10 @@ local function loadWithTimeout(url: string, timeout: number?): ...any
 	local success, result = false, nil
 
 	local requestThread = task.spawn(function()
-		local fetchSuccess, fetchResult = pcall(game.HttpGet, game, url) -- game:HttpGet(url)
-		-- If the request fails the content can be empty, even if fetchSuccess is true
+		local fetchSuccess, fetchResult = pcall(game.HttpGet, game, url)
 		if not fetchSuccess or #fetchResult == 0 then
 			if #fetchResult == 0 then
-				fetchResult = "Empty response" -- Set the error message
+				fetchResult = "Empty response"
 			end
 			success, result = false, fetchResult
 			requestCompleted = true
@@ -87,8 +90,8 @@ local function secureNotify(wType, title, content)
 	if secureWarnings[wType] then return end
 	secureWarnings[wType] = true
 	task.spawn(function()
-		while not NutriexLibrary or not NutriexLibrary.Notify do task.wait(0.5) end
-		NutriexLibrary:Notify({
+		while not NutriexUI or not NutriexUI.Notify do task.wait(0.5) end
+		NutriexUI:Notify({
 			Title = title,
 			Content = content,
 			Duration = 8,
@@ -96,8 +99,8 @@ local function secureNotify(wType, title, content)
 	end)
 end
 local InterfaceBuild = 'UU2NX'
-local Release = "Build 1.749"
-local RayfieldFolder = "Rayfield"
+local Release = "Version 1.2.9"
+local RayfieldFolder = "Nutriex"
 local ConfigurationFolder = RayfieldFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
 local settingsTable = {
@@ -236,10 +239,10 @@ if debugX then
 	warn('Settings Loaded')
 end
 
-local NutriexLibrary = {
+local NutriexUI = {
 	Flags = {},
 	Theme = {
-		Default = {
+Default = {
 	TextColor = Color3.fromRGB(240, 240, 240),
 
 	Background = Color3.fromRGB(5, 5, 5),
@@ -261,9 +264,9 @@ local NutriexLibrary = {
 	ElementStroke = Color3.fromRGB(25, 25, 25),
 	SecondaryElementStroke = Color3.fromRGB(20, 20, 20),
 
-	SliderBackground = Color3.fromRGB(25, 25, 25),
-	SliderProgress = Color3.fromRGB(255, 255, 255),
-	SliderStroke = Color3.fromRGB(40, 40, 40),
+	SliderBackground = Color3.fromRGB(20, 20, 20),
+	SliderProgress = Color3.fromRGB(50, 50, 50), 
+	SliderStroke = Color3.fromRGB(80, 80, 80),
 
 	ToggleBackground = Color3.fromRGB(12, 12, 12),
 	ToggleEnabled = Color3.fromRGB(255, 255, 255),
@@ -453,7 +456,7 @@ local buildAttempts = 0
 local correctBuild = false
 local warned
 local globalLoaded
-local rayfieldDestroyed = false -- True when NutriexLibrary:Destroy() is called
+local rayfieldDestroyed = false -- True when NutriexUI:Destroy() is called
 
 repeat
 	if Rayfield:FindFirstChild('Build') and Rayfield.Build.Value == InterfaceBuild then
@@ -493,14 +496,14 @@ if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
 		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "Rayfield-Old"
+			Interface.Name = "Nutriex-Library"
 		end
 	end
 elseif not useStudio then
 	for _, Interface in ipairs(CoreGui:GetChildren()) do
 		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "Rayfield-Old"
+			Interface.Name = "Nutriex-Library"
 		end
 	end
 end
@@ -596,7 +599,6 @@ do
 		secureNotify("no_getcustomasset", "Rayfield", "Your executor does not support getcustomasset. Some UI images may not render correctly.")
 	end
 
-
 	Rayfield.Main.Shadow.Image.Image = customAssets[tostring(5587865193)]
 	Rayfield.Main.Topbar.Hide.Image = customAssets[tostring(10137832201)]
 	Rayfield.Main.Topbar.ChangeSize.Image = customAssets[tostring(10137941941)]
@@ -662,11 +664,11 @@ local searchOpen = false
 local Notifications = Rayfield.Notifications
 local keybindConnections = {} -- For storing keybind connections to disconnect when Rayfield is destroyed
 
-local SelectedTheme = NutriexLibrary.Theme.Default
+local SelectedTheme = NutriexUI.Theme.Default
 
 local function ChangeTheme(Theme)
 	if typeof(Theme) == 'string' then
-		SelectedTheme = NutriexLibrary.Theme[Theme]
+		SelectedTheme = NutriexUI.Theme[Theme]
 	elseif typeof(Theme) == 'table' then
 		SelectedTheme = Theme
 	end
@@ -870,7 +872,7 @@ local function LoadConfiguration(Configuration)
 	if not success then warn('Nutriex had an issue decoding the configuration file, please try delete the file and reopen Rayfield.') return end
 
 	-- Iterate through current UI elements' flags
-	for FlagName, Flag in pairs(NutriexLibrary.Flags) do
+	for FlagName, Flag in pairs(NutriexUI.Flags) do
 		local FlagValue = Data[FlagName]
 
 		if (typeof(FlagValue) == 'boolean' and FlagValue == false) or FlagValue then
@@ -888,7 +890,7 @@ local function LoadConfiguration(Configuration)
 		else
 			warn("Nutriex Library | Unable to find '"..FlagName.. "' in the save file.")
 			warn("The error above may not be an issue if new elements have been added or not been set values.")
-			--NutriexLibrary:Notify({Title = "Rayfield Flags", Content = "Rayfield was unable to find '"..FlagName.. "' in the save file. Check sirius.menu/discord for help.", Image = 3944688398})
+			--NutriexUI:Notify({Title = "Rayfield Flags", Content = "Rayfield was unable to find '"..FlagName.. "' in the save file. Check sirius.menu/discord for help.", Image = 3944688398})
 		end
 	end
 
@@ -903,7 +905,7 @@ local function SaveConfiguration()
 	end
 
 	local Data = {}
-	for i, v in pairs(NutriexLibrary.Flags) do
+	for i, v in pairs(NutriexUI.Flags) do
 		if v.Type == "ColorPicker" then
 			Data[i] = PackColor(v.Color)
 		else
@@ -943,7 +945,7 @@ local function SaveConfiguration()
 	callSafely(writefile, ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
 end
 
-function NutriexLibrary:Notify(data) -- action e.g open messages
+function NutriexUI:Notify(data) -- action e.g open messages
 	task.spawn(function()
 
 		-- Notification Object Creation
@@ -1169,9 +1171,9 @@ local function Hide(notify: boolean?)
 	Debounce = true
 	if notify then
 		if useMobilePrompt then 
-		--	NutriexLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
+		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
 		else
-		--	NutriexLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "rayfieldOpen")) .. ".", Duration = 7, Image = 4400697855})
+		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "rayfieldOpen")) .. ".", Duration = 7, Image = 4400697855})
 		end
 	end
 
@@ -1351,14 +1353,14 @@ local function createSettings(window)
 		return
 	end
 
-	local newTab = window:CreateTab('Rayfield Settings', 0, true)
+	local newTab = window:CreateTab('Settings', 0, true)
 
-	if TabList['Rayfield Settings'] then
-		TabList['Rayfield Settings'].LayoutOrder = 1000
+	if TabList['Settings'] then
+		TabList['Settings'].LayoutOrder = 1000
 	end
 
-	if Elements['Rayfield Settings'] then
-		Elements['Rayfield Settings'].LayoutOrder = 1000
+	if Elements['Settings'] then
+		Elements['Settings'].LayoutOrder = 1000
 	end
 
 	-- Create sections and elements
@@ -1421,7 +1423,7 @@ local function fadeOutKeyUI(KeyMain)
 	TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
 end
 
-function NutriexLibrary:CreateWindow(Settings)
+function NutriexUI:CreateWindow(Settings)
 	if Rayfield:FindFirstChild('Loading') then
 		if getgenv and not getgenv().rayfieldCached then
 			Rayfield.Enabled = true
@@ -1437,7 +1439,7 @@ function NutriexLibrary:CreateWindow(Settings)
 	if not correctBuild and not Settings.DisableBuildWarnings then
 		task.delay(3, 
 			function() 
-				NutriexLibrary:Notify({Title = 'Build Mismatch', Content = 'Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.\n\nTry rejoining and then run the script twice.', Image = 4335487866, Duration = 15})		
+				NutriexUI:Notify({Title = 'Build Mismatch', Content = 'Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.\n\nTry rejoining and then run the script twice.', Image = 4335487866, Duration = 15})		
 			end)
 	end
 
@@ -1472,15 +1474,15 @@ function NutriexLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 
 	if Settings.ShowText then
-		MPrompt.Title.Text = 'Show '..Settings.ShowText
+		MPrompt.Title.Text = 'Open '..Settings.ShowText
 	end
 
 	LoadingFrame.Version.TextTransparency = 1
 	LoadingFrame.Title.Text = Settings.LoadingTitle or "Rayfield"
 	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "Interface Suite"
 
-	if Settings.LoadingTitle ~= "Rayfield Interface Suite" then
-		LoadingFrame.Version.Text = "Rayfield UI"
+	if Settings.LoadingTitle ~= "Nutriex Ui library" then
+		LoadingFrame.Version.Text = "Version 1.2.9"
 	end
 
 	if Settings.Icon and Settings.Icon ~= 0 and Topbar:FindFirstChild('Icon') then
@@ -1617,7 +1619,7 @@ function NutriexLibrary:CreateWindow(Settings)
 		if not Passthrough and secureMode then
 			warn("Nutriex Library | Secure Mode: Key system requires a valid saved key. The key UI cannot be shown as it requires loading detectable assets.")
 			Rayfield.Enabled = false
-			return NutriexLibrary
+			return NutriexUI
 		end
 
 		if not Passthrough then
@@ -1714,7 +1716,7 @@ function NutriexLibrary:CreateWindow(Settings)
 					KeyMain.Visible = false
 					if Settings.KeySettings.SaveKey then
 						callSafely(writefile, RayfieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, FoundKey)
-						NutriexLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully.", Image = 3605522284})
+						NutriexUI:Notify({Title = "Key System", Content = "The key for this script has been saved successfully.", Image = 3605522284})
 					end
 				else
 					if AttemptsRemaining == 0 then
@@ -1738,7 +1740,7 @@ function NutriexLibrary:CreateWindow(Settings)
 				fadeOutKeyUI(KeyMain)
 				task.wait(0.51)
 				Passthrough = true
-				NutriexLibrary:Destroy()
+				NutriexUI:Destroy()
 				KeyUI:Destroy()
 			end)
 		else
@@ -1912,7 +1914,7 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			Button.Interact.MouseButton1Click:Connect(function()
 				local Success, Response = pcall(ButtonSettings.Callback)
-				-- Prevents animation from trying to play if the button's callback called NutriexLibrary:Destroy()
+				-- Prevents animation from trying to play if the button's callback called NutriexUI:Destroy()
 				if rayfieldDestroyed then
 					return
 				end
@@ -2018,7 +2020,7 @@ function NutriexLibrary:CreateWindow(Settings)
 					TweenService:Create(ColorPicker.HexInput, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Position = UDim2.new(0, 17, 0, 73)}):Play()
 					TweenService:Create(ColorPicker.Interact, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Size = UDim2.new(0.574, 0, 1, 0)}):Play()
 					TweenService:Create(Main.MainPoint, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-					TweenService:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = SelectedTheme ~= NutriexLibrary.Theme.Default and 0.25 or 0.1}):Play()
+					TweenService:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = SelectedTheme ~= NutriexUI.Theme.Default and 0.25 or 0.1}):Play()
 					TweenService:Create(Background, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 				else
 					opened = false
@@ -2187,7 +2189,7 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
-					NutriexLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
+					NutriexUI.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
 
@@ -2450,7 +2452,7 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and InputSettings.Flag then
-					NutriexLibrary.Flags[InputSettings.Flag] = InputSettings
+					NutriexUI.Flags[InputSettings.Flag] = InputSettings
 				end
 			end
 
@@ -2791,7 +2793,7 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
-					NutriexLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
+					NutriexUI.Flags[DropdownSettings.Flag] = DropdownSettings
 				end
 			end
 
@@ -2923,7 +2925,7 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
-					NutriexLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
+					NutriexUI.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
 
@@ -2950,7 +2952,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			Toggle.Title.TextTransparency = 1
 			Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
 
-			if SelectedTheme ~= NutriexLibrary.Theme.Default then
+			if SelectedTheme ~= NutriexUI.Theme.Default then
 				Toggle.Switch.Shadow.Visible = false
 			end
 
@@ -3075,7 +3077,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			if not ToggleSettings.Ext then
 				if Settings.ConfigurationSaving then
 					if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
-						NutriexLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
+						NutriexUI.Flags[ToggleSettings.Flag] = ToggleSettings
 					end
 				end
 			end
@@ -3084,7 +3086,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 				Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
 
-				if SelectedTheme ~= NutriexLibrary.Theme.Default then
+				if SelectedTheme ~= NutriexUI.Theme.Default then
 					Toggle.Switch.Shadow.Visible = false
 				end
 
@@ -3117,7 +3119,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= NutriexLibrary.Theme.Default then
+			if SelectedTheme ~= NutriexUI.Theme.Default then
 				Slider.Main.Shadow.Visible = false
 			end
 
@@ -3257,12 +3259,12 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					NutriexLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					NutriexUI.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
-				if SelectedTheme ~= NutriexLibrary.Theme.Default then
+				if SelectedTheme ~= NutriexUI.Theme.Default then
 					Slider.Main.Shadow.Visible = false
 				end
 
@@ -3344,9 +3346,9 @@ function NutriexLibrary:CreateWindow(Settings)
 	function Window.ModifyTheme(NewTheme)
 		local success = pcall(ChangeTheme, NewTheme)
 		if not success then
-			NutriexLibrary:Notify({Title = 'Unable to Change Theme', Content = 'We are unable find a theme on file.', Image = 4400704299})
+			NutriexUI:Notify({Title = 'Unable to Change Theme', Content = 'We are unable find a theme on file.', Image = 4400704299})
 		else
-			NutriexLibrary:Notify({Title = 'Theme Changed', Content = 'Successfully changed theme to '..(typeof(NewTheme) == 'string' and NewTheme or 'Custom Theme')..'.', Image = 4483362748})
+			NutriexUI:Notify({Title = 'Theme Changed', Content = 'Successfully changed theme to '..(typeof(NewTheme) == 'string' and NewTheme or 'Custom Theme')..'.', Image = 4483362748})
 		end
 	end
 
@@ -3411,16 +3413,16 @@ local function setVisibility(visibility: boolean, notify: boolean?)
 	end
 end
 
-function NutriexLibrary:SetVisibility(visibility: boolean)
+function NutriexUI:SetVisibility(visibility: boolean)
 	setVisibility(visibility, false)
 end
 
-function NutriexLibrary:IsVisible(): boolean
+function NutriexUI:IsVisible(): boolean
 	return not Hidden
 end
 
 local hideHotkeyConnection -- Has to be initialized here since the connection is made later in the script
-function NutriexLibrary:Destroy()
+function NutriexUI:Destroy()
 	rayfieldDestroyed = true
 	if hideHotkeyConnection then
 		hideHotkeyConnection:Disconnect()
@@ -3511,12 +3513,11 @@ if Topbar:FindFirstChild('Settings') then
 				end
 			end
 
-			Elements.UIPageLayout:JumpTo(Elements['Rayfield Settings'])
+			Elements.UIPageLayout:JumpTo(Elements['Settings'])
 		end)
 	end)
 
 end
-
 
 Topbar.Hide.MouseButton1Click:Connect(function()
 	setVisibility(Hidden, not useMobileSizing)
@@ -3557,8 +3558,7 @@ for _, TopbarButton in ipairs(Topbar:GetChildren()) do
 	end
 end
 
-
-function NutriexLibrary:LoadConfiguration()
+function NutriexUI:LoadConfiguration()
 	local config
 
 	if debugX then
@@ -3585,22 +3585,20 @@ function NutriexLibrary:LoadConfiguration()
 				end
 			else
 				notified = true
-				NutriexLibrary:Notify({Title = "Nutriex Configurations", Content = "We couldn't enable Configuration Saving as you are not using software with filesystem support.", Image = 4384402990})
+				NutriexUI:Notify({Title = "Nutriex Configurations", Content = "We couldn't enable Configuration Saving as you are not using software with filesystem support.", Image = 4384402990})
 			end
 		end)
 
 		if success and loaded and not notified then
-			NutriexLibrary:Notify({Title = "Nutriex Configurations", Content = "The configuration file for this script has been loaded from a previous session.", Image = 4384403532})
+			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "The configuration file for this script has been loaded!", Image = 4384403532})
 		elseif not success and not notified then
 			warn('Nutriex Configurations Error | '..tostring(result))
-			NutriexLibrary:Notify({Title = "Nutriex Configurations", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
+			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
 		end
 	end
 
 	globalLoaded = true
 end
-
-
 
 if useStudio then
 	-- run w/ studio
@@ -3620,7 +3618,7 @@ if CEnabled and Main:FindFirstChild('Notice') then
 end
 
 task.delay(4, function()
-	NutriexLibrary.LoadConfiguration()
+	NutriexUI.LoadConfiguration()
 	if Main:FindFirstChild('Notice') and Main.Notice.Visible then
 		TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 100, 0, 25), Position = UDim2.new(0.5, 0, 0, -100), BackgroundTransparency = 1}):Play()
 		TweenService:Create(Main.Notice.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
@@ -3630,4 +3628,4 @@ task.delay(4, function()
 	end
 end)
 
-return NutriexLibrary
+return NutriexUI
