@@ -100,7 +100,7 @@ local function secureNotify(wType, title, content)
 	end)
 end
 local InterfaceBuild = 'UU2NX'
-local Release = "Build 1.749"
+local Release = "Version 1.2.9"
 local RayfieldFolder = "Rayfield"
 local ConfigurationFolder = RayfieldFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
@@ -1476,7 +1476,7 @@ function NutriexLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 
 	if Settings.ShowText then
-		MPrompt.Title.Text = 'Show '..Settings.ShowText
+		MPrompt.Title.Text = 'Open '..Settings.ShowText
 	end
 
 	LoadingFrame.Version.TextTransparency = 1
@@ -3116,32 +3116,18 @@ function NutriexLibrary:CreateWindow(Settings)
 			Slider.Visible = true
 			Slider.Parent = TabPage
 
-			-- CORREÇÃO 1: Evita que a pílula/indicador vaze para fora do card do Slider
-			Slider.ClipsDescendants = true
-			if Slider:FindFirstChild("Main") then
-				Slider.Main.ClipsDescendants = false -- Permite que a pílula navegue na barra sem ser cortada internamente
-			end
-
 			Slider.BackgroundTransparency = 1
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= NutriexLibrary.Theme.Default then
-				if Slider.Main:FindFirstChild("Shadow") then
-					Slider.Main.Shadow.Visible = false
-				end
+			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+				Slider.Main.Shadow.Visible = false
 			end
 
 			Slider.Main.BackgroundColor3 = SelectedTheme.SliderBackground
 			Slider.Main.UIStroke.Color = SelectedTheme.SliderStroke
 			Slider.Main.Progress.UIStroke.Color = SelectedTheme.SliderStroke
 			Slider.Main.Progress.BackgroundColor3 = SelectedTheme.SliderProgress
-
-			-- CORREÇÃO 2: Garante alinhamento central da pílula de informação na vertical
-			if Slider.Main:FindFirstChild("Information") then
-				Slider.Main.Information.AnchorPoint = Vector2.new(0.5, 0.5)
-				Slider.Main.Information.Position = UDim2.new(1, 0, 0.5, 0) -- Centraliza no centro do eixo Y
-			end
 
 			TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 			TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
@@ -3226,7 +3212,6 @@ function NutriexLibrary:CreateWindow(Settings)
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Error while running!"
 								warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
-								 
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3259,7 +3244,7 @@ function NutriexLibrary:CreateWindow(Settings)
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Slider.Title.Text = "Error while running!"
-					warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
+								warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
 					task.wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3274,15 +3259,13 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					NutriexLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
-				if SelectedTheme ~= NutriexLibrary.Theme.Default then
-					if Slider.Main:FindFirstChild("Shadow") then
-						Slider.Main.Shadow.Visible = false
-					end
+				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+					Slider.Main.Shadow.Visible = false
 				end
 
 				Slider.Main.BackgroundColor3 = SelectedTheme.SliderBackground
@@ -3294,7 +3277,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			return SliderSettings
 		end
 
-Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
+		Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 			TabButton.UIStroke.Color = SelectedTheme.TabStroke
 
 			if Elements.UIPageLayout.CurrentPage == TabPage then
@@ -3307,6 +3290,7 @@ Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 				TabButton.Title.TextColor3 = SelectedTheme.TabTextColor
 			end
 		end)
+
 		return Tab
 	end
 
