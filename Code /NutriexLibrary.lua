@@ -243,7 +243,7 @@ end
 local NutriexLibrary = {
 	Flags = {},
 	Theme = {
-		Default = {
+Default = {
 	TextColor = Color3.fromRGB(240, 240, 240),
 
 	Background = Color3.fromRGB(5, 5, 5),
@@ -497,14 +497,14 @@ if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
 		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "Rayfield-Old"
+			Interface.Name = "Nutriex-Library"
 		end
 	end
 elseif not useStudio then
 	for _, Interface in ipairs(CoreGui:GetChildren()) do
 		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "Rayfield-Old"
+			Interface.Name = "Nutriex-Library"
 		end
 	end
 end
@@ -2651,7 +2651,7 @@ function NutriexLibrary:CreateWindow(Settings)
 							TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Dropdown.Title.Text = "Error while running!"
 							warn("Nutriex Debug | "..DropdownSettings.Name.." Error Results: " ..tostring(Response))
-							warn('Check docs.sirius.menu for help with Rayfield specific development.')
+							 
 							task.wait(0.5)
 							Dropdown.Title.Text = DropdownSettings.Name
 							TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2885,7 +2885,6 @@ function NutriexLibrary:CreateWindow(Settings)
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Keybind.Title.Text = "Error while running!"
 							warn("Nutriex Debug | "..KeybindSettings.Name.." Error Results: " ..tostring(Response))
-							warn('Check docs.sirius.menu for help with Rayfield specific development.')
 							task.wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3213,7 +3212,7 @@ function NutriexLibrary:CreateWindow(Settings)
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Error while running!"
 								warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
-								warn('Check docs.sirius.menu for help with Rayfield specific development.')
+								 
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3603,8 +3602,6 @@ function NutriexLibrary:LoadConfiguration()
 
 	globalLoaded = true
 end
-
-
 
 if useStudio then
 	-- run w/ studio
