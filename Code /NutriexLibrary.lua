@@ -100,7 +100,7 @@ local function secureNotify(wType, title, content)
 	end)
 end
 local InterfaceBuild = 'UU2NX'
-local Release = "Version 1.2.9"
+local Release = "Build 1.749"
 local RayfieldFolder = "Rayfield"
 local ConfigurationFolder = RayfieldFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
@@ -266,8 +266,8 @@ Default = {
 	SecondaryElementStroke = Color3.fromRGB(20, 20, 20),
 
 	SliderBackground = Color3.fromRGB(25, 25, 25),
-	SliderProgress = Color3.fromRGB(50, 50, 50),
-	SliderStroke = Color3.fromRGB(40, 40, 40),
+	SliderProgress = Color3.fromRGB(255, 255, 255),
+	SliderStroke = Color3.fromRGB(10, 10, 10),
 
 	ToggleBackground = Color3.fromRGB(12, 12, 12),
 	ToggleEnabled = Color3.fromRGB(255, 255, 255),
@@ -1476,7 +1476,7 @@ function NutriexLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 
 	if Settings.ShowText then
-		MPrompt.Title.Text = 'Open '..Settings.ShowText
+		MPrompt.Title.Text = 'Show '..Settings.ShowText
 	end
 
 	LoadingFrame.Version.TextTransparency = 1
@@ -3107,7 +3107,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			return ToggleSettings
 		end
 
-				-- Slider
+		-- Slider
 		function Tab:CreateSlider(SliderSettings)
 			local SLDragging = false
 			local Slider = Elements.Template.Slider:Clone()
@@ -3120,7 +3120,7 @@ function NutriexLibrary:CreateWindow(Settings)
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+			if SelectedTheme ~= NutriexLibrary.Theme.Default then
 				Slider.Main.Shadow.Visible = false
 			end
 
@@ -3212,6 +3212,7 @@ function NutriexLibrary:CreateWindow(Settings)
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Error while running!"
 								warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
+								 
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3244,7 +3245,7 @@ function NutriexLibrary:CreateWindow(Settings)
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Slider.Title.Text = "Error while running!"
-								warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
 					task.wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3259,12 +3260,12 @@ function NutriexLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					NutriexLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
-				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+				if SelectedTheme ~= NutriexLibrary.Theme.Default then
 					Slider.Main.Shadow.Visible = false
 				end
 
@@ -3290,9 +3291,9 @@ function NutriexLibrary:CreateWindow(Settings)
 				TabButton.Title.TextColor3 = SelectedTheme.TabTextColor
 			end
 		end)
-
+		
 		return Tab
-	end
+	endnd
 
 	Elements.Visible = true
 
