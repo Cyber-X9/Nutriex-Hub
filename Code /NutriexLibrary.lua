@@ -9,8 +9,6 @@ local TweenService = getService("TweenService")
 local Players = getService("Players")
 local CoreGui = getService("CoreGui")
 
--- Loads and executes a function hosted on a remote URL. Cancels the request if the requested URL takes too long to respond.
--- Errors with the function are caught and logged to the output
 local function loadWithTimeout(url: string, timeout: number?): ...any
 	assert(type(url) == "string", "Expected string, got " .. type(url))
 	timeout = timeout or 5
@@ -96,25 +94,19 @@ local function secureNotify(wType, title, content)
 	end)
 end
 local InterfaceBuild = 'UU2NX'
-local Release = "Version 1.210"
+local Release = "Build 1.749"
 local NutriexFolder = "Nutriex"
 local ConfigurationFolder = NutriexFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
 local settingsTable = {
 	General = {
-		-- if needs be in order just make getSetting(name)
 		NutriexOpen = {Type = 'bind', Value = 'K', Name = 'Nutriex Keybind'},
-		-- buildwarnings
-		-- Nutriexprompts
-
 	},
 	System = {
 		usageAnalytics = {Type = 'toggle', Value = true, Name = 'Anonymised Analytics'},
 	}
 }
 
--- Settings that have been overridden by the developer. These will not be saved to the user's configuration file
--- Overridden settings always take precedence over settings in the configuration file, and are cleared if the user changes the setting in the UI
 local overriddenSettings: { [string]: any } = {} -- For example, overriddenSettings["System.NutriexOpen"] = "J"
 local function overrideSetting(category: string, name: string, value: any)
 	overriddenSettings[category .. "." .. name] = value
@@ -128,7 +120,6 @@ local function getSetting(category: string, name: string): any
 	end
 end
 
--- If requests/analytics have been disabled by developer, set the user-facing setting to false as well
 if requestsDisabled then
 	overrideSetting("System", "usageAnalytics", false)
 end
@@ -152,9 +143,6 @@ if not prompt and not useStudio then
 	}
 end
 
-
--- The function below provides a safe alternative for calling error-prone functions
--- Especially useful for filesystem function (writefile, makefolder, etc.)
 local function callSafely(func, ...)
 	if func then
 		local success, result = pcall(func, ...)
@@ -250,10 +238,6 @@ loadSettings()
 
 if debugX then
 	warn('Settings Loaded')
-end
-
-if debugX then
-	warn('Moving on to continue initialisation')
 end
 
 local NutriexUI = {
@@ -509,7 +493,7 @@ Orange = {
 	}
 }
 
--- Interface Management
+-- Rayfield Modified By CyberX!
 
 local NutriexAssetId = customAssetId or 10804731440
 local Nutriex = useStudio and script.Parent:FindFirstChild('Nutriex') or game:GetObjects("rbxassetid://"..NutriexAssetId)[1]
@@ -1240,9 +1224,9 @@ local function Hide(notify: boolean?)
 	Debounce = true
 	if notify then
 		if useMobilePrompt then 
-		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
+			--NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
 		else
-		--	NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "NutriexOpen")) .. ".", Duration = 7, Image = 4400697855})
+			--NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "NutriexOpen")) .. ".", Duration = 7, Image = 4400697855})
 		end
 	end
 
@@ -1544,7 +1528,7 @@ function NutriexUI:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 
 	if Settings.ShowText then
-		MPrompt.Title.Text = 'Open '..Settings.ShowText
+		MPrompt.Title.Text = 'Show '..Settings.ShowText
 	end
 
 	LoadingFrame.Version.TextTransparency = 1
@@ -1552,7 +1536,7 @@ function NutriexUI:CreateWindow(Settings)
 	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "Interface Suite"
 
 	if Settings.LoadingTitle ~= "Nutriex Interface Suite" then
-		LoadingFrame.Version.Text = "v1.2.0"
+		LoadingFrame.Version.Text = "Nutriex UI"
 	end
 
 	if Settings.Icon and Settings.Icon ~= 0 and Topbar:FindFirstChild('Icon') then
@@ -1591,16 +1575,6 @@ function NutriexUI:CreateWindow(Settings)
 	Topbar.Visible = false
 	Elements.Visible = false
 	LoadingFrame.Visible = true
-
-	if not Settings.DisableNutriexPrompts then
-		task.spawn(function()
-			while not NutriexDestroyed do
-				task.wait(math.random(180, 600))
-				if NutriexDestroyed then break end
-			--print("NAH")
-			end
-		end)
-	end
 
 	pcall(function()
 		if not Settings.ConfigurationSaving.FileName then
@@ -1803,7 +1777,8 @@ function NutriexUI:CreateWindow(Settings)
 					if AttemptsRemaining == 0 then
 						fadeOutKeyUI(KeyMain)
 						task.wait(0.45)
-						NutriexUI:Notify({Title = "Key System", Content = "No Attempts Remaining", Image = 0})
+						Players.LocalPlayer:Kick("No Attempts Remaining")
+						game:Shutdown()
 					end
 					KeyMain.Input.InputBox.Text = ""
 					AttemptsRemaining = AttemptsRemaining - 1
@@ -2003,8 +1978,9 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Button.ElementIndicator, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Button.Title.Text = "Callback Error"
-					warn("Nutriex | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+					Button.Title.Text = "Error while running!"
+					warn("Nutriex | "..ButtonSettings.Name.." Result: " ..tostring(Response))
+					
 					task.wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2489,8 +2465,8 @@ function NutriexUI:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Input.Title.Text = "Callback Error"
-					warn("Nutriex | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+					Input.Title.Text = "Error while running!"
+					warn("Nutriex | "..InputSettings.Name.." Result: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Input.Title.Text = InputSettings.Name
@@ -2729,8 +2705,8 @@ function NutriexUI:CreateWindow(Settings)
 						if not Success then
 							TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Dropdown.Title.Text = "Callback Error"
-							warn("Nutriex | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+							Dropdown.Title.Text = "Error while running!"
+							warn("Nutriex | "..DropdownSettings.Name.." Result: " ..tostring(Response))
 							
 							task.wait(0.5)
 							Dropdown.Title.Text = DropdownSettings.Name
@@ -2819,8 +2795,8 @@ function NutriexUI:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Dropdown.Title.Text = "Callback Error"
-					warn("Nutriex | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+					Dropdown.Title.Text = "Error while running!"
+					warn("Nutriex | "..DropdownSettings.Name.." Result: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
@@ -2964,8 +2940,8 @@ function NutriexUI:CreateWindow(Settings)
 						if not Success then
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Keybind.Title.Text = "Callback Error"
-							warn("Nutriex | "..KeybindSettings.Name.." Callback Error " ..tostring(Response))
+							Keybind.Title.Text = "Error while running!"
+							warn("Nutriex | "..KeybindSettings.Name.." Result: " ..tostring(Response))
 							
 							task.wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
@@ -3095,8 +3071,8 @@ function NutriexUI:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					warn("Nutriex | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					Toggle.Title.Text = "Error while running!"
+					warn("Nutriex | "..ToggleSettings.Name.." Result: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
@@ -3145,8 +3121,8 @@ function NutriexUI:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					warn("Nutriex | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					Toggle.Title.Text = "Error while running!"
+					warn("Nutriex | "..ToggleSettings.Name.." Result: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
@@ -3294,8 +3270,8 @@ function NutriexUI:CreateWindow(Settings)
 							if not Success then
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Slider.Title.Text = "Callback Error"
-								warn("Nutriex | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+								Slider.Title.Text = "Error while running!"
+								warn("Nutriex | "..SliderSettings.Name.." Result: " ..tostring(Response))
 								
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
@@ -3328,8 +3304,9 @@ function NutriexUI:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Slider.Title.Text = "Callback Error"
-					warn("Nutriex | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+					Slider.Title.Text = "Error while running!"
+					warn("Nutriex | "..SliderSettings.Name.." Result: " ..tostring(Response))
+					
 					task.wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3380,6 +3357,7 @@ function NutriexUI:CreateWindow(Settings)
 	end
 
 	Elements.Visible = true
+
 
 	task.wait(1.1)
 	TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 390, 0, 90)}):Play()
@@ -3678,7 +3656,7 @@ function NutriexUI:LoadConfiguration()
 		if success and loaded and not notified then
 			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "The configuration file for this script has been loaded from a previous session.", Image = 4384403532})
 		elseif not success and not notified then
-			warn('Nutriex Configurations Error | Result: '..tostring(result))
+			warn('Nutriex Configurations Error | '..tostring(result))
 			NutriexUI:Notify({Title = "Nutriex Configurations", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
 		end
 	end
@@ -3686,17 +3664,6 @@ function NutriexUI:LoadConfiguration()
 	globalLoaded = true
 end
 
-if CEnabled and Main:FindFirstChild('Notice') then
-	Main.Notice.BackgroundTransparency = 1
-	Main.Notice.Title.TextTransparency = 1
-	Main.Notice.Size = UDim2.new(0, 0, 0, 0)
-	Main.Notice.Position = UDim2.new(0.5, 0, 0, -100)
-	Main.Notice.Visible = true
-
-
-	TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 280, 0, 35), Position = UDim2.new(0.5, 0, 0, -50), BackgroundTransparency = 0.5}):Play()
-	TweenService:Create(Main.Notice.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0.1}):Play()
-end
 task.delay(4, function()
 	NutriexUI.LoadConfiguration()
 	if Main:FindFirstChild('Notice') and Main.Notice.Visible then
