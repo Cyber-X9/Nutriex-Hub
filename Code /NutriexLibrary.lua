@@ -1,16 +1,9 @@
---[[
-  Rayfield UI Library 
-  -------------------
-  [+] Modified and Optimized by CyberX 
-          -------------
-  [+] Version 1.2.9 
-]]
-
 local function getService(name)
 	local service = game:GetService(name)
 	return if cloneref then cloneref(service) else service
 end
 
+-- Services
 local UserInputService = getService("UserInputService")
 local TweenService = getService("TweenService")
 local Players = getService("Players")
@@ -77,7 +70,7 @@ if secureMode then
 	local _error = error
 	local _assert = assert
 	warn = function(...) end
-	print = function(...) end
+	warn = function(...) end
 	error = function(_, level) _error("", level) end
 	assert = function(v, ...) return _assert(v) end
 end
@@ -89,8 +82,8 @@ local function secureNotify(wType, title, content)
 	if secureWarnings[wType] then return end
 	secureWarnings[wType] = true
 	task.spawn(function()
-		while not RayfieldLibrary or not RayfieldLibrary.Notify do task.wait(0.5) end
-		RayfieldLibrary:Notify({
+		while not NutriexLibrary or not NutriexLibrary.Notify do task.wait(0.5) end
+		NutriexLibrary:Notify({
 			Title = title,
 			Content = content,
 			Duration = 8,
@@ -104,13 +97,14 @@ local ConfigurationFolder = RayfieldFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
 local settingsTable = {
 	General = {
-		rayfieldOpen = {Type = 'bind', Value = 'K', Name = 'Nutriex Keybind'},
-	}
+		rayfieldOpen = {Type = 'bind', Value = 'K', Name = 'Rayfield Keybind'},
+	},
 	System = {
 		usageAnalytics = {Type = 'toggle', Value = true, Name = 'Anonymised Analytics'},
 	}
 }
-local overriddenSettings: { [string]: any } = {}
+
+local overriddenSettings: { [string]: any } = {} 
 local function overrideSetting(category: string, name: string, value: any)
 	overriddenSettings[category .. "." .. name] = value
 end
@@ -130,6 +124,7 @@ end
 local HttpService = getService('HttpService')
 local RunService = getService('RunService')
 
+-- Environment Check
 local useStudio = RunService:IsStudio() or false
 
 local settingsCreated = false
@@ -140,7 +135,7 @@ local requestFunc = (syn and syn.request) or (fluxus and fluxus.request) or (htt
 if not prompt and not useStudio then
 	warn("Failed to load prompt library, using fallback")
 	prompt = {
-		create = function() end -- No-op fallback
+		create = function() end 
 	}
 end
 
@@ -148,7 +143,7 @@ local function callSafely(func, ...)
 	if func then
 		local success, result = pcall(func, ...)
 		if not success then
-			warn("Nutriex | Function failed with error: ", result)
+			warn("Nutriex Interface | Function failed with error: ", result)
 			return false
 		else
 			return result
@@ -156,6 +151,7 @@ local function callSafely(func, ...)
 	end
 end
 
+-- Ensures a folder exists by creating it if needed
 local function ensureFolder(folderPath)
 	if isfolder and not callSafely(isfolder, folderPath) then
 		callSafely(makefolder, folderPath)
@@ -175,8 +171,8 @@ local function loadSettings()
 		-- for debug in studio
 		if useStudio then
 			file = [[
-	{"General":{"rayfieldOpen":{"Value":"K","Type":"bind","Name":"Rayfield Keybind","Element":{"HoldToInteract":false,"Ext":true,"Name":"Rayfield Keybind","Set":null,"CallOnChange":true,"Callback":null,"CurrentKeybind":"K"}}},"System":{"usageAnalytics":{"Value":false,"Type":"toggle","Name":"Anonymised Analytics","Element":{"Ext":true,"Name":"Anonymised Analytics","Set":null,"CurrentValue":false,"Callback":null}}}}
-]]
+	        {"General":{"rayfieldOpen":{"Value":"K","Type":"bind","Name":"Rayfield Keybind","Element":{"HoldToInteract":false,"Ext":true,"Name":"Rayfield Keybind","Set":null,"CallOnChange":true,"Callback":null,"CurrentKeybind":"K"}}},"System":{"usageAnalytics":{"Value":false,"Type":"toggle","Name":"Anonymised Analytics","Element":{"Ext":true,"Name":"Anonymised Analytics","Set":null,"CurrentValue":false,"Callback":null}}}}
+           ]]
 		end
 
 		if file then
@@ -190,11 +186,14 @@ local function loadSettings()
 			file = {}
 		end
 
+
 		if not settingsCreated then
 			return
 		end
 
+		-- Check if settings file has any entries
 		if next(file) ~= nil then
+			-- If it does, apply them
 			for categoryName, categoryTable in file do
 				for settingName, setting in categoryTable do
 					local default = settingsTable[categoryName] and settingsTable[categoryName][settingName]
@@ -202,13 +201,14 @@ local function loadSettings()
 					local settingType = typeof(default.Value)
 					-- Make sure setting has the correct type
 					if not (settingType == typeof(setting.Value)) then
-						warn("Nutriex | Error parsing settings file. '"..settingName.."' must be a "..settingType)
+						warn("Nutriex Interface | Error parsing settings file. '"..settingName.."' must be a "..settingType)
 						continue
 					end
 					default.Value = setting.Value
 				end
 			end
 		end
+		-- Apply the actual setting value to UI elements
 		for categoryName, categoryTable in settingsTable do
 			for settingName, setting in categoryTable do
 				if setting.Element then
@@ -236,10 +236,10 @@ if debugX then
 	warn('Settings Loaded')
 end
 
-local RayfieldLibrary = {
+local NutriexLibrary = {
 	Flags = {},
 	Theme = {
-Default = {
+		Default = {
 	TextColor = Color3.fromRGB(240, 240, 240),
 
 	Background = Color3.fromRGB(5, 5, 5),
@@ -362,88 +362,6 @@ Red = {
 	InputStroke = Color3.fromRGB(60, 45, 45), 
 	PlaceholderColor = Color3.fromRGB(160, 150, 150)
 },
-Orange = {
-	TextColor = Color3.fromRGB(230, 230, 230),
-
-	Background = Color3.fromRGB(25, 21, 18),
-	Topbar = Color3.fromRGB(36, 30, 24),
-	Shadow = Color3.fromRGB(18, 14, 12),
-
-	NotificationBackground = Color3.fromRGB(34, 27, 22),
-	NotificationActionsBackground = Color3.fromRGB(56, 45, 36),
-
-	TabBackground = Color3.fromRGB(44, 35, 28),
-	TabStroke = Color3.fromRGB(62, 48, 38),
-	TabBackgroundSelected = Color3.fromRGB(110, 55, 20),
-	TabTextColor = Color3.fromRGB(200, 200, 200),
-	SelectedTabTextColor = Color3.fromRGB(255, 255, 255),
-
-	ElementBackground = Color3.fromRGB(40, 31, 24),
-	ElementBackgroundHover = Color3.fromRGB(52, 41, 32),
-	SecondaryElementBackground = Color3.fromRGB(44, 35, 28), 
-	ElementStroke = Color3.fromRGB(62, 48, 38),
-	SecondaryElementStroke = Color3.fromRGB(54, 42, 32),
-
-	SliderBackground = Color3.fromRGB(180, 75, 0),
-	SliderProgress = Color3.fromRGB(220, 100, 20),
-	SliderStroke = Color3.fromRGB(245, 125, 45),
-
-	ToggleBackground = Color3.fromRGB(44, 35, 28),
-	ToggleEnabled = Color3.fromRGB(220, 100, 20),
-	ToggleDisabled = Color3.fromRGB(80, 72, 68),
-	ToggleEnabledStroke = Color3.fromRGB(245, 125, 45),
-	ToggleDisabledStroke = Color3.fromRGB(86, 78, 72),
-	ToggleEnabledOuterStroke = Color3.fromRGB(180, 75, 0), 
-	ToggleDisabledOuterStroke = Color3.fromRGB(66, 58, 52),
-
-	DropdownSelected = Color3.fromRGB(95, 48, 20),
-	DropdownUnselected = Color3.fromRGB(34, 27, 22),
-
-	InputBackground = Color3.fromRGB(34, 27, 22),
-	InputStroke = Color3.fromRGB(62, 48, 38), 
-	PlaceholderColor = Color3.fromRGB(165, 155, 150)
-},
-Green = {
-	TextColor = Color3.fromRGB(230, 230, 230),
-
-	Background = Color3.fromRGB(18, 25, 20),
-	Topbar = Color3.fromRGB(24, 36, 28),
-	Shadow = Color3.fromRGB(12, 18, 14),
-
-	NotificationBackground = Color3.fromRGB(22, 34, 26),
-	NotificationActionsBackground = Color3.fromRGB(36, 56, 42),
-
-	TabBackground = Color3.fromRGB(28, 44, 34),
-	TabStroke = Color3.fromRGB(38, 62, 46),
-	TabBackgroundSelected = Color3.fromRGB(25, 100, 50),
-	TabTextColor = Color3.fromRGB(200, 200, 200),
-	SelectedTabTextColor = Color3.fromRGB(255, 255, 255),
-
-	ElementBackground = Color3.fromRGB(24, 40, 30),
-	ElementBackgroundHover = Color3.fromRGB(32, 52, 38),
-	SecondaryElementBackground = Color3.fromRGB(28, 44, 34), 
-	ElementStroke = Color3.fromRGB(38, 62, 46),
-	SecondaryElementStroke = Color3.fromRGB(32, 54, 40),
-
-	SliderBackground = Color3.fromRGB(0, 150, 60),
-	SliderProgress = Color3.fromRGB(20, 180, 80),
-	SliderStroke = Color3.fromRGB(45, 210, 105),
-
-	ToggleBackground = Color3.fromRGB(28, 44, 34),
-	ToggleEnabled = Color3.fromRGB(20, 180, 80),
-	ToggleDisabled = Color3.fromRGB(68, 80, 72),
-	ToggleEnabledStroke = Color3.fromRGB(45, 210, 105),
-	ToggleDisabledStroke = Color3.fromRGB(72, 86, 78),
-	ToggleEnabledOuterStroke = Color3.fromRGB(0, 150, 60), 
-	ToggleDisabledOuterStroke = Color3.fromRGB(52, 66, 56),
-
-	DropdownSelected = Color3.fromRGB(20, 85, 45),
-	DropdownUnselected = Color3.fromRGB(22, 34, 26),
-
-	InputBackground = Color3.fromRGB(22, 34, 26),
-	InputStroke = Color3.fromRGB(38, 62, 46), 
-	PlaceholderColor = Color3.fromRGB(150, 165, 155)
-       },
 	}
 }
 
@@ -453,7 +371,7 @@ local buildAttempts = 0
 local correctBuild = false
 local warned
 local globalLoaded
-local rayfieldDestroyed = false -- True when RayfieldLibrary:Destroy() is called
+local rayfieldDestroyed = false -- True when NutriexLibrary:Destroy() is called
 
 repeat
 	if Rayfield:FindFirstChild('Build') and Rayfield.Build.Value == InterfaceBuild then
@@ -465,7 +383,7 @@ repeat
 
 	if not warned then
 		warn('Nutriex | Build Mismatch')
-		print('Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.')
+		warn('Nutriex may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.')
 		warned = true
 	end
 
@@ -545,7 +463,6 @@ do
 		local ok, err = pcall(function()
 			ensureFolder(RayfieldFolder)
 			ensureFolder(AssetPath)
-
 			local attempted = {}
 			local function nextToFetch()
 				for id, _ in assetFiles do
@@ -566,7 +483,6 @@ do
 						if ok and type(res) == "table" and type(res.Body) == "string" and #res.Body > 0 then
 							pcall(writefile, AssetPath.."/"..tostring(id)..".png", res.Body)
 						end
-						-- mark after the attempt so the poll waits for real downloads but still skips a dead asset
 						attempted[id] = true
 						task.wait()
 					end
@@ -582,19 +498,18 @@ do
 				if success then
 					customAssets[tostring(id)] = asset
 				else
-					warn("Nutriex | Failed to load custom asset: "..tostring(id).." - "..tostring(asset))
+					warn("Nutriex Interface | Failed to load custom asset: "..tostring(id).." - "..tostring(asset))
 				end
 			end
 		end)
 
 		if not ok then
-			warn("Nutriex | Failed to load custom assets: "..tostring(err))
+			warn("Nutriex Interface | Failed to load custom assets: "..tostring(err))
 			secureNotify("asset_load_fail", "Rayfield", "Failed to load custom assets. UI images may not display correctly.")
 		end
 	else
 		secureNotify("no_getcustomasset", "Rayfield", "Your executor does not support getcustomasset. Some UI images may not render correctly.")
 	end
-
 
 	Rayfield.Main.Shadow.Image.Image = customAssets[tostring(5587865193)]
 	Rayfield.Main.Topbar.Hide.Image = customAssets[tostring(10137832201)]
@@ -634,6 +549,8 @@ if UserInputService.TouchEnabled then
 	useMobilePrompt = true
 end
 
+-- Object Variables
+
 local Main = Rayfield.Main
 local MPrompt = Rayfield:FindFirstChild('Prompt')
 local Topbar = Main.Topbar
@@ -657,15 +574,15 @@ local CEnabled = false
 local Minimised = false
 local Hidden = false
 local Debounce = false
-local searchOpen = false
+local SearchOpen = false
 local Notifications = Rayfield.Notifications
 local keybindConnections = {} -- For storing keybind connections to disconnect when Rayfield is destroyed
 
-local SelectedTheme = RayfieldLibrary.Theme.Default
+local SelectedTheme = NutriexLibrary.Theme.Default
 
 local function ChangeTheme(Theme)
 	if typeof(Theme) == 'string' then
-		SelectedTheme = RayfieldLibrary.Theme[Theme]
+		SelectedTheme = NutriexLibrary.Theme[Theme]
 	elseif typeof(Theme) == 'table' then
 		SelectedTheme = Theme
 	end
@@ -744,9 +661,9 @@ local function getAssetUri(id: any): string
 	if type(id) == "number" then
 		assetUri = "rbxassetid://" .. id
 	elseif type(id) == "string" and not Icons then
-		warn("Nutriex | Cannot use Lucide icons as icons library is not loaded")
+		warn("Nutriex Interface | Cannot use Lucide icons as icons library is not loaded")
 	else
-		warn("Nutriex | The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
+		warn("Nutriex Interface | The icon argument must either be an icon ID (number) or a Lucide icon name (string)")
 	end
 	return assetUri
 end
@@ -869,7 +786,7 @@ local function LoadConfiguration(Configuration)
 	if not success then warn('Nutriex had an issue decoding the configuration file, please try delete the file and reopen Rayfield.') return end
 
 	-- Iterate through current UI elements' flags
-	for FlagName, Flag in pairs(RayfieldLibrary.Flags) do
+	for FlagName, Flag in pairs(NutriexLibrary.Flags) do
 		local FlagValue = Data[FlagName]
 
 		if (typeof(FlagValue) == 'boolean' and FlagValue == false) or FlagValue then
@@ -885,8 +802,9 @@ local function LoadConfiguration(Configuration)
 				end
 			end)
 		else
-			warn("Nutriex | Unable to find '"..FlagName.. "' in the save file.")
-			print("The error above may not be an issue if new elements have been added or not been set values.")
+			warn("Nutriex Interface | Unable to find '"..FlagName.. "' in the save file.")
+			warn("The error above may not be an issue if new elements have been added or not been set values.")
+			--NutriexLibrary:Notify({Title = "Rayfield Flags", Content = "Rayfield was unable to find '"..FlagName.. "' in the save file. Check sirius.menu/discord for help.", Image = 3944688398})
 		end
 	end
 
@@ -897,11 +815,11 @@ local function SaveConfiguration()
 	if not CEnabled or not globalLoaded then return end
 
 	if debugX then
-		print('Saving')
+		warn('Saving')
 	end
 
 	local Data = {}
-	for i, v in pairs(RayfieldLibrary.Flags) do
+	for i, v in pairs(NutriexLibrary.Flags) do
 		if v.Type == "ColorPicker" then
 			Data[i] = PackColor(v.Color)
 		else
@@ -941,17 +859,15 @@ local function SaveConfiguration()
 	callSafely(writefile, ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
 end
 
-function RayfieldLibrary:Notify(data) -- action e.g open messages
+function NutriexLibrary:Notify(data) 
 	task.spawn(function()
 
-		-- Notification Object Creation
 		local newNotification = Notifications.Template:Clone()
 		newNotification.Name = data.Title or 'No Title Provided'
 		newNotification.Parent = Notifications
 		newNotification.LayoutOrder = #Notifications:GetChildren()
 		newNotification.Visible = false
 
-		-- Set Data
 		newNotification.Title.Text = data.Title or "Unknown Title"
 		newNotification.Description.Text = data.Content or "Unknown Content"
 
@@ -963,7 +879,7 @@ function RayfieldLibrary:Notify(data) -- action e.g open messages
 		else
 			newNotification.Icon.Image = ""
 		end
-
+		
 		newNotification.Title.TextColor3 = SelectedTheme.TextColor
 		newNotification.Description.TextColor3 = SelectedTheme.TextColor
 		newNotification.BackgroundColor3 = SelectedTheme.Background
@@ -985,7 +901,7 @@ function RayfieldLibrary:Notify(data) -- action e.g open messages
 
 		if data.Actions then
 			warn('Nutriex | Not seeing your actions in notifications?')
-			print("Notification Actions are being sunset for now, keep up to date on when they're back in the discord. (sirius.menu/discord)")
+			warn("Notification Actions are being sunset for now, keep up to date on when they're back in the discord. (sirius.menu/discord)")
 		end
 
 		-- Calculate textbounds and set initial values
@@ -1031,8 +947,8 @@ function RayfieldLibrary:Notify(data) -- action e.g open messages
 	end)
 end
 
-local function openSearch()
-	searchOpen = true
+local function OpenSearch()
+	SearchOpen = true
 
 	Main.Search.BackgroundTransparency = 1
 	Main.Search.Shadow.ImageTransparency = 1
@@ -1065,8 +981,8 @@ local function openSearch()
 	TweenService:Create(Main.Search, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -35, 0, 35)}):Play()
 end
 
-local function closeSearch()
-	searchOpen = false
+local function CloseSearch()
+	SearchOpen = false
 
 	TweenService:Create(Main.Search, TweenInfo.new(0.35, Enum.EasingStyle.Quint), {BackgroundTransparency = 1, Size = UDim2.new(1, -55, 0, 30)}):Play()
 	TweenService:Create(Main.Search.Search, TweenInfo.new(0.15, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
@@ -1126,6 +1042,7 @@ local function setElementsVisible(show)
 	end
 end
 
+-- Sets tab button visibility (used by Hide, Unhide, Maximise, Minimise)
 local function setTabButtonsVisible(show)
 	for _, tabbtn in ipairs(TabList:GetChildren()) do
 		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "Placeholder" then
@@ -1164,13 +1081,6 @@ local function Hide(notify: boolean?)
 	task.spawn(closeSearch)
 
 	Debounce = true
-	if notify then
-		if useMobilePrompt then 
-			--RayfieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
-		else
-	    	--RayfieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "rayfieldOpen")) .. ".", Duration = 7, Image = 4400697855})
-		end
-	end
 
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 470, 0, 0)}):Play()
 	TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 470, 0, 45)}):Play()
@@ -1220,18 +1130,14 @@ local function Maximise()
 	TweenService:Create(Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 500, 0, 45)}):Play()
 	TabList.Visible = true
 	task.wait(0.2)
-
 	Elements.Visible = true
-
 	setElementsVisible(true)
-
 	task.wait(0.1)
-
 	setTabButtonsVisible(true)
-
 	task.wait(0.5)
 	Debounce = false
 end
+
 
 local function Unhide()
 	Debounce = true
@@ -1276,11 +1182,8 @@ local function Unhide()
 	end
 
 	setTabButtonsVisible(true)
-
 	setElementsVisible(true)
-
 	TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0.5}):Play()
-
 	task.wait(0.5)
 	Minimised = false
 	Debounce = false
@@ -1289,13 +1192,9 @@ end
 local function Minimise()
 	Debounce = true
 	Topbar.ChangeSize.Image = customAssets[tostring(11036884234)]
-
 	Topbar.UIStroke.Color = SelectedTheme.ElementStroke
-
 	task.spawn(closeSearch)
-
 	setTabButtonsVisible(false)
-
 	setElementsVisible(false)
 
 	TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
@@ -1305,12 +1204,9 @@ local function Minimise()
 	TweenService:Create(Topbar.Divider, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 495, 0, 45)}):Play()
 	TweenService:Create(Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 495, 0, 45)}):Play()
-
 	task.wait(0.3)
-
 	Elements.Visible = false
 	TabList.Visible = false
-
 	task.wait(0.2)
 	Debounce = false
 end
@@ -1418,7 +1314,7 @@ local function fadeOutKeyUI(KeyMain)
 	TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
 end
 
-function RayfieldLibrary:CreateWindow(Settings)
+function NutriexLibrary:CreateWindow(Settings)
 	if Rayfield:FindFirstChild('Loading') then
 		if getgenv and not getgenv().rayfieldCached then
 			Rayfield.Enabled = true
@@ -1434,7 +1330,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 	if not correctBuild and not Settings.DisableBuildWarnings then
 		task.delay(3, 
 			function() 
-				RayfieldLibrary:Notify({Title = 'Build Mismatch', Content = 'Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.\n\nTry rejoining and then run the script twice.', Image = 4335487866, Duration = 15})		
+				NutriexLibrary:Notify({Title = 'Build Mismatch', Content = 'Rayfield may encounter issues as you are running an incompatible interface version ('.. ((Rayfield:FindFirstChild('Build') and Rayfield.Build.Value) or 'No Build') ..').\n\nThis version of Rayfield is intended for interface build '..InterfaceBuild..'.\n\nTry rejoining and then run the script twice.', Image = 4335487866, Duration = 15})		
 			end)
 	end
 
@@ -1469,7 +1365,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 
 	if Settings.ShowText then
-		MPrompt.Title.Text = 'Open '..Settings.ShowText
+		MPrompt.Title.Text = 'Show '..Settings.ShowText
 	end
 
 	LoadingFrame.Version.TextTransparency = 1
@@ -1506,31 +1402,16 @@ function RayfieldLibrary:CreateWindow(Settings)
 			local success, result2 = pcall(ChangeTheme, 'Default')
 			if not success then
 				warn('CRITICAL ERROR - NO DEFAULT THEME')
-				print(result2)
+				warn(result2)
 			end
 			warn('issue rendering theme. no theme on file')
-			print(result)
+			warn(result)
 		end
 	end
 
 	Topbar.Visible = false
 	Elements.Visible = false
 	LoadingFrame.Visible = true
-
-	if not Settings.DisableRayfieldPrompts then
-		task.spawn(function()
-			while not rayfieldDestroyed do
-				task.wait(math.random(180, 600))
-				if rayfieldDestroyed then break end
-				RayfieldLibrary:Notify({
-					Title = "Rayfield Interface",
-					Content = "Enjoying this UI library? Find it at sirius.menu/discord",
-					Duration = 7,
-					Image = 4370033185,
-				})
-			end
-		end)
-	end
 
 	pcall(function()
 		if not Settings.ConfigurationSaving.FileName then
@@ -1608,7 +1489,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
 				end)
 				if not Success then
-					warn("Nutriex UI | "..Key.." Error " ..tostring(Response))
+					warn("Nutriex Debug | "..Key.." Error " ..tostring(Response))
+					
 				end
 			end
 		end
@@ -1627,9 +1509,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 		end
 
 		if not Passthrough and secureMode then
-			warn("Nutriex | Secure Mode: Key system requires a valid saved key. The key UI cannot be shown as it requires loading detectable assets.")
+			warn("Nutriex Interface | Secure Mode: Key system requires a valid saved key. The key UI cannot be shown as it requires loading detectable assets.")
 			Rayfield.Enabled = false
-			return RayfieldLibrary
+			return NutriexLibrary
 		end
 
 		if not Passthrough then
@@ -1726,7 +1608,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					KeyMain.Visible = false
 					if Settings.KeySettings.SaveKey then
 						callSafely(writefile, RayfieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, FoundKey)
-						RayfieldLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully.", Image = 3605522284})
+						NutriexLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully.", Image = 3605522284})
 					end
 				else
 					if AttemptsRemaining == 0 then
@@ -1751,7 +1633,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 				fadeOutKeyUI(KeyMain)
 				task.wait(0.51)
 				Passthrough = true
-				RayfieldLibrary:Destroy()
+				NutriexLibrary:Destroy()
 				KeyUI:Destroy()
 			end)
 		else
@@ -1811,8 +1693,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 			TabButton.Title.TextXAlignment = Enum.TextXAlignment.Left
 			TabButton.Size = UDim2.new(0, TabButton.Title.TextBounds.X + 52, 0, 30)
 		end
-
-
 
 		TabButton.BackgroundTransparency = 1
 		TabButton.Title.TextTransparency = 1
@@ -1925,7 +1805,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			Button.Interact.MouseButton1Click:Connect(function()
 				local Success, Response = pcall(ButtonSettings.Callback)
-				-- Prevents animation from trying to play if the button's callback called RayfieldLibrary:Destroy()
+				-- Prevents animation from trying to play if the button's callback called NutriexLibrary:Destroy()
 				if rayfieldDestroyed then
 					return
 				end
@@ -1934,7 +1814,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Button.ElementIndicator, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Button.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..ButtonSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..ButtonSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2031,7 +1912,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(ColorPicker.HexInput, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Position = UDim2.new(0, 17, 0, 73)}):Play()
 					TweenService:Create(ColorPicker.Interact, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Size = UDim2.new(0.574, 0, 1, 0)}):Play()
 					TweenService:Create(Main.MainPoint, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-					TweenService:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = SelectedTheme ~= RayfieldLibrary.Theme.Default and 0.25 or 0.1}):Play()
+					TweenService:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Exponential), {ImageTransparency = SelectedTheme ~= NutriexLibrary.Theme.Default and 0.25 or 0.1}):Play()
 					TweenService:Create(Background, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 				else
 					opened = false
@@ -2200,7 +2081,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
-					RayfieldLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
+					NutriexLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
 
@@ -2420,7 +2301,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Input.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..InputSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..InputSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Input.Title.Text = InputSettings.Name
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2463,7 +2345,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and InputSettings.Flag then
-					RayfieldLibrary.Flags[InputSettings.Flag] = InputSettings
+					NutriexLibrary.Flags[InputSettings.Flag] = InputSettings
 				end
 			end
 
@@ -2609,7 +2491,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 					--	end,
 					--})
 
-
 					DropdownOption.Interact.ZIndex = 50
 					DropdownOption.Interact.MouseButton1Click:Connect(function()
 						if not DropdownSettings.MultipleOptions and table.find(DropdownSettings.CurrentOption, Option) then 
@@ -2659,8 +2540,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 							TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Dropdown.Title.Text = "Error while running!"
-							warn("Nutriex UI | "..DropdownSettings.Name.." Error Results: " ..tostring(Response))
-							warn('Check docs.sirius.menu for help with Rayfield specific development.')
+							warn("Nutriex Debug | "..DropdownSettings.Name.." Results:  " ..tostring(Response))
+							
 							task.wait(0.5)
 							Dropdown.Title.Text = DropdownSettings.Name
 							TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2749,7 +2630,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Dropdown.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..DropdownSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..DropdownSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2804,7 +2686,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
-					RayfieldLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
+					NutriexLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
 				end
 			end
 
@@ -2893,8 +2775,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Keybind.Title.Text = "Error while running!"
-							warn("Nutriex UI | "..KeybindSettings.Name.." Error Results: " ..tostring(Response))
-							warn('Check docs.sirius.menu for help with Rayfield specific development.')
+							warn("Nutriex Debug | "..KeybindSettings.Name.." Results:  " ..tostring(Response))
+							
 							task.wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2936,7 +2818,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
-					RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
+					NutriexLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
 
@@ -2963,7 +2845,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Toggle.Title.TextTransparency = 1
 			Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
 
-			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+			if SelectedTheme ~= NutriexLibrary.Theme.Default then
 				Toggle.Switch.Shadow.Visible = false
 			end
 
@@ -3024,7 +2906,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..ToggleSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..ToggleSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3073,7 +2956,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..ToggleSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..ToggleSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3088,7 +2972,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			if not ToggleSettings.Ext then
 				if Settings.ConfigurationSaving then
 					if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
-						RayfieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
+						NutriexLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
 					end
 				end
 			end
@@ -3097,7 +2981,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
 				Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
 
-				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+				if SelectedTheme ~= NutriexLibrary.Theme.Default then
 					Toggle.Switch.Shadow.Visible = false
 				end
 
@@ -3130,7 +3014,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+			if SelectedTheme ~= NutriexLibrary.Theme.Default then
 				Slider.Main.Shadow.Visible = false
 			end
 
@@ -3221,8 +3105,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Error while running!"
-								warn("Nutriex UI | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
-								warn('Check docs.sirius.menu for help with Rayfield specific development.')
+								warn("Nutriex Debug | "..SliderSettings.Name.." Results:  " ..tostring(Response))
+								
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3255,7 +3139,8 @@ function RayfieldLibrary:CreateWindow(Settings)
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Slider.Title.Text = "Error while running!"
-					warn("Nutriex UI | "..SliderSettings.Name.." Error Results: " ..tostring(Response))
+					warn("Nutriex Debug | "..SliderSettings.Name.." Results:  " ..tostring(Response))
+					
 					task.wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3270,12 +3155,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					NutriexLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 
 			Rayfield.Main:GetPropertyChangedSignal('BackgroundColor3'):Connect(function()
-				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
+				if SelectedTheme ~= NutriexLibrary.Theme.Default then
 					Slider.Main.Shadow.Visible = false
 				end
 
@@ -3357,9 +3242,9 @@ function RayfieldLibrary:CreateWindow(Settings)
 	function Window.ModifyTheme(NewTheme)
 		local success = pcall(ChangeTheme, NewTheme)
 		if not success then
-			RayfieldLibrary:Notify({Title = 'Unable to Change Theme', Content = 'We are unable find a theme on file.', Image = 4400704299})
+			NutriexLibrary:Notify({Title = 'Unable to Change Theme', Content = 'We are unable find a theme on file.', Image = 4400704299})
 		else
-			RayfieldLibrary:Notify({Title = 'Theme Changed', Content = 'Successfully changed theme to '..(typeof(NewTheme) == 'string' and NewTheme or 'Custom Theme')..'.', Image = 4483362748})
+			NutriexLibrary:Notify({Title = 'Theme Changed', Content = 'Successfully changed theme to '..(typeof(NewTheme) == 'string' and NewTheme or 'Custom Theme')..'.', Image = 4483362748})
 		end
 	end
 
@@ -3424,16 +3309,16 @@ local function setVisibility(visibility: boolean, notify: boolean?)
 	end
 end
 
-function RayfieldLibrary:SetVisibility(visibility: boolean)
+function NutriexLibrary:SetVisibility(visibility: boolean)
 	setVisibility(visibility, false)
 end
 
-function RayfieldLibrary:IsVisible(): boolean
+function NutriexLibrary:IsVisible(): boolean
 	return not Hidden
 end
 
 local hideHotkeyConnection -- Has to be initialized here since the connection is made later in the script
-function RayfieldLibrary:Destroy()
+function NutriexLibrary:Destroy()
 	rayfieldDestroyed = true
 	if hideHotkeyConnection then
 		hideHotkeyConnection:Disconnect()
@@ -3493,18 +3378,18 @@ Main.Search.Input:GetPropertyChangedSignal('Text'):Connect(function()
 end)
 
 Main.Search.Input.FocusLost:Connect(function(enterPressed)
-	if #Main.Search.Input.Text == 0 and searchOpen then
+	if #Main.Search.Input.Text == 0 and SearchOpen then
 		task.wait(0.12)
-		closeSearch()
+		CloseSearch()
 	end
 end)
 
 Topbar.Search.MouseButton1Click:Connect(function()
 	task.spawn(function()
-		if searchOpen then
-			closeSearch()
+		if SearchOpen then
+			CloseSearch()
 		else
-			openSearch()
+			OpenSearch()
 		end
 	end)
 end)
@@ -3529,7 +3414,6 @@ if Topbar:FindFirstChild('Settings') then
 	end)
 
 end
-
 
 Topbar.Hide.MouseButton1Click:Connect(function()
 	setVisibility(Hidden, not useMobileSizing)
@@ -3570,7 +3454,8 @@ for _, TopbarButton in ipairs(Topbar:GetChildren()) do
 	end
 end
 
-function RayfieldLibrary:LoadConfiguration()
+
+function NutriexLibrary:LoadConfiguration()
 	local config
 
 	if debugX then
@@ -3597,15 +3482,15 @@ function RayfieldLibrary:LoadConfiguration()
 				end
 			else
 				notified = true
-				RayfieldLibrary:Notify({Title = "Nutriex Configurations", Content = "We couldn't enable Configuration Saving as you are not using software with filesystem support.", Image = 4384402990})
+				NutriexLibrary:Notify({Title = "Nutriex Auto-Save", Content = "We couldn't enable Configuration Saving as you are not using software with filesystem support.", Image = 4384402990})
 			end
 		end)
 
 		if success and loaded and not notified then
-			RayfieldLibrary:Notify({Title = "Nutriex Configurations", Content = "The configuration file for this script has been loaded.", Image = 4384403532})
+			NutriexLibrary:Notify({Title = "Nutriex Auto-Save", Content = "The configuration file for this script has been loaded from a previous session.", Image = 4384403532})
 		elseif not success and not notified then
-			warn('Nutriex Configurations Error | '..tostring(result))
-			RayfieldLibrary:Notify({Title = "Nutriex Configurations", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
+			warn('Nutriex Configurations Error | Results: '..tostring(result))
+			NutriexLibrary:Notify({Title = "Nutriex Auto-Save", Content = "We've encountered an issue loading your configuration correctly.\n\nCheck the Developer Console for more information.", Image = 4384402990})
 		end
 	end
 
@@ -3617,7 +3502,7 @@ if useStudio then
 	-- Feel free to place your own script here to see how it'd work in Roblox Studio before running it on your execution software.
 
 
-	--local Window = RayfieldLibrary:CreateWindow({
+	--local Window = NutriexLibrary:CreateWindow({
 	--	Name = "Rayfield Example Window",
 	--	LoadingTitle = "Rayfield Interface Suite",
 	--	Theme = 'Default',
@@ -3687,7 +3572,7 @@ if useStudio then
 	--})
 
 
-	----RayfieldLibrary:Notify({Title = "Rayfield Interface", Content = "Welcome to Rayfield. These - are the brand new notification design for Rayfield, with custom sizing and Rayfield calculated wait times.", Image = 4483362458})
+	----NutriexLibrary:Notify({Title = "Rayfield Interface", Content = "Welcome to Rayfield. These - are the brand new notification design for Rayfield, with custom sizing and Rayfield calculated wait times.", Image = 4483362458})
 
 	--local Section = Tab:CreateSection("Section Example")
 
@@ -3745,7 +3630,7 @@ if useStudio then
 	--})
 
 	--local thoptions = {}
-	--for themename, theme in pairs(RayfieldLibrary.Theme) do
+	--for themename, theme in pairs(NutriexLibrary.Theme) do
 	--	table.insert(thoptions, themename)
 	--end
 
@@ -3828,13 +3713,11 @@ if CEnabled and Main:FindFirstChild('Notice') then
 	Main.Notice.Size = UDim2.new(0, 0, 0, 0)
 	Main.Notice.Position = UDim2.new(0.5, 0, 0, -100)
 	Main.Notice.Visible = true
-
-
 	TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 280, 0, 35), Position = UDim2.new(0.5, 0, 0, -50), BackgroundTransparency = 0.5}):Play()
 	TweenService:Create(Main.Notice.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0.1}):Play()
 end
 task.delay(4, function()
-	RayfieldLibrary.LoadConfiguration()
+	NutriexLibrary.LoadConfiguration()
 	if Main:FindFirstChild('Notice') and Main.Notice.Visible then
 		TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 100, 0, 25), Position = UDim2.new(0.5, 0, 0, -100), BackgroundTransparency = 1}):Play()
 		TweenService:Create(Main.Notice.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
@@ -3844,4 +3727,4 @@ task.delay(4, function()
 	end
 end)
 
-return RayfieldLibrary
+return NutriexLibrary
