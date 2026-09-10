@@ -645,68 +645,16 @@ function NutriexLibrary:MakeWindow(WindowConfig)
 	AddDraggingFunctionality(DragPoint, MainWindow)
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
-	MainWindow.Visible = false
-	UIHidden = true
-
-	-- Garante que o botão flutuante existe para reabrir
-	NutriexEngine:CreateToggleButton()
-
-	NutriexEngine:MakeNotification({
-		Name = "Hidden Interface",
-		Content = "Click the icon on the screen or press RightShift to reopen.",
-		Time = 5
-	})
-	
-	if WindowConfig and type(WindowConfig.CloseCallback) == "function" then
+		MainWindow.Visible = false
+		UIHidden = true
+		NutriexLibrary:MakeNotification({
+			Name = "Interface Hidden",
+			Content = "Tap RightShift to reopen the interface",
+			Time = 5
+		})
+		
 		WindowConfig.CloseCallback()
-	end
-end)
-
--- Função para criar/gerenciar o botão flutuante de Toggle
-function NutriexEngine:CreateToggleButton()
-	-- Previne criar duplicados se a função for chamada mais de uma vez
-	local ExistingGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("NutriexToggleUI")
-	if ExistingGui then return ExistingGui end
-
-	local ToggleGui = Instance.new("ScreenGui")
-	ToggleGui.Name = "NutriexToggleUI"
-	ToggleGui.Parent = (gethui and gethui()) or LocalPlayer:WaitForChild("PlayerGui")
-	ToggleGui.ResetOnSpawn = false
-
-	local ToggleBtn = Instance.new("TextButton")
-	ToggleBtn.Name = "Toggle"
-	ToggleBtn.Parent = ToggleGui
-	ToggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	ToggleBtn.BackgroundTransparency = 0.5
-	ToggleBtn.Position = UDim2.new(0, 10, 0.45, 0)
-	ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
-	ToggleBtn.Text = ""
-	ToggleBtn.Active = true
-	ToggleBtn.Draggable = true
-
-	local Corner = Instance.new("UICorner")
-	Corner.CornerRadius = UDim.new(0.2, 0)
-	Corner.Parent = ToggleBtn
-
-	local Icon = Instance.new("ImageLabel")
-	Icon.Name = "Icon"
-	Icon.Parent = ToggleBtn
-	Icon.Size = UDim2.new(1, 0, 1, 0)
-	Icon.BackgroundTransparency = 1
-	Icon.Image = "rbxassetid://100074156413277"
-
-	local Corner2 = Instance.new("UICorner")
-	Corner2.CornerRadius = UDim.new(0.2, 0)
-	Corner2.Parent = Icon
-
-	-- Ação ao clicar no botão
-	AddConnection(ToggleBtn.MouseButton1Click, function()
-		MainWindow.Visible = not MainWindow.Visible
-		UIHidden = not MainWindow.Visible
 	end)
-
-	return ToggleGui
-end
 
 	AddConnection(UserInputService.InputBegan, function(Input)
 		if Input.KeyCode == Enum.KeyCode.RightShift and UIHidden then
@@ -1766,6 +1714,11 @@ end
 
 function NutriexLibrary:Destroy()
 	Orion:Destroy()
+end
+
+function NutriexLibrary:ToggleUi()
+	Orion.Enabled = not Orion.Enabled
+	MainWindow.Visible = true
 end
 
 return NutriexLibrary
