@@ -68,7 +68,7 @@ if secureMode then
 	local _error = error
 	local _assert = assert
 	warn = function(...) end
-	print = function(...) end
+	warn = function(...) end
 	error = function(_, level) _error("", level) end
 	assert = function(v, ...) return _assert(v) end
 end
@@ -167,7 +167,7 @@ local function loadSettings()
 		if useStudio then
 			file = [[
 	{"General":{"rayfieldOpen":{"Value":"K","Type":"bind","Name":"Rayfield Keybind","Element":{"HoldToInteract":false,"Ext":true,"Name":"Rayfield Keybind","Set":null,"CallOnChange":true,"Callback":null,"CurrentKeybind":"K"}}},"System":{"usageAnalytics":{"Value":false,"Type":"toggle","Name":"Anonymised Analytics","Element":{"Ext":true,"Name":"Anonymised Analytics","Set":null,"CurrentValue":false,"Callback":null}}}}
-]]
+         ]]
 		end
 
 		if file then
@@ -230,7 +230,7 @@ end
 local NutriexUI = {
 	Flags = {},
 	Theme = {
-Default = {
+Darker = {
 	TextColor = Color3.fromRGB(245, 245, 245),
 
 	Background = Color3.fromRGB(15, 15, 15),
@@ -435,7 +435,6 @@ Orange = {
 	InputStroke = Color3.fromRGB(35, 35, 35),
 	PlaceholderColor = Color3.fromRGB(120, 120, 120)
 },
-
 Yellow = {
 	TextColor = Color3.fromRGB(245, 245, 245),
 
@@ -960,7 +959,7 @@ local function LoadConfiguration(Configuration)
 			end)
 		else
 			warn("Nutriex - Unable to find '"..FlagName.. "' in the save file.")
-			print("The error above may not be an issue if new elements have been added or not been set values.")
+			warn("The error above may not be an issue if new elements have been added or not been set values.")
 			--NutriexUI:Notify({Title = "Rayfield Flags", Content = "Rayfield was unable to find '"..FlagName.. "' in the save file. Check sirius.menu/discord for help.", Image = 3944688398})
 		end
 	end
@@ -972,7 +971,7 @@ local function SaveConfiguration()
 	if not CEnabled or not globalLoaded then return end
 
 	if debugX then
-		print('Saving')
+		warn('Saving')
 	end
 
 	local Data = {}
@@ -1012,7 +1011,6 @@ local function SaveConfiguration()
 		warn(HttpService:JSONEncode(Data))
 	end
 
-
 	callSafely(writefile, ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
 end
 
@@ -1046,7 +1044,6 @@ function NutriexUI:Notify(data) -- action e.g open messages
 		newNotification.BackgroundColor3 = SelectedTheme.Background
 		newNotification.UIStroke.Color = SelectedTheme.TextColor
 		newNotification.Icon.ImageColor3 = SelectedTheme.TextColor
-
 		newNotification.BackgroundTransparency = 1
 		newNotification.Title.TextTransparency = 1
 		newNotification.Description.TextTransparency = 1
@@ -1062,7 +1059,7 @@ function NutriexUI:Notify(data) -- action e.g open messages
 
 		if data.Actions then
 			warn('Nutriex | Not seeing your actions in notifications?')
-			print("Notification Actions are being sunset for now, keep up to date on when they're back in the discord. (sirius.menu/discord)")
+			warn("Notification Actions are being sunset for now, keep up to date on when they're back in the discord. (sirius.menu/discord)")
 		end
 
 		-- Calculate textbounds and set initial values
@@ -1242,14 +1239,7 @@ local function Hide(notify: boolean?)
 	task.spawn(closeSearch)
 
 	Debounce = true
-	if notify then
-		if useMobilePrompt then 
-			NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping 'Show'.", Duration = 7, Image = 4400697855})
-		else
-			NutriexUI:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping " .. tostring(getSetting("General", "rayfieldOpen")) .. ".", Duration = 7, Image = 4400697855})
-		end
-	end
-
+	
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 470, 0, 0)}):Play()
 	TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Size = UDim2.new(0, 470, 0, 45)}):Play()
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
@@ -1585,10 +1575,10 @@ function NutriexUI:CreateWindow(Settings)
 			local success, result2 = pcall(ChangeTheme, 'Default')
 			if not success then
 				warn('CRITICAL ERROR - NO DEFAULT THEME')
-				print(result2)
+				warn(result2)
 			end
 			warn('issue rendering theme. no theme on file')
-			print(result)
+			warn(result)
 		end
 	end
 
@@ -1687,7 +1677,7 @@ function NutriexUI:CreateWindow(Settings)
 					Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
 				end)
 				if not Success then
-					print("Nutriex | "..Key.." Error " ..tostring(Response))
+					warn("Nutriex | "..Key.." Error " ..tostring(Response))
 					
 				end
 			end
@@ -2014,7 +2004,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Button.ElementIndicator, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Button.Title.Text = "Error while running!"
-					print("Nutriex | "..ButtonSettings.Name.." Results: " ..tostring(Response))
+					warn("Nutriex | "..ButtonSettings.Name.." Results: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
@@ -2501,7 +2491,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Input.Title.Text = "Error while running!"
-					print("Nutriex | "..InputSettings.Name.." Results: " ..tostring(Response))
+					warn("Nutriex | "..InputSettings.Name.." Results: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Input.Title.Text = InputSettings.Name
@@ -2691,7 +2681,6 @@ function NutriexUI:CreateWindow(Settings)
 					--	end,
 					--})
 
-
 					DropdownOption.Interact.ZIndex = 50
 					DropdownOption.Interact.MouseButton1Click:Connect(function()
 						if not DropdownSettings.MultipleOptions and table.find(DropdownSettings.CurrentOption, Option) then 
@@ -2741,7 +2730,7 @@ function NutriexUI:CreateWindow(Settings)
 							TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Dropdown.Title.Text = "Error while running!"
-							print("Nutriex | "..DropdownSettings.Name.." Results: " ..tostring(Response))
+							warn("Nutriex | "..DropdownSettings.Name.." Results: " ..tostring(Response))
 							
 							task.wait(0.5)
 							Dropdown.Title.Text = DropdownSettings.Name
@@ -2831,7 +2820,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Dropdown.Title.Text = "Error while running!"
-					print("Nutriex | "..DropdownSettings.Name.." Results: " ..tostring(Response))
+					warn("Nutriex | "..DropdownSettings.Name.." Results: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
@@ -2976,7 +2965,7 @@ function NutriexUI:CreateWindow(Settings)
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Keybind.Title.Text = "Error while running!"
-							print("Nutriex | "..KeybindSettings.Name.." Results: " ..tostring(Response))
+							warn("Nutriex | "..KeybindSettings.Name.." Results: " ..tostring(Response))
 							
 							task.wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
@@ -3107,7 +3096,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Error while running!"
-					print("Nutriex | "..ToggleSettings.Name.." Results: " ..tostring(Response))
+					warn("Nutriex | "..ToggleSettings.Name.." Results: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
@@ -3157,7 +3146,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Error while running!"
-					print("Nutriex | "..ToggleSettings.Name.." Results: " ..tostring(Response))
+					warn("Nutriex | "..ToggleSettings.Name.." Results: " ..tostring(Response))
 					
 					task.wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
@@ -3306,7 +3295,7 @@ function NutriexUI:CreateWindow(Settings)
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Error while running!"
-								print("Nutriex | "..SliderSettings.Name.." Results: " ..tostring(Response))
+								warn("Nutriex | "..SliderSettings.Name.." Results: " ..tostring(Response))
 								
 								task.wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
@@ -3340,7 +3329,7 @@ function NutriexUI:CreateWindow(Settings)
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Slider.Title.Text = "Error while running!"
-					print("Nutriex | "..SliderSettings.Name.."  " ..tostring(Response))
+					warn("Nutriex | "..SliderSettings.Name.."  " ..tostring(Response))
 					
 					task.wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
@@ -3737,7 +3726,6 @@ if useStudio then
 
 	--local Section = Tab2:CreateSection("Section")
 
-
 	--local ColorPicker = Tab2:CreateColorPicker({
 	--	Name = "Color Picker",
 	--	Color = Color3.fromRGB(255,255,255),
@@ -3915,8 +3903,6 @@ if CEnabled and Main:FindFirstChild('Notice') then
 	Main.Notice.Size = UDim2.new(0, 0, 0, 0)
 	Main.Notice.Position = UDim2.new(0.5, 0, 0, -100)
 	Main.Notice.Visible = true
-
-
 	TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 280, 0, 35), Position = UDim2.new(0.5, 0, 0, -50), BackgroundTransparency = 0.5}):Play()
 	TweenService:Create(Main.Notice.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0.1}):Play()
 end
@@ -3926,7 +3912,6 @@ task.delay(4, function()
 	if Main:FindFirstChild('Notice') and Main.Notice.Visible then
 		TweenService:Create(Main.Notice, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.InOut), {Size = UDim2.new(0, 100, 0, 25), Position = UDim2.new(0.5, 0, 0, -100), BackgroundTransparency = 1}):Play()
 		TweenService:Create(Main.Notice.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-
 		task.wait(0.5)
 		Main.Notice.Visible = false
 	end
