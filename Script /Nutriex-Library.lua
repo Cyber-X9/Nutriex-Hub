@@ -1227,7 +1227,7 @@ end)
 
 local function ButtonFrame(Instance, Title, Description, HolderSize)
 	local TitleL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.Inter,
+		Font = Enum.Font.Ubuntu,
 		TextColor3 = Theme["Color Text"],
 		Size = UDim2.new(1, -20),
 		AutomaticSize = "Y",
@@ -1242,7 +1242,7 @@ local function ButtonFrame(Instance, Title, Description, HolderSize)
 	}), "Text")
 	
 	local DescL = InsertTheme(Create("TextLabel", {
-		Font = Enum.Font.Inter,
+		Font = Enum.Font.Ubuntu,
 		TextColor3 = Theme["Color Dark Text"],
 		Size = UDim2.new(1, -20),
 		AutomaticSize = "Y",
@@ -1435,7 +1435,7 @@ function NutriexLibrary:MakeWindow(Configs)
 		TextSize = 12,
 		TextColor3 = Theme["Color Text"],
 		BackgroundTransparency = 1,
-		Font = Enum.Font.Inter,
+		Font = Enum.Font.Ubuntu,
 		Name = "Title"
 	}, {
 		InsertTheme(Create("TextLabel", {
@@ -1449,7 +1449,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			TextXAlignment = "Left",
 			TextYAlignment = "Bottom",
 			TextSize = 8,
-			Font = Enum.Font.Inter,
+			Font = Enum.Font.Ubuntu,
 			Name = "SubTitle"
 		}), "DarkText")
 	}), "Text")
@@ -1644,7 +1644,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			AnchorPoint = Vector2.new(0.5, 0.5)
 		}, {
 			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				Size = UDim2.new(1, 0, 0, 20),
 				Text = DTitle,
 				TextXAlignment = "Left",
@@ -1654,7 +1654,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				BackgroundTransparency = 1
 			}), "Text"),
 			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				Size = UDim2.new(1, -25),
 				AutomaticSize = "Y",
 				Text = DText,
@@ -1707,7 +1707,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			Make("Corner", Button)
 			SetProps(Button, {
 				Text = Name,
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextColor3 = Theme["Color Text"],
 				TextSize = 12
 			})
@@ -1762,7 +1762,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			Size = UDim2.new(1, TIcon and -25 or -15, 1),
 			Position = UDim2.fromOffset(TIcon and 25 or 15),
 			BackgroundTransparency = 1,
-			Font = Enum.Font.Inter,
+			Font = Enum.Font.Ubuntu,
 			Text = TName,
 			TextColor3 = Theme["Color Text"],
 			TextSize = 10,
@@ -1872,7 +1872,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			})
 			
 			local SectionLabel = InsertTheme(Create("TextLabel", SectionFrame, {
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				Text = SectionName,
 				TextColor3 = Theme["Color Text"],
 				Size = UDim2.new(1, -25, 1, 0),
@@ -2057,7 +2057,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextScaled = true,
 				TextColor3 = Theme["Color Text"],
 				Text = "..."
@@ -2277,7 +2277,7 @@ function NutriexLibrary:MakeWindow(Configs)
 						Position = UDim2.new(0, 10),
 						Text = Name,
 						TextColor3 = Theme["Color Text"],
-						Font = Enum.Font.Inter,
+						Font = Enum.Font.Ubuntu,
 						TextXAlignment = "Left",
 						BackgroundTransparency = 1,
 						TextTransparency = 0.4
@@ -2538,7 +2538,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextScaled = true,
 				TextColor3 = Theme["Color Text"],
 				ClearTextOnFocus = TClearText,
@@ -2594,7 +2594,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				Size = UDim2.new(1, 0, 0, 15),
 				Position = UDim2.new(0, 5),
 				TextColor3 = Color3.fromRGB(40, 150, 255),
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextXAlignment = "Left",
 				BackgroundTransparency = 1,
 				TextSize = 10,
@@ -2618,7 +2618,7 @@ function NutriexLibrary:MakeWindow(Configs)
 			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
 				Size = UDim2.new(1, -52, 0, 15),
 				Position = UDim2.new(0, 44, 0, 7),
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextColor3 = Theme["Color Text"],
 				TextXAlignment = "Left",
 				BackgroundTransparency = 1,
@@ -2631,7 +2631,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				Position = UDim2.new(0, 44, 0, 22),
 				TextWrapped = "Y",
 				AutomaticSize = "Y",
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextColor3 = Theme["Color Dark Text"],
 				TextXAlignment = "Left",
 				BackgroundTransparency = 1,
@@ -2644,7 +2644,7 @@ function NutriexLibrary:MakeWindow(Configs)
 				AnchorPoint = Vector2.new(0.5, 1),
 				Position = UDim2.new(0.5, 0, 1, -7),
 				Text = "Join Discord Server",
-				Font = Enum.Font.Inter,
+				Font = Enum.Font.Ubuntu,
 				TextSize = 12,
 				TextColor3 = Color3.fromRGB(220, 220, 220),
 				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
