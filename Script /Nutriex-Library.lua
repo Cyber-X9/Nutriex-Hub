@@ -1637,35 +1637,35 @@ function Window:Dialog(Configs)
     local DText = Configs[2] or Configs.Text or "This is a Dialog"
     local DOptions = Configs[3] or Configs.Options or {}
     
-    -- Película de fundo (Overlay) escurecida
-    local Screen = InsertTheme(Create("Frame", MainFrame, {
+    -- Película de fundo escurecida (Overlay)
+    local Screen = Create("Frame", MainFrame, {
         BackgroundTransparency = 1,
         Active = true,
         BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(0, 0, 0),
         Size = UDim2.new(1, 0, 1, 0),
         Name = "Dialog",
-        ZIndex = 10
-    }), "Stroke")
+        ZIndex = 50
+    })
     
     if MainCorner then
         MainCorner:Clone().Parent = Screen
     end
     
-    -- Modal principal do Dialog
+    -- Modal principal (Aumentado para 165px de altura para dar espaço respirável)
     local Frame = Create("Frame", Screen, {
         Active = true,
-        Size = UDim2.fromOffset(260, 140),
+        Size = UDim2.fromOffset(270, 165),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
         BorderSizePixel = 0,
-        BackgroundTransparency = 0
+        ZIndex = 51
     })
     Make("Gradient", Frame, {Rotation = 270})
-    Make("Corner", Frame, UDim.new(0, 8))
+    Make("Corner", Frame, UDim.new(0, 10))
     Make("Stroke", Frame)
     
-    -- UIScale para animação de pop-in/pop-out suave
+    -- Animação de entrada via UIScale
     local DialogScale = Instance.new("UIScale")
     DialogScale.Scale = 0.85
     DialogScale.Parent = Frame
@@ -1673,35 +1673,38 @@ function Window:Dialog(Configs)
     -- Título
     InsertTheme(Create("TextLabel", Frame, {
         Font = Enum.Font.Ubuntu,
-        Size = UDim2.new(1, -30, 0, 20),
+        Size = UDim2.new(1, -30, 0, 22),
         Text = DTitle,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        TextSize = 14,
-        Position = UDim2.fromOffset(15, 10),
-        BackgroundTransparency = 1
+        TextSize = 15,
+        Position = UDim2.fromOffset(15, 12),
+        BackgroundTransparency = 1,
+        ZIndex = 52
     }), "Text")
     
     -- Texto Descritivo
     InsertTheme(Create("TextLabel", Frame, {
         Font = Enum.Font.Ubuntu,
-        Size = UDim2.new(1, -30, 0, 50),
+        Size = UDim2.new(1, -30, 0, 55),
         Text = DText,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(170, 170, 170),
-        TextSize = 11,
-        Position = UDim2.fromOffset(15, 32),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(180, 180, 180),
+        TextSize = 12,
+        Position = UDim2.fromOffset(15, 38),
         BackgroundTransparency = 1,
-        TextWrapped = true
+        TextWrapped = true,
+        ZIndex = 52
     }), "DarkText")
     
-    -- Container inferior para alinhamento horizontal dos botões
+    -- Container dos Botões
     local ButtonsHolder = Create("Frame", Frame, {
-        Size = UDim2.new(1, -20, 0, 32),
-        Position = UDim2.new(0, 10, 1, -10),
+        Size = UDim2.new(1, -24, 0, 34),
+        Position = UDim2.new(0, 12, 1, -12),
         AnchorPoint = Vector2.new(0, 1),
-        BackgroundTransparency = 1
+        BackgroundTransparency = 1,
+        ZIndex = 52
     })
     
     Create("UIListLayout", ButtonsHolder, {
@@ -1711,30 +1714,33 @@ function Window:Dialog(Configs)
         HorizontalAlignment = Enum.HorizontalAlignment.Center
     })
     
-    -- Animação de Entrada
+    -- Transições de abertura
     CreateTween({Screen, "BackgroundTransparency", 0.4, 0.15})
     CreateTween({DialogScale, "Scale", 1, 0.15})
     
     local ButtonsList, Dialog = {}, {}
     
     function Dialog:Button(BtnConfigs)
-        local Name = BtnConfigs[1] or BtnConfigs.Name or BtnConfigs.Title or "Button"
+        local Name = BtnConfigs[1] or BtnConfigs.Name or BtnConfigs.Title or "Confirm"
         local Callback = BtnConfigs[2] or BtnConfigs.Callback or function() end
         
-        local Button = Make("Button", ButtonsHolder)
-        Make("Corner", Button, UDim.new(0, 5))
-        
-        SetProps(Button, {
+        -- Criação direta do TextButton com propriedades explícitas de visibilidade do texto
+        local Button = InsertTheme(Create("TextButton", ButtonsHolder, {
             Text = Name,
             Font = Enum.Font.Ubuntu,
+            TextSize = 12,
             TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-            TextSize = 11,
-            BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(45, 45, 45)
-        })
+            BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(50, 50, 50),
+            AutoButtonColor = true,
+            BorderSizePixel = 0,
+            ZIndex = 53
+        }), "Text")
+        
+        Make("Corner", Button, UDim.new(0, 6))
         
         table.insert(ButtonsList, Button)
         
-        -- Redistribui a largura igualmente entre os botões existentes
+        -- Cálculo responsivo do tamanho dos botões na horizontal
         local TotalButtons = #ButtonsList
         for _, btn in ipairs(ButtonsList) do
             btn.Size = UDim2.new(1 / TotalButtons, -(((TotalButtons - 1) * 8) / TotalButtons), 1, 0)
@@ -1752,7 +1758,7 @@ function Window:Dialog(Configs)
         Screen:Destroy()
     end
     
-    -- Inicializa os botões passados pelas configurações
+    -- Inicialização dos botões
     for _, btnData in ipairs(DOptions) do
         Dialog:Button(btnData)
     end
@@ -2134,7 +2140,7 @@ function Tab:AddDropdown(Configs)
         BackgroundTransparency = 1,
         Visible = false,
         Text = "",
-        ZIndex = 130
+        ZIndex = 99
     })
     
     local DropFrame = Create("Frame", NoClickFrame, {
@@ -2667,7 +2673,7 @@ function Tab:AddTextBox(Configs)
     
     -- Aumentei a altura (24) e adicionei fundo próprio para destacar do botão base
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
-        Size = UDim2.new(0, 150, 0, 24),
+        Size = UDim2.new(0, 150, 0, 18),
         Position = UDim2.new(1, -10, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(30, 30, 30),
