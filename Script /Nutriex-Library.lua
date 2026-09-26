@@ -15,7 +15,7 @@ local NutriexLibrary = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(15, 15, 15)),
         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
     }),
     ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
@@ -1767,126 +1767,207 @@ end
 			end
 		end
 	end
-	
-	local ContainerList = {}
-	function Window:MakeTab(paste, Configs)
-		if type(paste) == "table" then Configs = paste end
-		local TName = Configs[1] or Configs.Title or "Tab!"
-		local TIcon = Configs[2] or Configs.Icon or ""
-		
-		TIcon = NutriexLibrary:GetIcon(TIcon)
-		if not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
-			TIcon = false
-		end
-		
-		local TabSelect = Make("Button", MainScroll, {
-			Size = UDim2.new(1, 0, 0, 24)
-		})Make("Corner", TabSelect)
-		
-		local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
-			Size = UDim2.new(1, TIcon and -25 or -15, 1),
-			Position = UDim2.fromOffset(TIcon and 25 or 15),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.Ubuntu,
-			Text = TName,
-			TextColor3 = Theme["Color Text"],
-			TextSize = 10,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextTransparency = (FirstTab and 0.3) or 0,
-			TextTruncate = "AtEnd"
-		}), "Text")
-		
-		local LabelIcon = InsertTheme(Create("ImageLabel", TabSelect, {
-			Position = UDim2.new(0, 8, 0.5),
-			Size = UDim2.new(0, 13, 0, 13),
-			AnchorPoint = Vector2.new(0, 0.5),
-			Image = TIcon or "",
-			BackgroundTransparency = 1,
-			ImageTransparency = (FirstTab and 0.3) or 0
-		}), "Text")
-		
-		local Selected = InsertTheme(Create("Frame", TabSelect, {
-			Size = FirstTab and UDim2.new(0, 4, 0, 4) or UDim2.new(0, 4, 0, 13),
-			Position = UDim2.new(0, 1, 0.5),
-			AnchorPoint = Vector2.new(0, 0.5),
-			BackgroundColor3 = Theme["Color Theme"],
-			BackgroundTransparency = FirstTab and 1 or 0
-		}), "Theme")Make("Corner", Selected, UDim.new(0.5, 0))
-		
-		local Container = InsertTheme(Create("ScrollingFrame", {
-			Size = UDim2.new(1, 0, 1, 0),
-			Position = UDim2.new(0, 0, 1),
-			AnchorPoint = Vector2.new(0, 1),
-			ScrollBarThickness = 1.5,
-			BackgroundTransparency = 1,
-			ScrollBarImageTransparency = 0.2,
-			ScrollBarImageColor3 = Theme["Color Theme"],
-			AutomaticCanvasSize = "Y",
-			ScrollingDirection = "Y",
-			BorderSizePixel = 0,
-			CanvasSize = UDim2.new(),
-			Name = ("Container %i [ %s ]"):format(#ContainerList + 1, TName)
-		}, {
-			Create("UIPadding", {
-				PaddingLeft = UDim.new(0, 10),
-				PaddingRight = UDim.new(0, 10),
-				PaddingTop = UDim.new(0, 10),
-				PaddingBottom = UDim.new(0, 10)
-			}), Create("UIListLayout", {
-				Padding = UDim.new(0, 5)
-			})
-		}), "ScrollBar")
-		
-		table.insert(ContainerList, Container)
-		
-		if not FirstTab then Container.Parent = Containers end
-		
-		local Tab = { Enabled = (FirstTab == false) }
-		
-		local function Tabs()
-			if Container.Parent then return end
-			for _,Frame in pairs(ContainerList) do
-				if Frame:IsA("ScrollingFrame") and Frame ~= Container then
-					Frame.Parent = nil
-				end
-			end
-			Container.Parent = Containers
-			Container.Size = UDim2.new(1, 0, 1, 150)
-			table.foreach(NutriexLibrary.Tabs, function(_,Tab)
-				if Tab.Cont ~= Container then
-					Tab.func:Disable()
-				end
-			end)
-			Tab.Enabled = true
-			CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.3})
-			CreateTween({LabelTitle, "TextTransparency", 0, 0.35})
-			CreateTween({LabelIcon, "ImageTransparency", 0, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 13), 0.35})
-			CreateTween({Selected, "BackgroundTransparency", 0, 0.35})
-		end
-		TabSelect.Activated:Connect(Tabs)
-		
-		FirstTab = true
-		table.insert(NutriexLibrary.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
-		Tab.Cont = Container
-		
-		function Tab:Disable()
-		  self.Enabled = false
-			Container.Parent = nil
-			CreateTween({LabelTitle, "TextTransparency", 0.3, 0.35})
-			CreateTween({LabelIcon, "ImageTransparency", 0.3, 0.35})
-			CreateTween({Selected, "Size", UDim2.new(0, 4, 0, 4), 0.35})
-			CreateTween({Selected, "BackgroundTransparency", 1, 0.35})
-		end
-		function Tab:Enable()
-			Tabs()
-		end
-		function Tab:Visible(Bool)
-			Funcs:ToggleVisible(TabSelect, Bool)
-			Funcs:ToggleParent(Container, Bool, Containers)
-		end
-		function Tab:Destroy() TabSelect:Destroy() Container:Destroy() end
-		
+local ContainerList = {}
+function Window:MakeTab(paste, Configs)
+    if type(paste) == "table" then Configs = paste end
+    local TName = Configs[1] or Configs.Title or Configs.Name or "Tab!"
+    local TIcon = Configs[2] or Configs.Icon or ""
+    
+    -- Validação segura de ícone
+    if type(NutriexLibrary) == "table" and type(NutriexLibrary.GetIcon) == "function" then
+        TIcon = NutriexLibrary:GetIcon(TIcon)
+    end
+    
+    if type(TIcon) ~= "string" or not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
+        TIcon = false
+    end
+    
+    -- Botão da Aba no Menu Lateral (Hover e Feedback Visuals)
+    local TabSelect = Make("Button", MainScroll, {
+        Size = UDim2.new(1, 0, 0, 28),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        AutoButtonColor = false
+    })
+    Make("Corner", TabSelect, UDim.new(0, 6))
+    
+    -- Título da Aba
+    local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
+        Size = UDim2.new(1, TIcon and -32 or -20, 1, 0),
+        Position = UDim2.fromOffset(TIcon and 28 or 16, 0),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Ubuntu,
+        Text = TName,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        TextSize = 11,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTransparency = (FirstTab and 0.45) or 0,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    }), "Text")
+    
+    -- Ícone da Aba
+    local LabelIcon = InsertTheme(Create("ImageLabel", TabSelect, {
+        Position = UDim2.new(0, 8, 0.5, 0),
+        Size = UDim2.new(0, 14, 0, 14),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Image = TIcon or "",
+        BackgroundTransparency = 1,
+        ImageTransparency = (FirstTab and 0.45) or 0,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        Visible = TIcon and true or false
+    }), "Text")
+    
+    -- Indicador Lateral de Seleção (Smooth Bar)
+    local Selected = InsertTheme(Create("Frame", TabSelect, {
+        Size = FirstTab and UDim2.new(0, 3, 0, 0) or UDim2.new(0, 3, 0, 14),
+        Position = UDim2.new(0, 2, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
+        BackgroundTransparency = FirstTab and 1 or 0,
+        BorderSizePixel = 0
+    }), "Theme")
+    Make("Corner", Selected, UDim.new(1, 0))
+    
+    -- Container de Conteúdo da Aba (ScrollingFrame Otimizado)
+    local Container = InsertTheme(Create("ScrollingFrame", {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 1),
+        ScrollBarThickness = 2,
+        BackgroundTransparency = 1,
+        ScrollBarImageTransparency = 0.2,
+        ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        BorderSizePixel = 0,
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        Name = ("Container_%s"):format(TName:gsub("[%s%W]+", "_"))
+    }, {
+        Create("UIPadding", {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10)
+        }), 
+        Create("UIListLayout", {
+            Padding = UDim.new(0, 6),
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+    }), "ScrollBar")
+    
+    table.insert(ContainerList, Container)
+    
+    if not FirstTab then 
+        Container.Parent = Containers 
+    end
+    
+    local Tab = { Enabled = (FirstTab == false), Name = TName, Cont = Container }
+    
+    -- Animações interativas de Hover (MouseIn / MouseLeave)
+    TabSelect.MouseEnter:Connect(function()
+        if not Tab.Enabled then
+            CreateTween({TabSelect, "BackgroundTransparency", 0.94, 0.15})
+            CreateTween({LabelTitle, "TextTransparency", 0.2, 0.15})
+            if TIcon then CreateTween({LabelIcon, "ImageTransparency", 0.2, 0.15}) end
+        end
+    end)
+    
+    TabSelect.MouseLeave:Connect(function()
+        if not Tab.Enabled then
+            CreateTween({TabSelect, "BackgroundTransparency", 1, 0.15})
+            CreateTween({LabelTitle, "TextTransparency", 0.45, 0.15})
+            if TIcon then CreateTween({LabelIcon, "ImageTransparency", 0.45, 0.15}) end
+        end
+    end)
+    
+    local function Tabs()
+        if Container.Parent and Tab.Enabled then return end
+        
+        -- Esconde todos os outros containers ativos
+        for _, Frame in ipairs(ContainerList) do
+            if Frame:IsA("ScrollingFrame") and Frame ~= Container then
+                Frame.Parent = nil
+            end
+        end
+        
+        Container.Parent = Containers
+        Container.Size = UDim2.new(1, 0, 1, 15)
+        
+        -- Desativa os estados visuais das outras abas
+        if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
+            for _, tabData in ipairs(NutriexLibrary.Tabs) do
+                if tabData.Cont ~= Container and tabData.func and type(tabData.func.Disable) == "function" then
+                    tabData.func:Disable()
+                end
+            end
+        end
+        
+        Tab.Enabled = true
+        
+        -- Tweens fluidos de ativação
+        CreateTween({TabSelect, "BackgroundTransparency", 0.88, 0.2})
+        CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.25})
+        CreateTween({LabelTitle, "TextTransparency", 0, 0.2})
+        if TIcon then CreateTween({LabelIcon, "ImageTransparency", 0, 0.2}) end
+        CreateTween({Selected, "Size", UDim2.new(0, 3, 0, 14), 0.2})
+        CreateTween({Selected, "BackgroundTransparency", 0, 0.2})
+    end
+    
+    TabSelect.Activated:Connect(Tabs)
+    
+    FirstTab = true
+    if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
+        table.insert(NutriexLibrary.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
+    end
+    
+    -- Métodos da instância da Aba
+    function Tab:Disable()
+        self.Enabled = false
+        Container.Parent = nil
+        CreateTween({TabSelect, "BackgroundTransparency", 1, 0.2})
+        CreateTween({LabelTitle, "TextTransparency", 0.45, 0.2})
+        if TIcon then CreateTween({LabelIcon, "ImageTransparency", 0.45, 0.2}) end
+        CreateTween({Selected, "Size", UDim2.new(0, 3, 0, 0), 0.2})
+        CreateTween({Selected, "BackgroundTransparency", 1, 0.2})
+    end
+    
+    function Tab:Enable()
+        Tabs()
+    end
+    
+    function Tab:SetTitle(NewTitle)
+        if type(NewTitle) == "string" then
+            TName = NewTitle
+            LabelTitle.Text = TName
+            Container.Name = ("Container_%s"):format(TName:gsub("[%s%W]+", "_"))
+        end
+    end
+    
+    function Tab:Visible(Bool)
+        if type(Funcs) == "table" then
+            if type(Funcs.ToggleVisible) == "function" then
+                Funcs:ToggleVisible(TabSelect, Bool)
+            end
+            if type(Funcs.ToggleParent) == "function" then
+                Funcs:ToggleParent(Container, Bool, Containers)
+            end
+        else
+            TabSelect.Visible = Bool
+            if not Bool then Container.Parent = nil end
+        end
+    end
+    
+    function Tab:Destroy() 
+        for i, c in ipairs(ContainerList) do
+            if c == Container then
+                table.remove(ContainerList, i)
+                break
+            end
+        end
+        TabSelect:Destroy() 
+        Container:Destroy() 
+    end
+    
 function Tab:AddSection(Configs)
     local SectionName = type(Configs) == "string" and Configs or Configs[1] or Configs.Name or Configs.Title or Configs.Section or "Section"
     
