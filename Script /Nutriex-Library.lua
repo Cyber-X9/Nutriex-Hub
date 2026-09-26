@@ -1376,257 +1376,319 @@ function NutriexLibrary:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
-
 function NutriexLibrary:MakeWindow(Configs)
-	local WTitle = Configs[1] or Configs.Name or Configs.Title or ""
-	local WMiniText = Configs[2] or Configs.SubTitle or ""
-	
-	Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
-	
-	local function LoadFile()
-		local File = Settings.ScriptFile
-		if type(File) ~= "string" then return end
-		if not readfile or not isfile then return end
-		local s, r = pcall(isfile, File)
-		
-		if s and r then
-			local s, _Flags = pcall(readfile, File)
-			
-			if s and type(_Flags) == "string" then
-				local s,r = pcall(function() return HttpService:JSONDecode(_Flags) end)
-				Flags = s and r or {}
-			end
-		end
-	end;LoadFile()
-	
-	local UISizeX, UISizeY = unpack(NutriexLibrary.Save.UISize)
-	local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
-		Size = UDim2.fromOffset(UISizeX, UISizeY),
-		Position = UDim2.new(0.5, -UISizeX/2, 0.5, -UISizeY/2),
-		BackgroundTransparency = 0.03,
-		Name = "Hub"
-	}), "Main")
-	Make("Gradient", MainFrame, {
-		Rotation = 45
-	})MakeDrag(MainFrame)
-	
-	local MainCorner = Make("Corner", MainFrame)
-	
-	local Components = Create("Folder", MainFrame, {
-		Name = "Components"
-	})
-	
-	local DropdownHolder = Create("Folder", ScreenGui, {
-		Name = "Dropdown"
-	})
-	
-	local TopBar = Create("Frame", Components, {
-		Size = UDim2.new(1, 0, 0, 28),
-		BackgroundTransparency = 1,
-		Name = "Top Bar"
-	})
-	
-	local Title = InsertTheme(Create("TextLabel", TopBar, {
-		Position = UDim2.new(0, 15, 0.5),
-		AnchorPoint = Vector2.new(0, 0.5),
-		AutomaticSize = "XY",
-		Text = WTitle,
-		TextXAlignment = "Left",
-		TextSize = 12,
-		TextColor3 = Theme["Color Text"],
-		BackgroundTransparency = 1,
-		Font = Enum.Font.Ubuntu,
-		Name = "Title"
-	}, {
-		InsertTheme(Create("TextLabel", {
-			Size = UDim2.fromScale(0, 1),
-			AutomaticSize = "X",
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(1, 5, 0.9),
-			Text = WMiniText,
-			TextColor3 = Theme["Color Dark Text"],
-			BackgroundTransparency = 1,
-			TextXAlignment = "Left",
-			TextYAlignment = "Bottom",
-			TextSize = 8,
-			Font = Enum.Font.Ubuntu,
-			Name = "SubTitle"
-		}), "DarkText")
-	}), "Text")
-	
-	local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
-		Size = UDim2.new(0, NutriexLibrary.Save.TabSize, 1, -TopBar.Size.Y.Offset),
-		ScrollBarImageColor3 = Theme["Color Theme"],
-		Position = UDim2.new(0, 0, 1, 0),
-		AnchorPoint = Vector2.new(0, 1),
-		ScrollBarThickness = 1.5,
-		BackgroundTransparency = 1,
-		ScrollBarImageTransparency = 0.2,
-		CanvasSize = UDim2.new(),
-		AutomaticCanvasSize = "Y",
-		ScrollingDirection = "Y",
-		BorderSizePixel = 0,
-		Name = "Tab Scroll"
-	}, {
-		Create("UIPadding", {
-			PaddingLeft = UDim.new(0, 10),
-			PaddingRight = UDim.new(0, 10),
-			PaddingTop = UDim.new(0, 10),
-			PaddingBottom = UDim.new(0, 10)
-		}), Create("UIListLayout", {
-			Padding = UDim.new(0, 5)
-		})
-	}), "ScrollBar")
-	
-	local Containers = Create("Frame", Components, {
-		Size = UDim2.new(1, -MainScroll.Size.X.Offset, 1, -TopBar.Size.Y.Offset),
-		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, 0, 1, 0),
-		BackgroundTransparency = 1,
-		ClipsDescendants = true,
-		Name = "Containers"
-	})
-	
-	local ControlSize1, ControlSize2 = MakeDrag(Create("ImageButton", MainFrame, {
-		Size = UDim2.new(0, 35, 0, 35),
-		Position = MainFrame.Size,
-		Active = true,
-		AnchorPoint = Vector2.new(0.8, 0.8),
-		BackgroundTransparency = 1,
-		Name = "Control Hub Size"
-	})), MakeDrag(Create("ImageButton", MainFrame, {
-		Size = UDim2.new(0, 20, 1, -30),
-		Position = UDim2.new(0, MainScroll.Size.X.Offset, 1, 0),
-		AnchorPoint = Vector2.new(0.5, 1),
-		Active = true,
-		BackgroundTransparency = 1,
-		Name = "Control Tab Size"
-	}))
-	
-	local function ControlSize()
-		local Pos1, Pos2 = ControlSize1.Position, ControlSize2.Position
-		ControlSize1.Position = UDim2.fromOffset(math.clamp(Pos1.X.Offset, 430, 1000), math.clamp(Pos1.Y.Offset, 200, 500))
-		ControlSize2.Position = UDim2.new(0, math.clamp(Pos2.X.Offset, 135, 250), 1, 0)
-		
-		MainScroll.Size = UDim2.new(0, ControlSize2.Position.X.Offset, 1, -TopBar.Size.Y.Offset)
-		Containers.Size = UDim2.new(1, -MainScroll.Size.X.Offset, 1, -TopBar.Size.Y.Offset)
-		MainFrame.Size = ControlSize1.Position
-	end
-	
-	ControlSize1:GetPropertyChangedSignal("Position"):Connect(ControlSize)
-	ControlSize2:GetPropertyChangedSignal("Position"):Connect(ControlSize)
-	
-	ConnectSave(ControlSize1, function()
-		if not Minimized then
-			NutriexLibrary.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-			SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
-		end
-	end)
-	
-	ConnectSave(ControlSize2, function()
-		NutriexLibrary.Save.TabSize = MainScroll.Size.X.Offset
-		SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
-	end)
-	
-	local ButtonsFolder = Create("Folder", TopBar, {
-		Name = "Buttons"
-	})
-	
-	local CloseButton = Create("ImageButton", {
-		Size = UDim2.new(0, 14, 0, 14),
-		Position = UDim2.new(1, -10, 0.5),
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundTransparency = 1,
-		Image = "rbxassetid://10747384394",
-		AutoButtonColor = false,
-		Name = "Close"
-	})
-	
-	local MinimizeButton = SetProps(CloseButton:Clone(), {
-		Position = UDim2.new(1, -35, 0.5),
-		Image = "rbxassetid://10734896206",
-		Name = "Minimize"
-	})
-	
-	SetChildren(ButtonsFolder, {
-		CloseButton,
-		MinimizeButton
-	})
-	
-	local Minimized, SaveSize, WaitClick
-	local Window, FirstTab = {}, false
-	function Window:CloseBtn()
-		local Dialog = Window:Dialog({
-			Title = "Close",
-			Text = "You Want Close UI Library?",
-			Options = {
-				{"Confirm", function()
-					ScreenGui:Destroy()
-				end},
-				{"Cancel"}
-			}
-		})
-	end
-	function Window:MinimizeBtn()
-		if WaitClick then return end
-		WaitClick = true
-		
-		if Minimized then
-			MinimizeButton.Image = "rbxassetid://10734896206"
-			CreateTween({MainFrame, "Size", SaveSize, 0.25, true})
-			ControlSize1.Visible = true
-			ControlSize2.Visible = true
-			Minimized = false
-		else
-			MinimizeButton.Image = "rbxassetid://10734924532"
-			SaveSize = MainFrame.Size
-			ControlSize1.Visible = false
-			ControlSize2.Visible = false
-			CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, 28), 0.25, true})
-			Minimized = true
-		end
-		
-		WaitClick = false
-	end
-	function Window:Minimize()
-		MainFrame.Visible = not MainFrame.Visible
-	end
-	function Window:AddMinimizeButton(Configs)
-		local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-			Size = UDim2.fromOffset(35, 35),
-			Position = UDim2.fromScale(0.15, 0.15),
-			BackgroundTransparency = 1,
-			BackgroundColor3 = Theme["Color Hub 2"],
-			AutoButtonColor = false
-		}))
-		
-		local Stroke, Corner
-		if Configs.Corner then
-			Corner = Make("Corner", Button)
-			SetProps(Corner, Configs.Corner)
-		end
-		if Configs.Stroke then
-			Stroke = Make("Stroke", Button)
-			SetProps(Stroke, Configs.Corner)
-		end
-		
-		SetProps(Button, Configs.Button)
-		Button.Activated:Connect(Window.Minimize)
-		
-		return {
-			Stroke = Stroke,
-			Corner = Corner,
-			Button = Button
-		}
-	end
-	function Window:Set(Val1, Val2)
-		if type(Val1) == "string" and type(Val2) == "string" then
-			Title.Text = Val1
-			Title.SubTitle.Text = Val2
-		elseif type(Val1) == "string" then
-			Title.Text = Val1
-		end
-	end
+    Configs = Configs or {}
+    local WTitle = Configs[1] or Configs.Name or Configs.Title or "Nutriex Hub"
+    local WMiniText = Configs[2] or Configs.SubTitle or ""
+    
+    Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
+    
+    -- Leitura Segura de Configurações Salvas
+    local function LoadFile()
+        local File = Settings.ScriptFile
+        if type(File) ~= "string" or not readfile or not isfile then return end
+        
+        local success, exists = pcall(isfile, File)
+        if success and exists then
+            local readSuccess, content = pcall(readfile, File)
+            if readSuccess and type(content) == "string" then
+                local jsonSuccess, decoded = pcall(function() return HttpService:JSONDecode(content) end)
+                if jsonSuccess and type(decoded) == "table" then
+                    Flags = decoded
+                end
+            end
+        end
+    end
+    LoadFile()
+    
+    -- Restauração e validação das dimensões da Janela
+    local SaveData = NutriexLibrary.Save or {}
+    local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
+    local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
+    local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
+
+    -- Frame Principal (MainFrame)
+    local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
+        Size = UDim2.fromOffset(UISizeX, UISizeY),
+        Position = UDim2.new(0.5, -UISizeX / 2, 0.5, -UISizeY / 2),
+        BackgroundTransparency = 0.03,
+        Name = "Hub",
+        AutoButtonColor = false
+    }), "Main")
+    
+    Make("Gradient", MainFrame, { Rotation = 45 })
+    local MainCorner = Make("Corner", MainFrame)
+    MakeDrag(MainFrame)
+    
+    local Components = Create("Folder", MainFrame, { Name = "Components" })
+    local DropdownHolder = Create("Folder", ScreenGui, { Name = "Dropdown" })
+    
+    -- TopBar (Barra Superior)
+    local TopBar = Create("Frame", Components, {
+        Size = UDim2.new(1, 0, 0, 28),
+        BackgroundTransparency = 1,
+        Name = "Top Bar"
+    })
+    
+    -- Título e Subtítulo
+    local Title = InsertTheme(Create("TextLabel", TopBar, {
+        Position = UDim2.new(0, 15, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        AutomaticSize = Enum.AutomaticSize.XY,
+        Text = WTitle,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextSize = 12,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Ubuntu,
+        Name = "Title"
+    }), "Text")
+    
+    local SubTitle = InsertTheme(Create("TextLabel", Title, {
+        Size = UDim2.fromScale(0, 1),
+        AutomaticSize = Enum.AutomaticSize.X,
+        AnchorPoint = Vector2.new(0, 1),
+        Position = UDim2.new(1, 5, 0.9, 0),
+        Text = WMiniText,
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
+        BackgroundTransparency = 1,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Bottom,
+        TextSize = 8,
+        Font = Enum.Font.Ubuntu,
+        Name = "SubTitle"
+    }), "DarkText")
+    
+    -- Áreas Conteúdas (Tabs & Containers)
+    local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
+        Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
+        Position = UDim2.new(0, 0, 1, 0),
+        AnchorPoint = Vector2.new(0, 1),
+        ScrollBarThickness = 1.5,
+        BackgroundTransparency = 1,
+        ScrollBarImageTransparency = 0.2,
+        ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        BorderSizePixel = 0,
+        Name = "Tab Scroll"
+    }, {
+        Create("UIPadding", {
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10)
+        }),
+        Create("UIListLayout", {
+            Padding = UDim.new(0, 5),
+            SortOrder = Enum.SortOrder.LayoutOrder
+        })
+    }), "ScrollBar")
+    
+    local Containers = Create("Frame", Components, {
+        Size = UDim2.new(1, -MainScroll.Size.X.Offset, 1, -TopBar.Size.Y.Offset),
+        AnchorPoint = Vector2.new(1, 1),
+        Position = UDim2.new(1, 0, 1, 0),
+        BackgroundTransparency = 1,
+        ClipsDescendants = true,
+        Name = "Containers"
+    })
+    
+    -- Controlos de Redimensionamento da Janela e das Abas
+    local ControlSize1 = MakeDrag(Create("ImageButton", MainFrame, {
+        Size = UDim2.new(0, 35, 0, 35),
+        Position = UDim2.fromOffset(UISizeX, UISizeY),
+        Active = true,
+        AnchorPoint = Vector2.new(0.8, 0.8),
+        BackgroundTransparency = 1,
+        Name = "Control Hub Size"
+    }))
+    
+    local ControlSize2 = MakeDrag(Create("ImageButton", MainFrame, {
+        Size = UDim2.new(0, 20, 1, -30),
+        Position = UDim2.new(0, TabSizeX, 1, 0),
+        AnchorPoint = Vector2.new(0.5, 1),
+        Active = true,
+        BackgroundTransparency = 1,
+        Name = "Control Tab Size"
+    }))
+    
+    local Minimized = false
+    local SaveSize = MainFrame.Size
+    
+    local function UpdateLayout()
+        if Minimized then return end
+        
+        local Pos1, Pos2 = ControlSize1.Position, ControlSize2.Position
+        local NewWidth = math.clamp(Pos1.X.Offset, 430, 1000)
+        local NewHeight = math.clamp(Pos1.Y.Offset, 200, 500)
+        local NewTabWidth = math.clamp(Pos2.X.Offset, 135, 250)
+        
+        ControlSize1.Position = UDim2.fromOffset(NewWidth, NewHeight)
+        ControlSize2.Position = UDim2.new(0, NewTabWidth, 1, 0)
+        
+        MainScroll.Size = UDim2.new(0, NewTabWidth, 1, -TopBar.Size.Y.Offset)
+        Containers.Size = UDim2.new(1, -NewTabWidth, 1, -TopBar.Size.Y.Offset)
+        MainFrame.Size = ControlSize1.Position
+    end
+    
+    ControlSize1:GetPropertyChangedSignal("Position"):Connect(UpdateLayout)
+    ControlSize2:GetPropertyChangedSignal("Position"):Connect(UpdateLayout)
+    
+    if type(ConnectSave) == "function" then
+        ConnectSave(ControlSize1, function()
+            if not Minimized and type(SaveJson) == "function" then
+                NutriexLibrary.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
+                SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
+            end
+        end)
+        
+        ConnectSave(ControlSize2, function()
+            if type(SaveJson) == "function" then
+                NutriexLibrary.Save.TabSize = MainScroll.Size.X.Offset
+                SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
+            end
+        end)
+    end
+    
+    -- Botões de Controlo do TopBar (Fechar / Minimizar)
+    local ButtonsFolder = Create("Folder", TopBar, { Name = "Buttons" })
+    
+    local CloseButton = Create("ImageButton", {
+        Size = UDim2.new(0, 14, 0, 14),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://10747384394",
+        ImageTransparency = 0.3,
+        AutoButtonColor = false,
+        Name = "Close"
+    })
+    
+    local MinimizeButton = Create("ImageButton", {
+        Size = UDim2.new(0, 14, 0, 14),
+        Position = UDim2.new(1, -32, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://10734896206",
+        ImageTransparency = 0.3,
+        AutoButtonColor = false,
+        Name = "Minimize"
+    })
+    
+    CloseButton.Parent = ButtonsFolder
+    MinimizeButton.Parent = ButtonsFolder
+    
+    -- Efeitos Visuais nos Botões (Hover)
+    local function AddBtnEffects(btn)
+        btn.MouseEnter:Connect(function()
+            CreateTween({btn, "ImageTransparency", 0, 0.15})
+        end)
+        btn.MouseLeave:Connect(function()
+            CreateTween({btn, "ImageTransparency", 0.3, 0.15})
+        end)
+    end
+    AddBtnEffects(CloseButton)
+    AddBtnEffects(MinimizeButton)
+    
+    local Window = {}
+    local WaitClick = false
+    
+    function Window:CloseBtn()
+        if typeof(Window.Dialog) == "function" then
+            Window:Dialog({
+                Title = "Fechar",
+                Text = "Deseja encerrar a interface?",
+                Options = {
+                    {"Confirmar", function() ScreenGui:Destroy() end},
+                    {"Cancelar"}
+                }
+            })
+        else
+            ScreenGui:Destroy()
+        end
+    end
+    
+    function Window:MinimizeBtn()
+        if WaitClick then return end
+        WaitClick = true
+        
+        if Minimized then
+            MinimizeButton.Image = "rbxassetid://10734896206"
+            CreateTween({MainFrame, "Size", SaveSize, 0.22, true})
+            ControlSize1.Visible = true
+            ControlSize2.Visible = true
+            Minimized = false
+        else
+            MinimizeButton.Image = "rbxassetid://10734924532"
+            SaveSize = MainFrame.Size
+            ControlSize1.Visible = false
+            ControlSize2.Visible = false
+            CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, TopBar.Size.Y.Offset), 0.22, true})
+            Minimized = true
+        end
+        
+        WaitClick = false
+    end
+    
+    function Window:Minimize()
+        MainFrame.Visible = not MainFrame.Visible
+    end
+    
+    CloseButton.Activated:Connect(function()
+        Window:CloseBtn()
+    end)
+    
+    MinimizeButton.Activated:Connect(function()
+        Window:MinimizeBtn()
+    end)
+    
+    function Window:AddMinimizeButton(MinConfigs)
+        MinConfigs = MinConfigs or {}
+        local Button = MakeDrag(Create("ImageButton", ScreenGui, {
+            Size = UDim2.fromOffset(35, 35),
+            Position = UDim2.fromScale(0.15, 0.15),
+            BackgroundTransparency = 0.2,
+            BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 25),
+            AutoButtonColor = false,
+            Name = "FloatingMinimizeBtn"
+        }))
+        
+        local Stroke, Corner
+        if MinConfigs.Corner then
+            Corner = Make("Corner", Button)
+            SetProps(Corner, MinConfigs.Corner)
+        end
+        if MinConfigs.Stroke then
+            Stroke = Make("Stroke", Button)
+            SetProps(Stroke, MinConfigs.Stroke)
+        end
+        
+        if MinConfigs.Button then
+            SetProps(Button, MinConfigs.Button)
+        end
+        
+        Button.Activated:Connect(function()
+            Window:Minimize()
+        end)
+        
+        return {
+            Stroke = Stroke,
+            Corner = Corner,
+            Button = Button
+        }
+    end
+    
+    function Window:Set(Val1, Val2)
+        if type(Val1) == "string" then
+            Title.Text = Val1
+        end
+        if type(Val2) == "string" then
+            SubTitle.Text = Val2
+        end
+    end
+    
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
     if Minimized then
