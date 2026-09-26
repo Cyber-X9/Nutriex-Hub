@@ -14,15 +14,15 @@ local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(30, 32, 44)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(20, 22, 30)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(30, 32, 44))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(30, 30, 30)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
     }),
-    ["Color Hub 2"] = Color3.fromRGB(24, 26, 36),
-    ["Color Stroke"] = Color3.fromRGB(45, 48, 65),
-    ["Color Theme"] = Color3.fromRGB(88, 101, 242),
-    ["Color Text"] = Color3.fromRGB(240, 242, 250),
-    ["Color Dark Text"] = Color3.fromRGB(140, 145, 170)
+    ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
+    ["Color Stroke"] = Color3.fromRGB(35, 35, 35),
+    ["Color Theme"] = Color3.fromRGB(255, 255, 255),
+    ["Color Text"] = Color3.fromRGB(245, 245, 245),
+    ["Color Dark Text"] = Color3.fromRGB(130, 130, 130)
 }
 	},
 	Info = {
@@ -1597,14 +1597,16 @@ function NutriexLibrary:MakeWindow(Configs)
     
     function Window:CloseBtn()
         if typeof(Window.Dialog) == "function" then
-            Window:Dialog({
-                Title = "Fechar",
-                Text = "Deseja encerrar a interface?",
-                Options = {
-                    {"Confirmar", function() ScreenGui:Destroy() end},
-                    {"Cancelar"}
-                }
-            })
+           Window:Dialog({
+			Title = "Close",
+			Text = "You Want Close Nutriex Hub",
+			Options = {
+				{"Confirm", function()
+					ScreenGui:Destroy()
+				end},
+				{"Cancel"}
+			  }
+          })
         else
             ScreenGui:Destroy()
         end
@@ -2966,100 +2968,119 @@ function Tab:AddTextBox(Configs)
     return TextBox
 end
 function Tab:AddDiscordInvite(Configs)
-			local Title = Configs[1] or Configs.Name or Configs.Title or "Discord"
-			local Desc = Configs.Desc or Configs.Description or ""
-			local Logo = Configs[2] or Configs.Logo or ""
-			local Invite = Configs[3] or Configs.Invite or ""
-			
-			local InviteHolder = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 80),
-				Name = "Option",
-				BackgroundTransparency = 1
-			})
-			
-			local InviteLabel = Create("TextLabel", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 15),
-				Position = UDim2.new(0, 5),
-				TextColor3 = Color3.fromRGB(40, 150, 255),
-				Font = Enum.Font.Ubuntu,
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Invite
-			})
-			
-			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 65),
-				AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.new(0, 0, 1),
-				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Frame")Make("Corner", FrameHolder)
-			
-			local ImageLabel = Create("ImageLabel", FrameHolder, {
-				Size = UDim2.new(0, 30, 0, 30),
-				Position = UDim2.new(0, 7, 0, 7),
-				Image = Logo,
-				BackgroundTransparency = 1
-			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
-			
-			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 15),
-				Position = UDim2.new(0, 44, 0, 7),
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Title
-			}), "Text")
-			
-			local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 0),
-				Position = UDim2.new(0, 44, 0, 22),
-				TextWrapped = "Y",
-				AutomaticSize = "Y",
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Dark Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 8,
-				Text = Desc
-			}), "DarkText")
-			
-			local JoinButton = Create("TextButton", FrameHolder, {
-				Size = UDim2.new(1, -14, 0, 16),
-				AnchorPoint = Vector2.new(0.5, 1),
-				Position = UDim2.new(0.5, 0, 1, -7),
-				Text = "Join Discord Server",
-				Font = Enum.Font.Ubuntu,
-				TextSize = 12,
-				TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-			})Make("Corner", JoinButton, UDim.new(0, 5))
-			
-			local ClickDelay
-			JoinButton.Activated:Connect(function()
-				setclipboard(Invite)
-				if ClickDelay then return end
-				
-				ClickDelay = true
-				SetProps(JoinButton, {
-					Text = "Link Copied!",
-					BackgroundColor3 = Color3.fromRGB(100, 100, 100),
-					TextColor3 = Color3.fromRGB(150, 150, 150)
-				})task.wait(5)
-				SetProps(JoinButton, {
-					Text = "Join Discord Server",
-					TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-				})ClickDelay = false
-			end)
-			
-			local DiscordInvite = {}
-			function DiscordInvite:Destroy() InviteHolder:Destroy() end
-			function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
-			return DiscordInvite
-		end
+    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Server"
+    local Desc = Configs.Desc or Configs.Description or "Join our community for updates and support!"
+    local Logo = Configs[2] or Configs.Logo or Configs.Icon or "rbxassetid://11481180173"
+    local Invite = Configs[3] or Configs.Invite or "https://discord.gg/"
+    
+    -- Se o logo vier vazio, usa a imagem padrão do Discord
+    if type(Logo) ~= "string" or Logo:gsub(" ", "") == "" then
+        Logo = "rbxassetid://11481180173"
+    end
+    
+    -- Container principal do Card
+    local InviteHolder = Create("Frame", Container, {
+        Size = UDim2.new(1, 0, 0, 90),
+        Name = "Option",
+        BackgroundTransparency = 1
+    })
+    
+    local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 25),
+        BorderSizePixel = 0
+    }), "Frame")
+    Make("Corner", FrameHolder, UDim.new(0, 6))
+    Make("Stroke", FrameHolder)
+    
+    -- Ícone / Logo do Discord
+    local ImageLabel = Create("ImageLabel", FrameHolder, {
+        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(0, 10, 0, 10),
+        Image = Logo,
+        BackgroundTransparency = 1
+    })
+    Make("Corner", ImageLabel, UDim.new(0, 6))
+    
+    -- Título
+    local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
+        Size = UDim2.new(1, -56, 0, 16),
+        Position = UDim2.new(0, 50, 0, 8),
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 12,
+        Text = Title,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    }), "Text")
+    
+    -- Descrição
+    local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
+        Size = UDim2.new(1, -56, 0, 14),
+        Position = UDim2.new(0, 50, 0, 24),
+        TextWrapped = true,
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 10,
+        Text = Desc,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    }), "DarkText")
+    
+    -- Botão de Entrar (Altura ajustada para 22px para touch amigável)
+    local JoinButton = Create("TextButton", FrameHolder, {
+        Size = UDim2.new(1, -20, 0, 22),
+        AnchorPoint = Vector2.new(0.5, 1),
+        Position = UDim2.new(0.5, 0, 1, -8),
+        Text = "Join Discord Server",
+        Font = Enum.Font.Ubuntu,
+        TextSize = 11,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- Discord Blurple
+        AutoButtonColor = false,
+        BorderSizePixel = 0
+    })
+    Make("Corner", JoinButton, UDim.new(0, 5))
+    
+    -- Instância UIScale para o efeito de clique suave
+    local BtnScale = Instance.new("UIScale")
+    BtnScale.Parent = JoinButton
+    
+    local ClickDelay = false
+    JoinButton.Activated:Connect(function()
+        -- Animação visual de toque
+        CreateTween({BtnScale, "Scale", 0.96, 0.08, true})
+        CreateTween({BtnScale, "Scale", 1, 0.12})
+        
+        -- Copia o link com pcall de segurança
+        if setclipboard then
+            pcall(setclipboard, Invite)
+        end
+        
+        if ClickDelay then return end
+        ClickDelay = true
+        
+        -- Feedback visual em verde de sucesso
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(57, 139, 81), 0.2})
+        JoinButton.Text = "Link Copied to Clipboard!"
+        
+        task.wait(3)
+        
+        -- Retorna ao estado original Blurple
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.2})
+        JoinButton.Text = "Join Discord Server"
+        
+        ClickDelay = false
+    end)
+    
+    local DiscordInvite = {}
+    function DiscordInvite:Destroy() InviteHolder:Destroy() end
+    function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
+    return DiscordInvite
+end
 		return Tab
 	end
 	
