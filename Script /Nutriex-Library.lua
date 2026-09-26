@@ -15,7 +15,7 @@ local NutriexLibrary = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(30, 30, 30)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
     }),
     ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
