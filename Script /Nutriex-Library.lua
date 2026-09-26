@@ -12,10 +12,10 @@ local CoreGui = (gethui and gethui()) or game:GetService("CoreGui");
 
 local NutriexLibrary = {
 	Themes = {
-		DarkerMidnight = {
+		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(5, 10, 17)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
         ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
     }),
     ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
@@ -31,7 +31,7 @@ local NutriexLibrary = {
 	Save = {
 		UISize = {479, 241},
 		TabSize = 160,
-		Theme = "DarkerMidnight"
+		Theme = "Darker"
 	},
 	Settings = {},
 	Connection = {},
@@ -1378,8 +1378,8 @@ function NutriexLibrary:SetScale(NewScale)
 end
 
 function NutriexLibrary:MakeWindow(Configs)
-	local WTitle = Configs[1] or Configs.Name or Configs.Title or "redz Library V5"
-	local WMiniText = Configs[2] or Configs.SubTitle or "by : redz9999"
+	local WTitle = Configs[1] or Configs.Name or Configs.Title or ""
+	local WMiniText = Configs[2] or Configs.SubTitle or ""
 	
 	Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
 	
@@ -1558,7 +1558,7 @@ function NutriexLibrary:MakeWindow(Configs)
 	function Window:CloseBtn()
 		local Dialog = Window:Dialog({
 			Title = "Close",
-			Text = "You Want Close Ui?",
+			Text = "You Want Close UI Library?",
 			Options = {
 				{"Confirm", function()
 					ScreenGui:Destroy()
