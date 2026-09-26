@@ -1637,6 +1637,7 @@ function Window:Dialog(Configs)
     local DText = Configs[2] or Configs.Text or "This is a Dialog"
     local DOptions = Configs[3] or Configs.Options or {}
     
+    -- Película de fundo escurecida (Overlay)
     local Screen = Create("Frame", MainFrame, {
         BackgroundTransparency = 1,
         Active = true,
@@ -1650,6 +1651,7 @@ function Window:Dialog(Configs)
         MainCorner:Clone().Parent = Screen
     end
     
+    -- Modal principal (Aumentado para 165px de altura para dar espaço respirável)
     local Frame = Create("Frame", Screen, {
         Active = true,
         Size = UDim2.fromOffset(270, 165),
@@ -1663,10 +1665,12 @@ function Window:Dialog(Configs)
     Make("Corner", Frame, UDim.new(0, 10))
     Make("Stroke", Frame)
     
+    -- Animação de entrada via UIScale
     local DialogScale = Instance.new("UIScale")
     DialogScale.Scale = 0.85
     DialogScale.Parent = Frame
     
+    -- Título
     InsertTheme(Create("TextLabel", Frame, {
         Font = Enum.Font.Ubuntu,
         Size = UDim2.new(1, -30, 0, 22),
@@ -1679,6 +1683,7 @@ function Window:Dialog(Configs)
         ZIndex = 52
     }), "Text")
     
+    -- Texto Descritivo
     InsertTheme(Create("TextLabel", Frame, {
         Font = Enum.Font.Ubuntu,
         Size = UDim2.new(1, -30, 0, 55),
@@ -1693,6 +1698,7 @@ function Window:Dialog(Configs)
         ZIndex = 52
     }), "DarkText")
     
+    -- Container dos Botões
     local ButtonsHolder = Create("Frame", Frame, {
         Size = UDim2.new(1, -24, 0, 34),
         Position = UDim2.new(0, 12, 1, -12),
@@ -1708,6 +1714,7 @@ function Window:Dialog(Configs)
         HorizontalAlignment = Enum.HorizontalAlignment.Center
     })
     
+    -- Transições de abertura
     CreateTween({Screen, "BackgroundTransparency", 0.4, 0.15})
     CreateTween({DialogScale, "Scale", 1, 0.15})
     
@@ -1717,22 +1724,23 @@ function Window:Dialog(Configs)
         local Name = BtnConfigs[1] or BtnConfigs.Name or BtnConfigs.Title or "Confirm"
         local Callback = BtnConfigs[2] or BtnConfigs.Callback or function() end
         
-        local Button = Create("TextButton", ButtonsHolder, {
+        -- Criação direta do TextButton com propriedades explícitas de visibilidade do texto
+        local Button = InsertTheme(Create("TextButton", ButtonsHolder, {
             Text = Name,
             Font = Enum.Font.Ubuntu,
             TextSize = 12,
             TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-            BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+            BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(50, 50, 50),
             AutoButtonColor = true,
             BorderSizePixel = 0,
             ZIndex = 53
-        })
+        }), "Text")
         
         Make("Corner", Button, UDim.new(0, 6))
-        Make("Stroke", Button)
         
         table.insert(ButtonsList, Button)
         
+        -- Cálculo responsivo do tamanho dos botões na horizontal
         local TotalButtons = #ButtonsList
         for _, btn in ipairs(ButtonsList) do
             btn.Size = UDim2.new(1 / TotalButtons, -(((TotalButtons - 1) * 8) / TotalButtons), 1, 0)
@@ -1750,6 +1758,7 @@ function Window:Dialog(Configs)
         Screen:Destroy()
     end
     
+    -- Inicialização dos botões
     for _, btnData in ipairs(DOptions) do
         Dialog:Button(btnData)
     end
