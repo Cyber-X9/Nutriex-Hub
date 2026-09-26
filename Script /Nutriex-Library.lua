@@ -1627,110 +1627,138 @@ function NutriexLibrary:MakeWindow(Configs)
 			Title.Text = Val1
 		end
 	end
-	function Window:Dialog(Configs)
-		if MainFrame:FindFirstChild("Dialog") then return end
-		if Minimized then
-			Window:MinimizeBtn()
-		end
-		
-		local DTitle = Configs[1] or Configs.Title or "Dialog"
-		local DText = Configs[2] or Configs.Text or "This is a Dialog"
-		local DOptions = Configs[3] or Configs.Options or {}
-		
-		local Frame = Create("Frame", {
-			Active = true,
-			Size = UDim2.fromOffset(250 * 1.08, 150 * 1.08),
-			Position = UDim2.fromScale(0.5, 0.5),
-			AnchorPoint = Vector2.new(0.5, 0.5)
-		}, {
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.Ubuntu,
-				Size = UDim2.new(1, 0, 0, 20),
-				Text = DTitle,
-				TextXAlignment = "Left",
-				TextColor3 = Theme["Color Text"],
-				TextSize = 15,
-				Position = UDim2.fromOffset(15, 5),
-				BackgroundTransparency = 1
-			}), "Text"),
-			InsertTheme(Create("TextLabel", {
-				Font = Enum.Font.Ubuntu,
-				Size = UDim2.new(1, -25),
-				AutomaticSize = "Y",
-				Text = DText,
-				TextXAlignment = "Left",
-				TextColor3 = Theme["Color Dark Text"],
-				TextSize = 12,
-				Position = UDim2.fromOffset(15, 25),
-				BackgroundTransparency = 1,
-				TextWrapped = true
-			}), "DarkText")
-		})Make("Gradient", Frame, {Rotation = 270})Make("Corner", Frame)
-		
-		local ButtonsHolder = Create("Frame", Frame, {
-			Size = UDim2.fromScale(1, 0.35),
-			Position = UDim2.fromScale(0, 1),
-			AnchorPoint = Vector2.new(0, 1),
-			BackgroundColor3 = Theme["Color Hub 2"],
-			BackgroundTransparency = 1
-		}, {
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 10),
-				VerticalAlignment = "Center",
-				FillDirection = "Horizontal",
-				HorizontalAlignment = "Center"
-			})
-		})
-		
-		local Screen = InsertTheme(Create("Frame", MainFrame, {
-			BackgroundTransparency = 0.6,
-			Active = true,
-			BackgroundColor3 = Theme["Color Hub 2"],
-			Size = UDim2.new(1, 0, 1, 0),
-			BackgroundColor3 = Theme["Color Stroke"],
-			Name = "Dialog"
-		}), "Stroke")
-		
-		MainCorner:Clone().Parent = Screen
-		Frame.Parent = Screen
-		CreateTween({Frame, "Size", UDim2.fromOffset(250, 150), 0.2})
-		CreateTween({Frame, "Transparency", 0, 0.15})
-		CreateTween({Screen, "Transparency", 0.3, 0.15})
-		
-		local ButtonCount, Dialog = 1, {}
-		function Dialog:Button(Configs)
-			local Name = Configs[1] or Configs.Name or Configs.Title or ""
-			local Callback = Configs[2] or Configs.Callback or function()end
-			
-			ButtonCount = ButtonCount + 1
-			local Button = Make("Button", ButtonsHolder)
-			Make("Corner", Button)
-			SetProps(Button, {
-				Text = Name,
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Text"],
-				TextSize = 12
-			})
-			
-			for _,Button in pairs(ButtonsHolder:GetChildren()) do
-				if Button:IsA("TextButton") then
-					Button.Size = UDim2.new(1 / ButtonCount, -(((ButtonCount - 1) * 20) / ButtonCount), 0, 32) -- Fluent Library :)
-				end
-			end
-			Button.Activated:Connect(Dialog.Close)
-			Button.Activated:Connect(Callback)
-		end
-		function Dialog:Close()
-			CreateTween({Frame, "Size", UDim2.fromOffset(250 * 1.08, 150 * 1.08), 0.2})
-			CreateTween({Screen, "Transparency", 1, 0.15})
-			CreateTween({Frame, "Transparency", 1, 0.15, true})
-			Screen:Destroy()
-		end
-		table.foreach(DOptions, function(_,Button)
-			Dialog:Button(Button)
-		end)
-		return Dialog
-	end
+function Window:Dialog(Configs)
+    if MainFrame:FindFirstChild("Dialog") then return end
+    if Minimized then
+        Window:MinimizeBtn()
+    end
+    
+    local DTitle = Configs[1] or Configs.Title or "Dialog"
+    local DText = Configs[2] or Configs.Text or "This is a Dialog"
+    local DOptions = Configs[3] or Configs.Options or {}
+    
+    -- Película de fundo (Overlay) escurecida
+    local Screen = InsertTheme(Create("Frame", MainFrame, {
+        BackgroundTransparency = 1,
+        Active = true,
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(0, 0, 0),
+        Size = UDim2.new(1, 0, 1, 0),
+        Name = "Dialog",
+        ZIndex = 10
+    }), "Stroke")
+    
+    if MainCorner then
+        MainCorner:Clone().Parent = Screen
+    end
+    
+    -- Modal principal do Dialog
+    local Frame = Create("Frame", Screen, {
+        Active = true,
+        Size = UDim2.fromOffset(260, 140),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
+        BorderSizePixel = 0,
+        BackgroundTransparency = 0
+    })
+    Make("Gradient", Frame, {Rotation = 270})
+    Make("Corner", Frame, UDim.new(0, 8))
+    Make("Stroke", Frame)
+    
+    -- UIScale para animação de pop-in/pop-out suave
+    local DialogScale = Instance.new("UIScale")
+    DialogScale.Scale = 0.85
+    DialogScale.Parent = Frame
+    
+    -- Título
+    InsertTheme(Create("TextLabel", Frame, {
+        Font = Enum.Font.Ubuntu,
+        Size = UDim2.new(1, -30, 0, 20),
+        Text = DTitle,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        TextSize = 14,
+        Position = UDim2.fromOffset(15, 10),
+        BackgroundTransparency = 1
+    }), "Text")
+    
+    -- Texto Descritivo
+    InsertTheme(Create("TextLabel", Frame, {
+        Font = Enum.Font.Ubuntu,
+        Size = UDim2.new(1, -30, 0, 50),
+        Text = DText,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(170, 170, 170),
+        TextSize = 11,
+        Position = UDim2.fromOffset(15, 32),
+        BackgroundTransparency = 1,
+        TextWrapped = true
+    }), "DarkText")
+    
+    -- Container inferior para alinhamento horizontal dos botões
+    local ButtonsHolder = Create("Frame", Frame, {
+        Size = UDim2.new(1, -20, 0, 32),
+        Position = UDim2.new(0, 10, 1, -10),
+        AnchorPoint = Vector2.new(0, 1),
+        BackgroundTransparency = 1
+    })
+    
+    Create("UIListLayout", ButtonsHolder, {
+        Padding = UDim.new(0, 8),
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Center
+    })
+    
+    -- Animação de Entrada
+    CreateTween({Screen, "BackgroundTransparency", 0.4, 0.15})
+    CreateTween({DialogScale, "Scale", 1, 0.15})
+    
+    local ButtonsList, Dialog = {}, {}
+    
+    function Dialog:Button(BtnConfigs)
+        local Name = BtnConfigs[1] or BtnConfigs.Name or BtnConfigs.Title or "Button"
+        local Callback = BtnConfigs[2] or BtnConfigs.Callback or function() end
+        
+        local Button = Make("Button", ButtonsHolder)
+        Make("Corner", Button, UDim.new(0, 5))
+        
+        SetProps(Button, {
+            Text = Name,
+            Font = Enum.Font.Ubuntu,
+            TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+            TextSize = 11,
+            BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(45, 45, 45)
+        })
+        
+        table.insert(ButtonsList, Button)
+        
+        -- Redistribui a largura igualmente entre os botões existentes
+        local TotalButtons = #ButtonsList
+        for _, btn in ipairs(ButtonsList) do
+            btn.Size = UDim2.new(1 / TotalButtons, -(((TotalButtons - 1) * 8) / TotalButtons), 1, 0)
+        end
+        
+        Button.Activated:Connect(function()
+            Dialog:Close()
+            Callback()
+        end)
+    end
+    
+    function Dialog:Close()
+        CreateTween({Screen, "BackgroundTransparency", 1, 0.12})
+        CreateTween({DialogScale, "Scale", 0.85, 0.12, true})
+        Screen:Destroy()
+    end
+    
+    -- Inicializa os botões passados pelas configurações
+    for _, btnData in ipairs(DOptions) do
+        Dialog:Button(btnData)
+    end
+    
+    return Dialog
+end
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
 			NutriexLibrary.Tabs[TabSelect].func:Enable()
@@ -1899,52 +1927,31 @@ function NutriexLibrary:MakeWindow(Configs)
 			end
 			return Section
 		end
-		-- // =================================================================
--- // PARAGRAPH IMPLEMENTATION
--- // =================================================================
-function Tab:AddParagraph(Configs)
-    local PName = Configs[1] or Configs.Title or "Paragraph"
-    local PDesc = Configs[2] or Configs.Text or ""
-    
-    local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
-    
-    -- Ajustes de design para dar visual informativo (sem passar a ideia de botão clicável)
-    Frame.AutoButtonColor = false
-    Frame.Active = false
-    
-    -- Ícone decorativo de informação/texto
-    local InfoIcon = Create("ImageLabel", Frame, {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = UDim2.new(1, -10, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://10709791437",
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        ImageTransparency = 0.6
-    })
-    
-    local Paragraph = {}
-    function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
-    function Paragraph:Destroy() Frame:Destroy() end
-    function Paragraph:SetTitle(Val)
-        LabelFunc:SetTitle(GetStr(Val))
-    end
-    function Paragraph:SetDesc(Val)
-        LabelFunc:SetDesc(GetStr(Val))
-    end
-    function Paragraph:Set(Val1, Val2)
-        if Val1 and Val2 then
-            LabelFunc:SetTitle(GetStr(Val1))
-            LabelFunc:SetDesc(GetStr(Val2))
-        elseif Val1 then
-            LabelFunc:SetDesc(GetStr(Val1))
-        end
-    end
-    return Paragraph
-end
-		-- // =================================================================
--- // BUTTON IMPLEMENTATION
--- // =================================================================
+		function Tab:AddParagraph(Configs)
+			local PName = Configs[1] or Configs.Title or "Paragraph"
+			local PDesc = Configs[2] or Configs.Text or ""
+			
+			local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
+			
+			local Paragraph = {}
+			function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
+			function Paragraph:Destroy() Frame:Destroy() end
+			function Paragraph:SetTitle(Val)
+				LabelFunc:SetTitle(GetStr(Val))
+			end
+			function Paragraph:SetDesc(Val)
+				LabelFunc:SetDesc(GetStr(Val))
+			end
+			function Paragraph:Set(Val1, Val2)
+				if Val1 and Val2 then
+					LabelFunc:SetTitle(GetStr(Val1))
+					LabelFunc:SetDesc(GetStr(Val2))
+				elseif Val1 then
+					LabelFunc:SetDesc(GetStr(Val1))
+				end
+			end
+			return Paragraph
+		end
 function Tab:AddButton(Configs)
     local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
     local BDescription = Configs.Desc or Configs.Description or ""
@@ -1963,6 +1970,11 @@ function Tab:AddButton(Configs)
         ImageTransparency = 0.3
     })
 
+    -- Instância UIScale inserida para lidar com a animação de clique em segurança
+    local ClickScale = Instance.new("UIScale")
+    ClickScale.Parent = FButton
+    ClickScale.Scale = 1
+
     -- Animação de Hover no Ícone
     FButton.MouseEnter:Connect(function()
         CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.15})
@@ -1974,10 +1986,11 @@ function Tab:AddButton(Configs)
         CreateTween({ButtonIcon, "ImageTransparency", 0.3, 0.15})
     end)
 
-    -- Efeito de Clique no Botão (Feedback Visual)
+    -- Efeito de Clique no Botão (Feedback Visual via UIScale)
     FButton.Activated:Connect(function()
-        CreateTween({FButton, "Size", UDim2.new(1, -24, 0, FButton.Size.Y.Offset), 0.08, true})
-        CreateTween({FButton, "Size", UDim2.new(1, -20, 0, FButton.Size.Y.Offset), 0.12})
+        -- Anima a escala visual em vez do tamanho real do frame
+        CreateTween({ClickScale, "Scale", 0.96, 0.08, true})
+        CreateTween({ClickScale, "Scale", 1, 0.12})
         Funcs:FireCallback(Callback)
     end)
     
@@ -1997,115 +2010,81 @@ function Tab:AddButton(Configs)
     end
     return Button
 end
-
--- // =================================================================
--- // TOGGLE IMPLEMENTATION
--- // =================================================================
 function Tab:AddToggle(Configs)
-    local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
-    local TDesc = Configs.Desc or Configs.Description or ""
-    local Callback = Funcs:GetCallback(Configs, 3)
-    local Flag = Configs[4] or Configs.Flag or false
-    local Default = Configs[2] or Configs.Default or false
-    
-    if CheckFlag(Flag) then Default = GetFlag(Flag) end
-    
-    local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -48))
-    
-    -- Fundo do Switch (Pill Shape)
-    local ToggleHolder = InsertTheme(Create("Frame", Button, {
-        Size = UDim2.new(0, 38, 0, 20),
-        Position = UDim2.new(1, -10, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundColor3 = Default and Theme["Color Theme"] or Theme["Color Stroke"],
-        BorderSizePixel = 0
-    }), "Stroke")
-    Make("Corner", ToggleHolder, UDim.new(1, 0))
-    
-    -- Pino Deslizante (Knob)
-    local ToggleKnob = Create("Frame", ToggleHolder, {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = Default and UDim2.new(1, -3, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
-        AnchorPoint = Default and Vector2.new(1, 0.5) or Vector2.new(0, 0.5),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BorderSizePixel = 0
-    })
-    Make("Corner", ToggleKnob, UDim.new(1, 0))
-    
-    local WaitClick = false
-    
-    local function SetToggle(Val)
-        if WaitClick then return end
-        WaitClick, Default = true, Val
-        
-        SetFlag(Flag, Default)
-        Funcs:FireCallback(Callback, Default)
-        
-        -- Animação de Transição de Estado (Switch On/Off)
-        if Default then
-            CreateTween({ToggleHolder, "BackgroundColor3", Theme["Color Theme"], 0.2})
-            CreateTween({ToggleKnob, "Position", UDim2.new(1, -3, 0.5, 0), 0.2})
-            CreateTween({ToggleKnob, "AnchorPoint", Vector2.new(1, 0.5), 0.2})
-        else
-            CreateTween({ToggleHolder, "BackgroundColor3", Theme["Color Stroke"], 0.2})
-            CreateTween({ToggleKnob, "Position", UDim2.new(0, 3, 0.5, 0), 0.2})
-            CreateTween({ToggleKnob, "AnchorPoint", Vector2.new(0, 0.5), 0.2})
-        end
-        
-        task.wait(0.2)
-        WaitClick = false
-    end
-    
-    -- Estado Inicial
-    task.spawn(function()
-        if Default then
-            ToggleHolder.BackgroundColor3 = Theme["Color Theme"]
-            ToggleKnob.Position = UDim2.new(1, -3, 0.5, 0)
-            ToggleKnob.AnchorPoint = Vector2.new(1, 0.5)
-        else
-            ToggleHolder.BackgroundColor3 = Theme["Color Stroke"]
-            ToggleKnob.Position = UDim2.new(0, 3, 0.5, 0)
-            ToggleKnob.AnchorPoint = Vector2.new(0, 0.5)
-        end
-    end)
-    
-    -- Efeito de Hover no Switch
-    Button.MouseEnter:Connect(function()
-        CreateTween({ToggleKnob, "Size", UDim2.new(0, 16, 0, 16), 0.15})
-    end)
-    
-    Button.MouseLeave:Connect(function()
-        CreateTween({ToggleKnob, "Size", UDim2.new(0, 14, 0, 14), 0.15})
-    end)
-    
-    Button.Activated:Connect(function()
-        SetToggle(not Default)
-    end)
-    
-    local Toggle = {}
-    function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
-    function Toggle:Destroy() Button:Destroy() end
-    function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
-    function Toggle:Set(Val1, Val2)
-        if type(Val1) == "string" and type(Val2) == "string" then
-            LabelFunc:SetTitle(Val1)
-            LabelFunc:SetDesc(Val2)
-        elseif type(Val1) == "string" then
-            LabelFunc:SetTitle(Val1, false, true)
-        elseif type(Val1) == "boolean" then
-            if WaitClick and Val2 then
-                repeat task.wait() until not WaitClick
-            end
-            task.spawn(SetToggle, Val1)
-        elseif type(Val1) == "function" then
-            Callback = Val1
-        end
-    end
-    return Toggle
-end
-		-- // =================================================================
--- // DROPDOWN IMPLEMENTATION
--- // =================================================================
+			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
+			local TDesc = Configs.Desc or Configs.Description or ""
+			local Callback = Funcs:GetCallback(Configs, 3)
+			local Flag = Configs[4] or Configs.Flag or false
+			local Default = Configs[2] or Configs.Default or false
+			if CheckFlag(Flag) then Default = GetFlag(Flag) end
+			
+			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
+			
+			local ToggleHolder = InsertTheme(Create("Frame", Button, {
+				Size = UDim2.new(0, 35, 0, 18),
+				Position = UDim2.new(1, -10, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundColor3 = Theme["Color Stroke"]
+			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
+			
+			local Slider = Create("Frame", ToggleHolder, {
+				BackgroundTransparency = 1,
+				Size = UDim2.new(0.8, 0, 0.8, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(0.5, 0.5)
+			})
+			
+			local Toggle = InsertTheme(Create("Frame", Slider, {
+				Size = UDim2.new(0, 12, 0, 12),
+				Position = UDim2.new(0, 0, 0.5),
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundColor3 = Theme["Color Theme"]
+			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
+			
+			local WaitClick
+			local function SetToggle(Val)
+				if WaitClick then return end
+				
+				WaitClick, Default = true, Val
+				SetFlag(Flag, Default)
+				Funcs:FireCallback(Callback, Default)
+				if Default then
+					CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
+					CreateTween({Toggle, "BackgroundTransparency", 0, 0.25})
+					CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25, Wait or false})
+				else
+					CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
+					CreateTween({Toggle, "BackgroundTransparency", 0.8, 0.25})
+					CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25, Wait or false})
+				end
+				WaitClick = false
+			end;task.spawn(SetToggle, Default)
+			
+			Button.Activated:Connect(function()
+				SetToggle(not Default)
+			end)
+			
+			local Toggle = {}
+			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
+			function Toggle:Destroy() Button:Destroy() end
+			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
+			function Toggle:Set(Val1, Val2)
+				if type(Val1) == "string" and type(Val2) == "string" then
+					LabelFunc:SetTitle(Val1)
+					LabelFunc:SetDesc(Val2)
+				elseif type(Val1) == "string" then
+					LabelFunc:SetTitle(Val1, false, true)
+				elseif type(Val1) == "boolean" then
+					if WaitClick and Val2 then
+						repeat task.wait() until not WaitClick
+					end
+					task.spawn(SetToggle, Val1)
+				elseif type(Val1) == "function" then
+					Callback = Val1
+				end
+			end
+			return Toggle
+		end
 function Tab:AddDropdown(Configs)
     local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
     local DDesc = Configs.Desc or Configs.Description or ""
@@ -2117,7 +2096,6 @@ function Tab:AddDropdown(Configs)
     
     local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
     
-    -- Quadrado do valor selecionado no botão principal
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
         Size = UDim2.new(0, 150, 0, 22),
         Position = UDim2.new(1, -10, 0.5, 0),
@@ -2149,12 +2127,14 @@ function Tab:AddDropdown(Configs)
         ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255)
     })
     
+    -- // FIX 1: ZIndex global alto para evitar vazamento de sliders
     local NoClickFrame = Create("TextButton", DropdownHolder, {
         Name = "AntiClick",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
         Visible = false,
-        Text = ""
+        Text = "",
+        ZIndex = 130
     })
     
     local DropFrame = Create("Frame", NoClickFrame, {
@@ -2165,7 +2145,8 @@ function Tab:AddDropdown(Configs)
         Name = "DropdownFrame",
         ClipsDescendants = true,
         BorderSizePixel = 0,
-        Active = true
+        Active = true,
+        ZIndex = 100 -- Sobrepõe tudo na tela
     })
     Make("Corner", DropFrame, UDim.new(0, 6))
     Make("Stroke", DropFrame)
@@ -2179,7 +2160,8 @@ function Tab:AddDropdown(Configs)
         CanvasSize = UDim2.new(),
         ScrollingDirection = "Y",
         AutomaticCanvasSize = "Y",
-        Active = true
+        Active = true,
+        ZIndex = 101
     }, {
         Create("UIPadding", {
             PaddingLeft = UDim.new(0, 4),
@@ -2344,30 +2326,34 @@ function Tab:AddDropdown(Configs)
                 Name = "Option",
                 Size = UDim2.new(1, 0, 0, 22),
                 BackgroundTransparency = 1,
-                AutoButtonColor = false
+                AutoButtonColor = false,
+                ZIndex = 102
             })
             Make("Corner", OptionBtn, UDim.new(0, 4))
             
+            -- // FIX 2: Alinhamento da barra e do texto
             local IndicatorBar = InsertTheme(Create("Frame", OptionBtn, {
                 Position = UDim2.new(0, 2, 0.5, 0),
                 Size = UDim2.new(0, 3, 0, 0),
                 BackgroundColor3 = Theme["Color Theme"],
                 BackgroundTransparency = 1,
                 AnchorPoint = Vector2.new(0, 0.5),
-                BorderSizePixel = 0
+                BorderSizePixel = 0,
+                ZIndex = 103
             }), "Theme")
             Make("Corner", IndicatorBar, UDim.new(1, 0))
             
             local OptionLabel = InsertTheme(Create("TextLabel", OptionBtn, {
-                Size = UDim2.new(1, -12, 1, 0),
+                Size = UDim2.new(1, -16, 1, 0),
                 Position = UDim2.new(0, 10, 0, 0),
                 Text = Name,
                 TextColor3 = Theme["Color Text"],
                 Font = Enum.Font.Ubuntu,
-                TextSize = 11,
+                TextSize = 12,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1,
-                TextTransparency = 0.45
+                TextTransparency = 0.45,
+                ZIndex = 103
             }), "Text")
             
             OptionBtn.MouseEnter:Connect(function()
@@ -2486,8 +2472,7 @@ function Tab:AddDropdown(Configs)
     
     return Dropdown
 end
-
-		function Tab:AddSlider(Configs)
+ function Tab:AddSlider(Configs)
     local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
     local SDesc = Configs.Desc or Configs.Description or ""
     local Min = Configs[2] or Configs.MinValue or Configs.Min or 10
@@ -2663,167 +2648,230 @@ end
     function Slider:Destroy() Button:Destroy() end
     return Slider
 end
-		function Tab:AddTextBox(Configs)
-			local TName = Configs[1] or Configs.Name or Configs.Title or "Text Box"
-			local TDesc = Configs.Desc or Configs.Description or ""
-			local TDefault = Configs[2] or Configs.Default or ""
-			local TPlaceholderText = Configs[5] or Configs.PlaceholderText or "Input"
-			local TClearText = Configs[3] or Configs.ClearText or false
-			local Callback = Funcs:GetCallback(Configs, 4)
-			
-			if type(TDefault) ~= "string" or TDefault:gsub(" ", ""):len() < 1 then
-				TDefault = false
-			end
-			
-			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
-			
-			local SelectedFrame = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 150, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", SelectedFrame, UDim.new(0, 4))
-			
-			local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
-				Size = UDim2.new(0.85, 0, 0.85, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 1,
-				Font = Enum.Font.Ubuntu,
-				TextScaled = true,
-				TextColor3 = Theme["Color Text"],
-				ClearTextOnFocus = TClearText,
-				PlaceholderText = TPlaceholderText,
-				Text = ""
-			}), "Text")
-			
-			local Pencil = Create("ImageLabel", SelectedFrame, {
-				Size = UDim2.new(0, 12, 0, 12),
-				Position = UDim2.new(0, -5, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				Image = "rbxassetid://15637081879",
-				BackgroundTransparency = 1
-			})
-			
-			local TextBox = {}
-			local function Input()
-				local Text = TextBoxInput.Text
-				if Text:gsub(" ", ""):len() > 0 then
-					if TextBox.OnChanging then Text = TextBox.OnChanging(Text) or Text end
-					Funcs:FireCallback(Callback, Text)
-					TextBoxInput.Text = Text
-				end
-			end
-			
-			TextBoxInput.FocusLost:Connect(Input)Input()
-			
-			TextBoxInput.FocusLost:Connect(function()
-				CreateTween({Pencil, "ImageColor3", Color3.fromRGB(255, 255, 255), 0.2})
-			end)
-			TextBoxInput.Focused:Connect(function()
-				CreateTween({Pencil, "ImageColor3", Theme["Color Theme"], 0.2})
-			end)
-			
-			TextBox.OnChanging = false
-			function TextBox:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function TextBox:Destroy() Button:Destroy() end
-			return TextBox
-		end
-		function Tab:AddDiscordInvite(Configs)
-			local Title = Configs[1] or Configs.Name or Configs.Title or "Discord"
-			local Desc = Configs.Desc or Configs.Description or ""
-			local Logo = Configs[2] or Configs.Logo or ""
-			local Invite = Configs[3] or Configs.Invite or ""
-			
-			local InviteHolder = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 80),
-				Name = "Option",
-				BackgroundTransparency = 1
-			})
-			
-			local InviteLabel = Create("TextLabel", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 15),
-				Position = UDim2.new(0, 5),
-				TextColor3 = Color3.fromRGB(40, 150, 255),
-				Font = Enum.Font.Ubuntu,
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Invite
-			})
-			
-			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 65),
-				AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.new(0, 0, 1),
-				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Frame")Make("Corner", FrameHolder)
-			
-			local ImageLabel = Create("ImageLabel", FrameHolder, {
-				Size = UDim2.new(0, 30, 0, 30),
-				Position = UDim2.new(0, 7, 0, 7),
-				Image = Logo,
-				BackgroundTransparency = 1
-			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
-			
-			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 15),
-				Position = UDim2.new(0, 44, 0, 7),
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Title
-			}), "Text")
-			
-			local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 0),
-				Position = UDim2.new(0, 44, 0, 22),
-				TextWrapped = "Y",
-				AutomaticSize = "Y",
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Dark Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 8,
-				Text = Desc
-			}), "DarkText")
-			
-			local JoinButton = Create("TextButton", FrameHolder, {
-				Size = UDim2.new(1, -14, 0, 16),
-				AnchorPoint = Vector2.new(0.5, 1),
-				Position = UDim2.new(0.5, 0, 1, -7),
-				Text = "Join Discord Server",
-				Font = Enum.Font.Ubuntu,
-				TextSize = 12,
-				TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-			})Make("Corner", JoinButton, UDim.new(0, 5))
-			
-			local ClickDelay
-			JoinButton.Activated:Connect(function()
-				setclipboard(Invite)
-				if ClickDelay then return end
-				
-				ClickDelay = true
-				SetProps(JoinButton, {
-					Text = "Link Copied!",
-					BackgroundColor3 = Color3.fromRGB(100, 100, 100),
-					TextColor3 = Color3.fromRGB(150, 150, 150)
-				})task.wait(5)
-				SetProps(JoinButton, {
-					Text = "Join Discord Server",
-					TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-				})ClickDelay = false
-			end)
-			
-			local DiscordInvite = {}
-			function DiscordInvite:Destroy() InviteHolder:Destroy() end
-			function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
-			return DiscordInvite
-		end
+function Tab:AddTextBox(Configs)
+    local TName = Configs[1] or Configs.Name or Configs.Title or "Text Box"
+    local TDesc = Configs.Desc or Configs.Description or ""
+    local TDefault = Configs[2] or Configs.Default or ""
+    local TPlaceholderText = Configs[5] or Configs.PlaceholderText or "Input..."
+    local TClearText = Configs[3] or Configs.ClearText or false
+    local Callback = Funcs:GetCallback(Configs, 4)
+    
+    if type(TDefault) ~= "string" then
+        TDefault = tostring(TDefault)
+    end
+    if TDefault:gsub(" ", ""):len() < 1 then
+        TDefault = ""
+    end
+    
+    local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
+    
+    -- Aumentei a altura (24) e adicionei fundo próprio para destacar do botão base
+    local SelectedFrame = InsertTheme(Create("Frame", Button, {
+        Size = UDim2.new(0, 150, 0, 24),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(30, 30, 30),
+        BorderSizePixel = 0
+    }), "Background")
+    Make("Corner", SelectedFrame, UDim.new(0, 4))
+    
+    -- Borda (Stroke) para animação de foco
+    local BoxStroke = InsertTheme(Create("UIStroke", SelectedFrame, {
+        Color = Theme["Color Stroke"],
+        Thickness = 1,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    }), "Stroke")
+    
+    -- Ícone do Lápis movido para DENTRO da caixa (lado esquerdo)
+    local Pencil = Create("ImageLabel", SelectedFrame, {
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(0, 8, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Image = "rbxassetid://15637081879",
+        BackgroundTransparency = 1,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        ImageTransparency = 0.5
+    })
+    
+    -- Texto alinhado à esquerda e afastado do ícone
+    local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
+        Size = UDim2.new(1, -30, 1, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 26, 0.5, 0),
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Ubuntu,
+        TextSize = 12,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextColor3 = Theme["Color Text"],
+        ClearTextOnFocus = TClearText,
+        PlaceholderText = TPlaceholderText,
+        Text = TDefault, -- BUG CORRIGIDO: Agora o texto padrão é aplicado
+        ClipsDescendants = true
+    }), "Text")
+    
+    local TextBox = { OnChanging = false }
+    
+    local function FireInput()
+        local Text = TextBoxInput.Text
+        if TextBox.OnChanging then 
+            Text = TextBox.OnChanging(Text) or Text 
+            TextBoxInput.Text = Text
+        end
+        Funcs:FireCallback(Callback, Text)
+    end
+    
+    -- Efeitos Visuais ao Focar/Desfocar (Brilho do Lápis e da Borda)
+    TextBoxInput.Focused:Connect(function()
+        CreateTween({Pencil, "ImageTransparency", 0, 0.2})
+        CreateTween({Pencil, "ImageColor3", Theme["Color Theme"], 0.2})
+        CreateTween({BoxStroke, "Color", Theme["Color Theme"], 0.2})
+    end)
+    
+    TextBoxInput.FocusLost:Connect(function()
+        CreateTween({Pencil, "ImageTransparency", 0.5, 0.2})
+        CreateTween({Pencil, "ImageColor3", Theme["Color Text"], 0.2})
+        CreateTween({BoxStroke, "Color", Theme["Color Stroke"], 0.2})
+        FireInput()
+    end)
+    
+    -- Dispara o callback inicial se existir um Default válido
+    if TDefault ~= "" then
+        task.spawn(FireInput)
+    end
+    
+    -- Funções Públicas da TextBox
+    function TextBox:Visible(...) Funcs:ToggleVisible(Button, ...) end
+    function TextBox:Destroy() Button:Destroy() end
+    function TextBox:Callback(...) Funcs:InsertCallback(Callback, ...) end
+    
+    function TextBox:Set(Val1, Val2)
+        if type(Val1) == "string" and type(Val2) == "string" then
+            LabelFunc:SetTitle(Val1)
+            LabelFunc:SetDesc(Val2)
+        elseif type(Val1) == "string" then
+            TextBoxInput.Text = Val1
+            FireInput()
+        elseif type(Val1) == "function" then
+            Callback = Val1
+        end
+    end
+    
+    return TextBox
+end
+function Tab:AddDiscordInvite(Configs)
+    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Server"
+    local Desc = Configs.Desc or Configs.Description or "Join our community for updates and support!"
+    local Logo = Configs[2] or Configs.Logo or Configs.Icon or "rbxassetid://11481180173"
+    local Invite = Configs[3] or Configs.Invite or "https://discord.gg/"
+    
+    -- Se o logo vier vazio, usa a imagem padrão do Discord
+    if type(Logo) ~= "string" or Logo:gsub(" ", "") == "" then
+        Logo = "rbxassetid://11481180173"
+    end
+    
+    -- Container principal do Card
+    local InviteHolder = Create("Frame", Container, {
+        Size = UDim2.new(1, 0, 0, 90),
+        Name = "Option",
+        BackgroundTransparency = 1
+    })
+    
+    local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
+        Size = UDim2.new(1, 0, 1, 0),
+        Position = UDim2.new(0, 0, 0, 0),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 25),
+        BorderSizePixel = 0
+    }), "Frame")
+    Make("Corner", FrameHolder, UDim.new(0, 6))
+    Make("Stroke", FrameHolder)
+    
+    -- Ícone / Logo do Discord
+    local ImageLabel = Create("ImageLabel", FrameHolder, {
+        Size = UDim2.new(0, 32, 0, 32),
+        Position = UDim2.new(0, 10, 0, 10),
+        Image = Logo,
+        BackgroundTransparency = 1
+    })
+    Make("Corner", ImageLabel, UDim.new(0, 6))
+    
+    -- Título
+    local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
+        Size = UDim2.new(1, -56, 0, 16),
+        Position = UDim2.new(0, 50, 0, 8),
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 12,
+        Text = Title,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    }), "Text")
+    
+    -- Descrição
+    local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
+        Size = UDim2.new(1, -56, 0, 14),
+        Position = UDim2.new(0, 50, 0, 24),
+        TextWrapped = true,
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 10,
+        Text = Desc,
+        TextTruncate = Enum.TextTruncate.AtEnd
+    }), "DarkText")
+    
+    -- Botão de Entrar (Altura ajustada para 22px para touch amigável)
+    local JoinButton = Create("TextButton", FrameHolder, {
+        Size = UDim2.new(1, -20, 0, 22),
+        AnchorPoint = Vector2.new(0.5, 1),
+        Position = UDim2.new(0.5, 0, 1, -8),
+        Text = "Join Discord Server",
+        Font = Enum.Font.Ubuntu,
+        TextSize = 11,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- Discord Blurple
+        AutoButtonColor = false,
+        BorderSizePixel = 0
+    })
+    Make("Corner", JoinButton, UDim.new(0, 5))
+    
+    -- Instância UIScale para o efeito de clique suave
+    local BtnScale = Instance.new("UIScale")
+    BtnScale.Parent = JoinButton
+    
+    local ClickDelay = false
+    JoinButton.Activated:Connect(function()
+        -- Animação visual de toque
+        CreateTween({BtnScale, "Scale", 0.96, 0.08, true})
+        CreateTween({BtnScale, "Scale", 1, 0.12})
+        
+        -- Copia o link com pcall de segurança
+        if setclipboard then
+            pcall(setclipboard, Invite)
+        end
+        
+        if ClickDelay then return end
+        ClickDelay = true
+        
+        -- Feedback visual em verde de sucesso
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(57, 139, 81), 0.2})
+        JoinButton.Text = "Link Copied to Clipboard!"
+        
+        task.wait(3)
+        
+        -- Retorna ao estado original Blurple
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.2})
+        JoinButton.Text = "Join Discord Server"
+        
+        ClickDelay = false
+    end)
+    
+    local DiscordInvite = {}
+    function DiscordInvite:Destroy() InviteHolder:Destroy() end
+    function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
+    return DiscordInvite
+end
 		return Tab
 	end
 	
