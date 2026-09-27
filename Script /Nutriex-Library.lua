@@ -16,7 +16,7 @@ local NutriexLibrary = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
         ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(19, 19, 19))
     }),
     ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
     ["Color Stroke"] = Color3.fromRGB(35, 35, 35),
@@ -2347,7 +2347,6 @@ function Tab:AddDropdown(Configs)
         Visible = false,
         Text = ""
     })
-    
     -- Frame que contém a lista suspensa
     local DropFrame = InsertTheme(Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
@@ -2371,7 +2370,7 @@ function Tab:AddDropdown(Configs)
         BorderSizePixel = 0,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollingDirection = Enum.ScrollingDirection.Y,
-        AutomaticCanvasSize = Enum.AutomaticCanvasSize.Y,
+        AutomaticCanvasSize = "Y",
         Active = true
     }, {
         Create("UIPadding", {
