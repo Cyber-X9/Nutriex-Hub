@@ -2329,7 +2329,7 @@ function Tab:AddDropdown(Configs)
         Text = "..."
     }), "Text")
     
-    -- Seta alinhada à direita dentro da caixa
+    -- Seta alinhada à direita
     local Arrow = Create("ImageLabel", SelectedFrame, {
         Size = UDim2.new(0, 12, 0, 12),
         Position = UDim2.new(1, -8, 0.5, 0),
@@ -2346,19 +2346,19 @@ function Tab:AddDropdown(Configs)
         BackgroundTransparency = 1,
         Visible = false,
         Text = "",
-        ZIndex = 98
+        ZIndex = 980
     })
 
-    -- Frame da lista suspensa (Ancorada no MEIO)
+    -- Frame da lista suspensa (ZIndex 990 para sobrepor toda a UI)
     local DropFrame = InsertTheme(Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
         BackgroundTransparency = 0.05,
         BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
-        AnchorPoint = Vector2.new(0, 0.5), -- Ancorado no meio verticalmente
+        AnchorPoint = Vector2.new(0, 0),
         Name = "DropdownFrame",
         ClipsDescendants = true,
         Active = true,
-        ZIndex = 99
+        ZIndex = 990
     }), "Frame")
     
     Make("Corner", DropFrame, UDim.new(0, 6))
@@ -2374,7 +2374,8 @@ function Tab:AddDropdown(Configs)
         CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollingDirection = Enum.ScrollingDirection.Y,
         AutomaticCanvasSize = "Y",
-        Active = true
+        Active = true,
+        ZIndex = 991 -- ZIndex superior ao DropFrame
     }, {
         Create("UIPadding", {
             PaddingLeft = UDim.new(0, 6),
@@ -2417,17 +2418,22 @@ function Tab:AddDropdown(Configs)
         end
     end
     
-    -- Posição calculada a partir do CENTRO do botão
+    -- Posicionamento correto abaixo da caixa de seleção
     local function CalculatePos()
         local FramePos = SelectedFrame.AbsolutePosition
         local ScreenSize = ScreenGui.AbsoluteSize
         local CurrentUIScale = UIScale or 1
         
         local ClampX = math.clamp(FramePos.X / CurrentUIScale, 0, (ScreenSize.X / CurrentUIScale) - SelectedFrame.AbsoluteSize.X)
-        -- Calcula o centro vertical do SelectedFrame
-        local ClampY = (FramePos.Y / CurrentUIScale) + ((SelectedFrame.AbsoluteSize.Y / CurrentUIScale) / 2)
+        local ClampY = (FramePos.Y / CurrentUIScale) + (SelectedFrame.AbsoluteSize.Y / CurrentUIScale) + 4
         
-        DropFrame.AnchorPoint = Vector2.new(0, 0.5)
+        local AnchorPointY = 0
+        if (FramePos.Y / CurrentUIScale) > (ScreenSize.Y / CurrentUIScale) / 1.4 then
+            AnchorPointY = 1
+            ClampY = (FramePos.Y / CurrentUIScale) - 4
+        end
+        
+        DropFrame.AnchorPoint = Vector2.new(0, AnchorPointY)
         DropFrame.Position = UDim2.fromOffset(ClampX, ClampY)
     end
     
@@ -2535,14 +2541,15 @@ function Tab:AddDropdown(Configs)
                 Options[Name].Stats = Stats
             end
             
-            -- Botão da Opção
+            -- Botão da Opção com ZIndex alto
             local OptButton = Create("TextButton", ScrollFrame, {
                 Name = "Option",
                 Size = UDim2.new(1, 0, 0, 20),
                 BackgroundTransparency = 1,
                 BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
                 AutoButtonColor = false,
-                Text = ""
+                Text = "",
+                ZIndex = 992
             })
             Make("Corner", OptButton, UDim.new(0, 4))
             
@@ -2552,11 +2559,12 @@ function Tab:AddDropdown(Configs)
                 Size = UDim2.new(0, 4, 0, 4),
                 BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
                 BackgroundTransparency = 1,
-                AnchorPoint = Vector2.new(0, 0.5)
+                AnchorPoint = Vector2.new(0, 0.5),
+                ZIndex = 993
             }), "Theme")
             Make("Corner", IsSelected, UDim.new(0.5, 0))
             
-            -- Rótulo do Texto
+            -- Rótulo do Texto da Opção
             local OptionName = InsertTheme(Create("TextLabel", OptButton, {
                 Size = UDim2.new(1, -12, 1, 0),
                 Position = UDim2.new(0, 10, 0, 0),
@@ -2566,11 +2574,12 @@ function Tab:AddDropdown(Configs)
                 TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1,
-                TextTransparency = 0.4,
-                TextTruncate = Enum.TextTruncate.AtEnd
+                TextTransparency = 0,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+                ZIndex = 993
             }), "Text")
             
-            -- Efeito de Hover nas Opções
+            -- Hover Effect
             OptButton.MouseEnter:Connect(function()
                 CreateTween({OptButton, "BackgroundTransparency", 0.5, 0.15})
             end)
