@@ -2310,7 +2310,7 @@ function Tab:AddDropdown(Configs)
     local DropFrame = Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
         BackgroundTransparency = 0.05,
-        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(25, 25, 25),
+        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(0, 0, 0),
         AnchorPoint = Vector2.new(0, 0),
         Name = "DropdownFrame",
         ClipsDescendants = true,
