@@ -2097,7 +2097,7 @@ end
 function Tab:AddParagraph(Configs)
     local PName = Configs[1] or Configs.Title or "Paragraph"
     local PDesc = Configs[2] or Configs.Text or ""
-    local PIcon = Configs.Icon or "rbxassetid://10723415903"
+    local PIcon = Configs.Icon or ""
     
     local Frame = Create("Frame", Container, {
         Name = "ParagraphFrame",
