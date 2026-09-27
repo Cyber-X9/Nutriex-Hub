@@ -2315,7 +2315,7 @@ function Tab:AddDropdown(Configs)
     }), "Stroke")
     Make("Corner", SelectedFrame, UDim.new(0, 4))
     
-    -- Texto da opção selecionada (TextScaled removido para manter a fonte limpa)
+    -- Texto da opção selecionada
     local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
         Size = UDim2.new(1, -28, 1, 0),
         Position = UDim2.new(0, 8, 0.5, 0),
@@ -2345,17 +2345,20 @@ function Tab:AddDropdown(Configs)
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
         Visible = false,
-        Text = ""
+        Text = "",
+        ZIndex = 98
     })
-    -- Frame que contém a lista suspensa
+
+    -- Frame da lista suspensa (Ancorada no MEIO)
     local DropFrame = InsertTheme(Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
         BackgroundTransparency = 0.05,
         BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
-        AnchorPoint = Vector2.new(0, 0),
+        AnchorPoint = Vector2.new(0, 0.5), -- Ancorado no meio verticalmente
         Name = "DropdownFrame",
         ClipsDescendants = true,
-        Active = true
+        Active = true,
+        ZIndex = 99
     }), "Frame")
     
     Make("Corner", DropFrame, UDim.new(0, 6))
@@ -2414,21 +2417,17 @@ function Tab:AddDropdown(Configs)
         end
     end
     
+    -- Posição calculada a partir do CENTRO do botão
     local function CalculatePos()
         local FramePos = SelectedFrame.AbsolutePosition
         local ScreenSize = ScreenGui.AbsoluteSize
         local CurrentUIScale = UIScale or 1
         
         local ClampX = math.clamp(FramePos.X / CurrentUIScale, 0, (ScreenSize.X / CurrentUIScale) - SelectedFrame.AbsoluteSize.X)
-        local ClampY = FramePos.Y / CurrentUIScale + SelectedFrame.AbsoluteSize.Y + 4
+        -- Calcula o centro vertical do SelectedFrame
+        local ClampY = (FramePos.Y / CurrentUIScale) + ((SelectedFrame.AbsoluteSize.Y / CurrentUIScale) / 2)
         
-        local AnchorPointY = 0
-        if (FramePos.Y / CurrentUIScale) > (ScreenSize.Y / CurrentUIScale) / 1.4 then
-            AnchorPointY = 1
-            ClampY = (FramePos.Y / CurrentUIScale) - 4
-        end
-        
-        DropFrame.AnchorPoint = Vector2.new(0, AnchorPointY)
+        DropFrame.AnchorPoint = Vector2.new(0, 0.5)
         DropFrame.Position = UDim2.fromOffset(ClampX, ClampY)
     end
     
@@ -2685,7 +2684,6 @@ function Tab:AddDropdown(Configs)
     
     return Dropdown
 end
-
  function Tab:AddSlider(Configs)
     local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
     local SDesc = Configs.Desc or Configs.Description or ""
