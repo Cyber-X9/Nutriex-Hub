@@ -1599,7 +1599,7 @@ function NutriexLibrary:MakeWindow(Configs)
         if typeof(Window.Dialog) == "function" then
            Window:Dialog({
 			Title = "Close",
-			Text = "You Want Close Nutriex Hub",
+			Text = "You Want Close Nutriex Hub?",
 			Options = {
 				{"Confirm", function()
 					ScreenGui:Destroy()
@@ -1681,7 +1681,6 @@ function NutriexLibrary:MakeWindow(Configs)
             Button = Button
         }
     end
-    
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
             Title.Text = Val1
@@ -1690,7 +1689,6 @@ function NutriexLibrary:MakeWindow(Configs)
             SubTitle.Text = Val2
         end
     end
-    
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
     if Minimized then
@@ -2332,6 +2330,13 @@ function Tab:AddDropdown(Configs)
     local DMultiSelect = Configs.MultiSelect or false
     local Callback = Funcs:GetCallback(Configs, 4)
     
+    local Connections = {}
+    local function AddConnection(Signal, Function)
+        local SignalConnection = Signal:Connect(Function)
+        table.insert(Connections, SignalConnection)
+        return SignalConnection
+    end
+
     local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
     
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
@@ -2365,7 +2370,6 @@ function Tab:AddDropdown(Configs)
         ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255)
     })
     
-    -- // FIX 1: ZIndex global alto para evitar vazamento de sliders
     local NoClickFrame = Create("TextButton", DropdownHolder, {
         Name = "AntiClick",
         Size = UDim2.new(1, 0, 1, 0),
@@ -2384,7 +2388,7 @@ function Tab:AddDropdown(Configs)
         ClipsDescendants = true,
         BorderSizePixel = 0,
         Active = true,
-        ZIndex = 100 -- Sobrepõe tudo na tela
+        ZIndex = 100
     })
     Make("Corner", DropFrame, UDim.new(0, 6))
     Make("Stroke", DropFrame)
@@ -2416,7 +2420,7 @@ function Tab:AddDropdown(Configs)
     local WaitClick = false
     
     local function Disable()
-        if WaitClick then return end
+        if WaitClick or not DropFrame or not DropFrame.Parent then return end
         WaitClick = true
         CreateTween({Arrow, "Rotation", 0, 0.18})
         CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.18, true})
@@ -2429,10 +2433,11 @@ function Tab:AddDropdown(Configs)
     end
     
     local function CalculateSize()
+        if not ScrollFrame or not ScrollFrame.Parent then return end
         local Count = 0
-        for _, Frame in pairs(ScrollFrame:GetChildren()) do
+        for _, Frame in ipairs(ScrollFrame:GetChildren()) do
             if Frame:IsA("GuiObject") and Frame.Name == "Option" then
-                Count = Count + 1
+                Count += 1
             end
         end
         ScrollSize = math.clamp((Count * 24) + 8, 10, 150)
@@ -2457,6 +2462,7 @@ function Tab:AddDropdown(Configs)
     end
     
     local function CalculatePos()
+        if not SelectedFrame or not SelectedFrame.Parent then return end
         local FramePos = SelectedFrame.AbsolutePosition
         local ScreenSize = ScreenGui.AbsoluteSize
         local ClampX = math.clamp((FramePos.X / UIScale), 0, (ScreenSize.X / UIScale) - DropFrame.Size.X.Offset)
@@ -2509,17 +2515,10 @@ function Tab:AddDropdown(Configs)
         end
         
         local function UpdateSelected()
-            if MultiSelect then
-                for _, v in pairs(Options) do
-                    local nodes, Stats = v.nodes, v.Stats
-                    CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 1, 0.2})
-                    CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(3, 12) or UDim2.fromOffset(3, 0), 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.45, 0.2})
-                end
-            else
-                for _, v in pairs(Options) do
-                    local Slt = v.Value == Selected
-                    local nodes = v.nodes
+            for _, v in pairs(Options) do
+                local Slt = if MultiSelect then v.Stats else (v.Value == Selected)
+                local nodes = v.nodes
+                if nodes then
                     CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.2})
                     CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(3, 12) or UDim2.fromOffset(3, 0), 0.2})
                     CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.45, 0.2})
@@ -2529,16 +2528,16 @@ function Tab:AddDropdown(Configs)
         end
         
         local function Select(Option)
+            if not Option then return end
             if MultiSelect then
                 Option.Stats = not Option.Stats
                 Option.LastCB = tick()
                 Selected[Option.Name] = Option.Stats
-                CallbackSelected()
             else
                 Option.LastCB = tick()
                 Selected = Option.Value
-                CallbackSelected()
             end
+            CallbackSelected()
             UpdateSelected()
         end
         
@@ -2546,18 +2545,21 @@ function Tab:AddDropdown(Configs)
             local Name = tostring(type(index) == "string" and index or Value)
             
             if Options[Name] then return end
-            Options[Name] = {
+            
+            local OptionData = {
                 index = index,
                 Value = Value,
                 Name = Name,
                 Stats = false,
-                LastCB = 0
+                LastCB = 0,
+                Connections = {}
             }
+            Options[Name] = OptionData
             
             if MultiSelect then
-                local Stats = Selected[Name]
-                Selected[Name] = Stats or false
-                Options[Name].Stats = Stats
+                local Stats = Selected[Name] or false
+                Selected[Name] = Stats
+                OptionData.Stats = Stats
             end
             
             local OptionBtn = Make("Button", ScrollFrame, {
@@ -2569,7 +2571,6 @@ function Tab:AddDropdown(Configs)
             })
             Make("Corner", OptionBtn, UDim.new(0, 4))
             
-            -- // FIX 2: Alinhamento da barra e do texto
             local IndicatorBar = InsertTheme(Create("Frame", OptionBtn, {
                 Position = UDim2.new(0, 2, 0.5, 0),
                 Size = UDim2.new(0, 3, 0, 0),
@@ -2594,26 +2595,36 @@ function Tab:AddDropdown(Configs)
                 ZIndex = 103
             }), "Text")
             
-            OptionBtn.MouseEnter:Connect(function()
+            table.insert(OptionData.Connections, OptionBtn.MouseEnter:Connect(function()
                 CreateTween({OptionBtn, "BackgroundTransparency", 0.92, 0.12})
-            end)
-            OptionBtn.MouseLeave:Connect(function()
+            end))
+            
+            table.insert(OptionData.Connections, OptionBtn.MouseLeave:Connect(function()
                 CreateTween({OptionBtn, "BackgroundTransparency", 1, 0.12})
-            end)
+            end))
             
-            OptionBtn.Activated:Connect(function()
-                Select(Options[Name])
-            end)
+            table.insert(OptionData.Connections, OptionBtn.Activated:Connect(function()
+                Select(OptionData)
+            end))
             
-            Options[Name].nodes = {OptionBtn, IndicatorBar, OptionLabel}
+            OptionData.nodes = {OptionBtn, IndicatorBar, OptionLabel}
         end
         
         RemoveOption = function(index, Value)
             local Name = tostring(type(index) == "string" and index or Value)
-            if Options[Name] then
+            local OptionData = Options[Name]
+            if OptionData then
                 if MultiSelect then Selected[Name] = nil else Selected = nil end
-                Options[Name].nodes[1]:Destroy()
-                table.clear(Options[Name])
+                
+                for _, conn in ipairs(OptionData.Connections) do
+                    conn:Disconnect()
+                end
+                
+                if OptionData.nodes and OptionData.nodes[1] then
+                    OptionData.nodes[1]:Destroy()
+                end
+                
+                table.clear(OptionData)
                 Options[Name] = nil
             end
         end
@@ -2642,37 +2653,47 @@ function Tab:AddDropdown(Configs)
         UpdateSelected()
     end
     
-    Button.Activated:Connect(Minimize)
-    NoClickFrame.MouseButton1Down:Connect(Disable)
-    NoClickFrame.MouseButton1Click:Connect(Disable)
+    AddConnection(Button.Activated, Minimize)
+    AddConnection(Button.Activated, CalculateSize)
+    AddConnection(NoClickFrame.MouseButton1Down, Disable)
+    AddConnection(NoClickFrame.MouseButton1Click, Disable)
     
     if MainFrame then
-        MainFrame:GetPropertyChangedSignal("Visible"):Connect(Disable)
+        AddConnection(MainFrame:GetPropertyChangedSignal("Visible"), Disable)
     end
-    SelectedFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(CalculatePos)
     
-    Button.Activated:Connect(CalculateSize)
-    ScrollFrame.ChildAdded:Connect(CalculateSize)
-    ScrollFrame.ChildRemoved:Connect(CalculateSize)
+    AddConnection(SelectedFrame:GetPropertyChangedSignal("AbsolutePosition"), CalculatePos)
+    AddConnection(ScrollFrame.ChildAdded, CalculateSize)
+    AddConnection(ScrollFrame.ChildRemoved, CalculateSize)
     
     CalculatePos()
     CalculateSize()
     
     local Dropdown = {}
     function Dropdown:Visible(...) Funcs:ToggleVisible(Button, ...) end
-    function Dropdown:Destroy() Button:Destroy() end
+    
+    function Dropdown:Destroy()
+        Disable()
+        for _, conn in ipairs(Connections) do
+            conn:Disconnect()
+        end
+        table.clear(Connections)
+        
+        for k, v in pairs(GetOptions()) do
+            RemoveOption(k, v.Value)
+        end
+        
+        if NoClickFrame then NoClickFrame:Destroy() end
+        if Button then Button:Destroy() end
+    end
+    
     function Dropdown:Callback(...) Funcs:InsertCallback(Callback, ...)(Selected) end
     
     function Dropdown:Add(...)
         local NewOptions = {...}
-        if type(NewOptions[1]) == "table" then
-            for _, Name in pairs(NewOptions[1]) do
-                AddOption(Name)
-            end
-        else
-            for _, Name in pairs(NewOptions) do
-                AddOption(Name)
-            end
+        local List = type(NewOptions[1]) == "table" and NewOptions[1] or NewOptions
+        for _, Name in pairs(List) do
+            AddOption(Name)
         end
         CalculateSize()
     end
@@ -2997,150 +3018,100 @@ function Tab:AddTextBox(Configs)
     return TextBox
 end
 function Tab:AddDiscordInvite(Configs)
-    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Community"
-    local Desc = Configs.Desc or Configs.Description or "Join our Discord server to get updates and support!"
-    local Logo = Configs[2] or Configs.Logo or Configs.Icon or "rbxassetid://11481180173"
-    local Invite = Configs[3] or Configs.Invite or "https://discord.gg/"
-    
-    -- Validação e fallback para imagem padrão
-    if type(Logo) ~= "string" or Logo:gsub(" ", "") == "" then
-        Logo = "rbxassetid://11481180173"
-    end
-    
-    -- Container Principal da Opção
-    local InviteHolder = Create("Frame", Container, {
-        Size = UDim2.new(1, 0, 0, 78),
-        Name = "Option",
-        BackgroundTransparency = 1
-    })
-    
-    -- Frame do Card
-    local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-        Size = UDim2.new(1, 0, 1, 0),
-        Position = UDim2.new(0, 0, 0, 0),
-        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(22, 23, 27),
-        BorderSizePixel = 0
-    }), "Frame")
-    Make("Corner", FrameHolder, UDim.new(0, 8))
-    Make("Stroke", FrameHolder)
-    
-    -- Ícone / Server Avatar (40x40px)
-    local ImageLabel = Create("ImageLabel", FrameHolder, {
-        Size = UDim2.new(0, 40, 0, 40),
-        Position = UDim2.new(0, 10, 0, 10),
-        Image = Logo,
-        BackgroundTransparency = 1
-    })
-    Make("Corner", ImageLabel, UDim.new(0, 8))
-    
-    -- Título da Comunidade
-    local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-        Size = UDim2.new(1, -170, 0, 18),
-        Position = UDim2.new(0, 58, 0, 10),
-        Font = Enum.Font.Ubuntu,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        BackgroundTransparency = 1,
-        TextSize = 13,
-        Text = Title,
-        TextTruncate = Enum.TextTruncate.AtEnd
-    }), "Text")
-    
-    -- Descrição
-    local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-        Size = UDim2.new(1, -170, 0, 28),
-        Position = UDim2.new(0, 58, 0, 30),
-        Font = Enum.Font.Ubuntu,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(150, 150, 155),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top,
-        BackgroundTransparency = 1,
-        TextSize = 10,
-        TextWrapped = true,
-        Text = Desc,
-        TextTruncate = Enum.TextTruncate.AtEnd
-    }), "DarkText")
-    
-    -- Botão "Join" posicionado de forma compacta à direita
-    local JoinButton = Create("TextButton", FrameHolder, {
-        Size = UDim2.new(0, 100, 0, 28),
-        AnchorPoint = Vector2.new(1, 0.5),
-        Position = UDim2.new(1, -10, 0.5, 0),
-        Text = "Copy link",
-        Font = Enum.Font.Ubuntu,
-        TextSize = 11,
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- Discord Blurple
-        AutoButtonColor = false,
-        BorderSizePixel = 0,
-        ZIndex = 2
-    })
-    Make("Corner", JoinButton, UDim.new(0, 6))
-    
-    -- Efeito de escala ao clicar
-    local BtnScale = Instance.new("UIScale")
-    BtnScale.Parent = JoinButton
-    
-    -- Efeitos de Hover no botão
-    JoinButton.MouseEnter:Connect(function()
-        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(71, 82, 196), 0.15})
-    end)
-    JoinButton.MouseLeave:Connect(function()
-        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.15})
-    end)
-    
-    local ClickDelay = false
-    JoinButton.Activated:Connect(function()
-        -- Animação tátil de pressão
-        CreateTween({BtnScale, "Scale", 0.93, 0.08, true})
-        CreateTween({BtnScale, "Scale", 1, 0.12})
-        
-        -- Copiar link para o Clipboard
-        if setclipboard then
-            pcall(setclipboard, Invite)
-        end
-        
-        if ClickDelay then return end
-        ClickDelay = true
-        
-        -- Transição para Sucesso (Verde)
-        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(46, 125, 50), 0.2})
-        JoinButton.Text = "Copied!"
-        
-        task.wait(2.5)
-        
-        -- Retorna ao padrão Blurple
-        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.2})
-        JoinButton.Text = "Copy link"
-        
-        ClickDelay = false
-    end)
-    
-    -- Métodos públicos da opção
-    local DiscordInvite = {}
-    
-    function DiscordInvite:SetInvite(NewInvite)
-        Invite = NewInvite or Invite
-    end
-    
-    function DiscordInvite:SetTitle(NewTitle)
-        LTitle.Text = NewTitle or LTitle.Text
-    end
-    
-    function DiscordInvite:SetDesc(NewDesc)
-        LDesc.Text = NewDesc or LDesc.Text
-    end
-    
-    function DiscordInvite:Destroy() 
-        InviteHolder:Destroy() 
-    end
-    
-    function DiscordInvite:Visible(...) 
-        Funcs:ToggleVisible(InviteHolder, ...) 
-    end
-    
-    return DiscordInvite
-end
+			local Title = Configs[1] or Configs.Name or Configs.Title or "Discord"
+			local Desc = Configs.Desc or Configs.Description or ""
+			local Logo = Configs[2] or Configs.Logo or ""
+			local Invite = Configs[3] or Configs.Invite or ""
+			
+			local InviteHolder = Create("Frame", Container, {
+				Size = UDim2.new(1, 0, 0, 80),
+				Name = "Option",
+				BackgroundTransparency = 1
+			})
+			
+			local InviteLabel = Create("TextLabel", InviteHolder, {
+				Size = UDim2.new(1, 0, 0, 15),
+				Position = UDim2.new(0, 5),
+				TextColor3 = Color3.fromRGB(40, 150, 255),
+				Font = Enum.Font.Ubuntu,
+				TextXAlignment = "Left",
+				BackgroundTransparency = 1,
+				TextSize = 10,
+				Text = Invite
+			})
+			
+			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
+				Size = UDim2.new(1, 0, 0, 65),
+				AnchorPoint = Vector2.new(0, 1),
+				Position = UDim2.new(0, 0, 1),
+				BackgroundColor3 = Theme["Color Hub 2"]
+			}), "Frame")Make("Corner", FrameHolder)
+			
+			local ImageLabel = Create("ImageLabel", FrameHolder, {
+				Size = UDim2.new(0, 30, 0, 30),
+				Position = UDim2.new(0, 7, 0, 7),
+				Image = Logo,
+				BackgroundTransparency = 1
+			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
+			
+			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
+				Size = UDim2.new(1, -52, 0, 15),
+				Position = UDim2.new(0, 44, 0, 7),
+				Font = Enum.Font.Ubuntu,
+				TextColor3 = Theme["Color Text"],
+				TextXAlignment = "Left",
+				BackgroundTransparency = 1,
+				TextSize = 10,
+				Text = Title
+			}), "Text")
+			
+			local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
+				Size = UDim2.new(1, -52, 0, 0),
+				Position = UDim2.new(0, 44, 0, 22),
+				TextWrapped = "Y",
+				AutomaticSize = "Y",
+				Font = Enum.Font.Ubuntu,
+				TextColor3 = Theme["Color Dark Text"],
+				TextXAlignment = "Left",
+				BackgroundTransparency = 1,
+				TextSize = 8,
+				Text = Desc
+			}), "DarkText")
+			
+			local JoinButton = Create("TextButton", FrameHolder, {
+				Size = UDim2.new(1, -14, 0, 16),
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.new(0.5, 0, 1, -7),
+				Text = "Join Discord Server",
+				Font = Enum.Font.Ubuntu,
+				TextSize = 12,
+				TextColor3 = Color3.fromRGB(220, 220, 220),
+				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+			})Make("Corner", JoinButton, UDim.new(0, 5))
+			
+			local ClickDelay
+			JoinButton.Activated:Connect(function()
+				setclipboard(Invite)
+				if ClickDelay then return end
+				
+				ClickDelay = true
+				SetProps(JoinButton, {
+					Text = "Link Copied!",
+					BackgroundColor3 = Color3.fromRGB(100, 100, 100),
+					TextColor3 = Color3.fromRGB(150, 150, 150)
+				})task.wait(5)
+				SetProps(JoinButton, {
+					Text = "Join Discord Server",
+					TextColor3 = Color3.fromRGB(220, 220, 220),
+				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+				})ClickDelay = false
+			end)
+			
+			local DiscordInvite = {}
+			function DiscordInvite:Destroy() InviteHolder:Destroy() end
+			function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
+			return DiscordInvite
+		end
 		return Tab
 	end
 	
