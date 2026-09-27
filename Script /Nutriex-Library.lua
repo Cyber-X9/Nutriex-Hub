@@ -16,7 +16,7 @@ local NutriexLibrary = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
         ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 25, 25))
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
     }),
     ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
     ["Color Stroke"] = Color3.fromRGB(35, 35, 35),
@@ -2305,98 +2305,101 @@ function Tab:AddDropdown(Configs)
     
     local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
     
+    -- Caixa de seleção principal
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
         Size = UDim2.new(0, 150, 0, 22),
         Position = UDim2.new(1, -10, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundColor3 = Theme["Color Stroke"],
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
         BorderSizePixel = 0
     }), "Stroke")
-    Make("Corner", SelectedFrame, UDim.new(0, 5))
+    Make("Corner", SelectedFrame, UDim.new(0, 4))
     
+    -- Texto da opção selecionada (TextScaled removido para manter a fonte limpa)
     local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
         Size = UDim2.new(1, -28, 1, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
         Position = UDim2.new(0, 8, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
         BackgroundTransparency = 1,
         Font = Enum.Font.Ubuntu,
         TextSize = 11,
-        TextColor3 = Theme["Color Text"],
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         TextXAlignment = Enum.TextXAlignment.Left,
         TextTruncate = Enum.TextTruncate.AtEnd,
         Text = "..."
     }), "Text")
     
+    -- Seta alinhada à direita dentro da caixa
     local Arrow = Create("ImageLabel", SelectedFrame, {
         Size = UDim2.new(0, 12, 0, 12),
-        Position = UDim2.new(1, -6, 0.5, 0),
+        Position = UDim2.new(1, -8, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         Image = "rbxassetid://10709791523",
-        BackgroundTransparency = 1,
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255)
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1
     })
     
-    -- // FIX 1: ZIndex global alto para evitar vazamento de sliders
+    -- Overlay de fecho ao clicar fora
     local NoClickFrame = Create("TextButton", DropdownHolder, {
         Name = "AntiClick",
         Size = UDim2.new(1, 0, 1, 0),
         BackgroundTransparency = 1,
         Visible = false,
-        Text = "",
-        ZIndex = 99
+        Text = ""
     })
     
-    local DropFrame = Create("Frame", NoClickFrame, {
+    -- Frame que contém a lista suspensa
+    local DropFrame = InsertTheme(Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
         BackgroundTransparency = 0.05,
-        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(25, 25, 25),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
         AnchorPoint = Vector2.new(0, 0),
         Name = "DropdownFrame",
         ClipsDescendants = true,
-        BorderSizePixel = 0,
-        Active = true,
-        ZIndex = 100 -- Sobrepõe tudo na tela
-    })
+        Active = true
+    }), "Frame")
+    
     Make("Corner", DropFrame, UDim.new(0, 6))
     Make("Stroke", DropFrame)
+    Make("Gradient", DropFrame, { Rotation = 60 })
     
     local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
-        ScrollBarImageColor3 = Theme["Color Theme"],
+        ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
         Size = UDim2.new(1, 0, 1, 0),
         ScrollBarThickness = 2,
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
-        CanvasSize = UDim2.new(),
-        ScrollingDirection = "Y",
-        AutomaticCanvasSize = "Y",
-        Active = true,
-        ZIndex = 101
+        CanvasSize = UDim2.new(0, 0, 0, 0),
+        ScrollingDirection = Enum.ScrollingDirection.Y,
+        AutomaticCanvasSize = Enum.AutomaticCanvasSize.Y,
+        Active = true
     }, {
         Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 4),
-            PaddingRight = UDim.new(0, 4),
-            PaddingTop = UDim.new(0, 4),
-            PaddingBottom = UDim.new(0, 4)
+            PaddingLeft = UDim.new(0, 6),
+            PaddingRight = UDim.new(0, 6),
+            PaddingTop = UDim.new(0, 6),
+            PaddingBottom = UDim.new(0, 6)
         }),
         Create("UIListLayout", {
-            Padding = UDim.new(0, 3)
+            Padding = UDim.new(0, 4),
+            SortOrder = Enum.SortOrder.LayoutOrder
         })
     }), "ScrollBar")
     
-    local ScrollSize = 5
-    local WaitClick = false
+    local ScrollSize, WaitClick = 0, false
     
     local function Disable()
         if WaitClick then return end
         WaitClick = true
-        CreateTween({Arrow, "Rotation", 0, 0.18})
-        CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.18, true})
+        CreateTween({Arrow, "Rotation", 0, 0.2})
+        CreateTween({Arrow, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(255, 255, 255), 0.2})
+        CreateTween({DropFrame, "Size", UDim2.new(0, SelectedFrame.AbsoluteSize.X, 0, 0), 0.2, true})
         NoClickFrame.Visible = false
         WaitClick = false
     end
     
     local function GetFrameSize()
-        return UDim2.fromOffset(150, ScrollSize)
+        return UDim2.fromOffset(SelectedFrame.AbsoluteSize.X, ScrollSize)
     end
     
     local function CalculateSize()
@@ -2406,41 +2409,47 @@ function Tab:AddDropdown(Configs)
                 Count = Count + 1
             end
         end
-        ScrollSize = math.clamp((Count * 24) + 8, 10, 150)
+        ScrollSize = math.clamp((Count * 24) + 12, 12, 160)
         if NoClickFrame.Visible then
-            CreateTween({DropFrame, "Size", GetFrameSize(), 0.18, true})
+            CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
         end
+    end
+    
+    local function CalculatePos()
+        local FramePos = SelectedFrame.AbsolutePosition
+        local ScreenSize = ScreenGui.AbsoluteSize
+        local CurrentUIScale = UIScale or 1
+        
+        local ClampX = math.clamp(FramePos.X / CurrentUIScale, 0, (ScreenSize.X / CurrentUIScale) - SelectedFrame.AbsoluteSize.X)
+        local ClampY = FramePos.Y / CurrentUIScale + SelectedFrame.AbsoluteSize.Y + 4
+        
+        local AnchorPointY = 0
+        if (FramePos.Y / CurrentUIScale) > (ScreenSize.Y / CurrentUIScale) / 1.4 then
+            AnchorPointY = 1
+            ClampY = (FramePos.Y / CurrentUIScale) - 4
+        end
+        
+        DropFrame.AnchorPoint = Vector2.new(0, AnchorPointY)
+        DropFrame.Position = UDim2.fromOffset(ClampX, ClampY)
     end
     
     local function Minimize()
         if WaitClick then return end
         WaitClick = true
         if NoClickFrame.Visible then
-            CreateTween({Arrow, "Rotation", 0, 0.18})
-            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.18, true})
+            CreateTween({Arrow, "Rotation", 0, 0.2})
+            CreateTween({Arrow, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(255, 255, 255), 0.2})
+            CreateTween({DropFrame, "Size", UDim2.new(0, SelectedFrame.AbsoluteSize.X, 0, 0), 0.2, true})
             NoClickFrame.Visible = false
         else
+            CalculatePos()
+            CalculateSize()
             NoClickFrame.Visible = true
-            CreateTween({Arrow, "Rotation", 180, 0.18})
-            CreateTween({DropFrame, "Size", GetFrameSize(), 0.18, true})
+            CreateTween({Arrow, "Rotation", 180, 0.2})
+            CreateTween({Arrow, "ImageColor3", Theme["Color Theme"] or Color3.fromRGB(88, 101, 242), 0.2})
+            CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, true})
         end
         WaitClick = false
-    end
-    
-    local function CalculatePos()
-        local FramePos = SelectedFrame.AbsolutePosition
-        local ScreenSize = ScreenGui.AbsoluteSize
-        local ClampX = math.clamp((FramePos.X / UIScale), 0, (ScreenSize.X / UIScale) - DropFrame.Size.X.Offset)
-        local ClampY = (FramePos.Y / UIScale) + SelectedFrame.AbsoluteSize.Y + 4
-        
-        local AnchorY = 0
-        if FramePos.Y > (ScreenSize.Y / 1.3) then
-            ClampY = (FramePos.Y / UIScale) - 4
-            AnchorY = 1
-        end
-        
-        DropFrame.AnchorPoint = Vector2.new(0, AnchorY)
-        CreateTween({DropFrame, "Position", UDim2.fromOffset(ClampX, ClampY), 0.1})
     end
     
     local AddNewOptions, GetOptions, AddOption, RemoveOption, Selected
@@ -2448,10 +2457,12 @@ function Tab:AddDropdown(Configs)
         local Default = type(OpDefault) ~= "table" and {OpDefault} or OpDefault
         local MultiSelect = DMultiSelect
         local Options = {}
-        Selected = MultiSelect and {} or CheckFlag(Flag) and GetFlag(Flag) or Default[1]
+        
+        Selected = MultiSelect and {} or (CheckFlag(Flag) and GetFlag(Flag)) or Default[1]
         
         if MultiSelect then
-            for index, Value in pairs(CheckFlag(Flag) and GetFlag(Flag) or Default) do
+            local FlagData = CheckFlag(Flag) and GetFlag(Flag) or Default
+            for index, Value in pairs(FlagData) do
                 if type(index) == "string" and (DOptions[index] or table.find(DOptions, index)) then
                     Selected[index] = Value
                 elseif DOptions[Value] then
@@ -2461,7 +2472,7 @@ function Tab:AddDropdown(Configs)
         end
         
         local function CallbackSelected()
-            SetFlag(Flag, if MultiSelect then Selected else tostring(Selected or "..."))
+            SetFlag(Flag, MultiSelect and Selected or tostring(Selected or "..."))
             Funcs:FireCallback(Callback, Selected)
         end
         
@@ -2469,9 +2480,7 @@ function Tab:AddDropdown(Configs)
             if MultiSelect then
                 local list = {}
                 for index, Value in pairs(Selected) do
-                    if Value then
-                        table.insert(list, index)
-                    end
+                    if Value then table.insert(list, index) end
                 end
                 ActiveLabel.Text = #list > 0 and table.concat(list, ", ") or "..."
             else
@@ -2483,17 +2492,17 @@ function Tab:AddDropdown(Configs)
             if MultiSelect then
                 for _, v in pairs(Options) do
                     local nodes, Stats = v.nodes, v.Stats
-                    CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 1, 0.2})
-                    CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(3, 12) or UDim2.fromOffset(3, 0), 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.45, 0.2})
+                    CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.2})
+                    CreateTween({nodes[2], "Size", Stats and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.2})
+                    CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.2})
                 end
             else
                 for _, v in pairs(Options) do
-                    local Slt = v.Value == Selected
+                    local Slt = (v.Value == Selected)
                     local nodes = v.nodes
                     CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.2})
-                    CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(3, 12) or UDim2.fromOffset(3, 0), 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.45, 0.2})
+                    CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(4, 12) or UDim2.fromOffset(4, 4), 0.2})
+                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.2})
                 end
             end
             UpdateLabel()
@@ -2502,21 +2511,18 @@ function Tab:AddDropdown(Configs)
         local function Select(Option)
             if MultiSelect then
                 Option.Stats = not Option.Stats
-                Option.LastCB = tick()
                 Selected[Option.Name] = Option.Stats
-                CallbackSelected()
             else
-                Option.LastCB = tick()
                 Selected = Option.Value
-                CallbackSelected()
             end
+            CallbackSelected()
             UpdateSelected()
         end
         
         AddOption = function(index, Value)
             local Name = tostring(type(index) == "string" and index or Value)
-            
             if Options[Name] then return end
+            
             Options[Name] = {
                 index = index,
                 Value = Value,
@@ -2526,65 +2532,67 @@ function Tab:AddDropdown(Configs)
             }
             
             if MultiSelect then
-                local Stats = Selected[Name]
-                Selected[Name] = Stats or false
+                local Stats = Selected[Name] or false
+                Selected[Name] = Stats
                 Options[Name].Stats = Stats
             end
             
-            local OptionBtn = Make("Button", ScrollFrame, {
+            -- Botão da Opção
+            local OptButton = Create("TextButton", ScrollFrame, {
                 Name = "Option",
-                Size = UDim2.new(1, 0, 0, 22),
+                Size = UDim2.new(1, 0, 0, 20),
                 BackgroundTransparency = 1,
+                BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
                 AutoButtonColor = false,
-                ZIndex = 102
+                Text = ""
             })
-            Make("Corner", OptionBtn, UDim.new(0, 4))
+            Make("Corner", OptButton, UDim.new(0, 4))
             
-            -- // FIX 2: Alinhamento da barra e do texto
-            local IndicatorBar = InsertTheme(Create("Frame", OptionBtn, {
+            -- Indicador Lateral de Seleção
+            local IsSelected = InsertTheme(Create("Frame", OptButton, {
                 Position = UDim2.new(0, 2, 0.5, 0),
-                Size = UDim2.new(0, 3, 0, 0),
-                BackgroundColor3 = Theme["Color Theme"],
+                Size = UDim2.new(0, 4, 0, 4),
+                BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
                 BackgroundTransparency = 1,
-                AnchorPoint = Vector2.new(0, 0.5),
-                BorderSizePixel = 0,
-                ZIndex = 103
+                AnchorPoint = Vector2.new(0, 0.5)
             }), "Theme")
-            Make("Corner", IndicatorBar, UDim.new(1, 0))
+            Make("Corner", IsSelected, UDim.new(0.5, 0))
             
-            local OptionLabel = InsertTheme(Create("TextLabel", OptionBtn, {
-                Size = UDim2.new(1, -16, 1, 0),
+            -- Rótulo do Texto
+            local OptionName = InsertTheme(Create("TextLabel", OptButton, {
+                Size = UDim2.new(1, -12, 1, 0),
                 Position = UDim2.new(0, 10, 0, 0),
                 Text = Name,
-                TextColor3 = Theme["Color Text"],
+                TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
                 Font = Enum.Font.Ubuntu,
-                TextSize = 12,
+                TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1,
-                TextTransparency = 0.45,
-                ZIndex = 103
+                TextTransparency = 0.4,
+                TextTruncate = Enum.TextTruncate.AtEnd
             }), "Text")
             
-            OptionBtn.MouseEnter:Connect(function()
-                CreateTween({OptionBtn, "BackgroundTransparency", 0.92, 0.12})
+            -- Efeito de Hover nas Opções
+            OptButton.MouseEnter:Connect(function()
+                CreateTween({OptButton, "BackgroundTransparency", 0.5, 0.15})
             end)
-            OptionBtn.MouseLeave:Connect(function()
-                CreateTween({OptionBtn, "BackgroundTransparency", 1, 0.12})
+            OptButton.MouseLeave:Connect(function()
+                CreateTween({OptButton, "BackgroundTransparency", 1, 0.15})
             end)
             
-            OptionBtn.Activated:Connect(function()
+            OptButton.Activated:Connect(function()
                 Select(Options[Name])
             end)
             
-            Options[Name].nodes = {OptionBtn, IndicatorBar, OptionLabel}
+            Options[Name].nodes = {OptButton, IsSelected, OptionName}
+            Options[Name].Select = function() Select(Options[Name]) end
         end
         
         RemoveOption = function(index, Value)
             local Name = tostring(type(index) == "string" and index or Value)
             if Options[Name] then
-                if MultiSelect then Selected[Name] = nil else Selected = nil end
+                if MultiSelect then Selected[Name] = nil else if Selected == Options[Name].Value then Selected = nil end end
                 Options[Name].nodes[1]:Destroy()
-                table.clear(Options[Name])
                 Options[Name] = nil
             end
         end
@@ -2595,20 +2603,21 @@ function Tab:AddDropdown(Configs)
         
         AddNewOptions = function(List, Clear)
             if Clear then
-                for k, v in pairs(Options) do
-                    RemoveOption(k, v.Value)
+                for ind, val in pairs(Options) do
+                    RemoveOption(ind, val.Value)
                 end
             end
-            for k, v in pairs(List) do
-                AddOption(k, v)
+            for ind, val in pairs(List) do
+                AddOption(ind, val)
             end
             CallbackSelected()
             UpdateSelected()
         end
         
-        for k, v in pairs(DOptions) do
-            AddOption(k, v)
+        for ind, val in pairs(DOptions) do
+            AddOption(ind, val)
         end
+        
         CallbackSelected()
         UpdateSelected()
     end
@@ -2620,60 +2629,56 @@ function Tab:AddDropdown(Configs)
     if MainFrame then
         MainFrame:GetPropertyChangedSignal("Visible"):Connect(Disable)
     end
-    SelectedFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(CalculatePos)
     
-    Button.Activated:Connect(CalculateSize)
+    SelectedFrame:GetPropertyChangedSignal("AbsolutePosition"):Connect(CalculatePos)
     ScrollFrame.ChildAdded:Connect(CalculateSize)
     ScrollFrame.ChildRemoved:Connect(CalculateSize)
     
-    CalculatePos()
-    CalculateSize()
-    
     local Dropdown = {}
     function Dropdown:Visible(...) Funcs:ToggleVisible(Button, ...) end
-    function Dropdown:Destroy() Button:Destroy() end
-    function Dropdown:Callback(...) Funcs:InsertCallback(Callback, ...)(Selected) end
+    function Dropdown:Destroy() 
+        NoClickFrame:Destroy()
+        Button:Destroy() 
+    end
     
     function Dropdown:Add(...)
         local NewOptions = {...}
-        if type(NewOptions[1]) == "table" then
-            for _, Name in pairs(NewOptions[1]) do
-                AddOption(Name)
-            end
-        else
-            for _, Name in pairs(NewOptions) do
-                AddOption(Name)
-            end
+        local List = type(NewOptions[1]) == "table" and NewOptions[1] or NewOptions
+        for _, Name in pairs(List) do
+            AddOption(Name, Name)
         end
         CalculateSize()
     end
     
-    function Dropdown:Remove(Option)
-        for index, Value in pairs(GetOptions()) do
-            if (type(Option) == "number" and index == Option) or Value.Name == Option then
+    function Dropdown:Remove(Target)
+        local CurrentOpts = GetOptions()
+        for index, Value in pairs(CurrentOpts) do
+            if (type(Target) == "number" and index == Target) or Value.Name == tostring(Target) then
                 RemoveOption(index, Value.Value)
             end
         end
         CalculateSize()
     end
     
-    function Dropdown:Select(Option)
-        local opts = GetOptions()
-        if type(Option) == "string" and opts[Option] then
-            Select(opts[Option])
-        elseif type(Option) == "number" then
-            for ind, Val in pairs(opts) do
-                if ind == Option then
-                    Select(Val)
+    function Dropdown:Select(Target)
+        local CurrentOpts = GetOptions()
+        if type(Target) == "string" and CurrentOpts[Target] then
+            CurrentOpts[Target].Select()
+        elseif type(Target) == "number" then
+            local count = 1
+            for _, Val in pairs(CurrentOpts) do
+                if count == Target then
+                    Val.Select()
                     break
                 end
+                count = count + 1
             end
         end
     end
     
     function Dropdown:Set(Val1, Clear)
         if type(Val1) == "table" then
-            AddNewOptions(Val1, not Clear)
+            AddNewOptions(Val1, Clear)
         elseif type(Val1) == "function" then
             Callback = Val1
         end
@@ -2681,6 +2686,7 @@ function Tab:AddDropdown(Configs)
     
     return Dropdown
 end
+
  function Tab:AddSlider(Configs)
     local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
     local SDesc = Configs.Desc or Configs.Description or ""
