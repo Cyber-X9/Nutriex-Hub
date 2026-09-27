@@ -2346,7 +2346,7 @@ function Tab:AddDropdown(Configs)
         BackgroundTransparency = 1,
         Visible = false,
         Text = "",
-        ZIndex = 980
+        ZIndex = 0
     })
 
     -- Frame da lista suspensa (ZIndex 990 para sobrepor toda a UI)
@@ -2358,7 +2358,7 @@ function Tab:AddDropdown(Configs)
         Name = "DropdownFrame",
         ClipsDescendants = true,
         Active = true,
-        ZIndex = 990
+        ZIndex = 0
     }), "Frame")
     
     Make("Corner", DropFrame, UDim.new(0, 6))
