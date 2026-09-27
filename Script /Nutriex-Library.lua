@@ -2128,7 +2128,18 @@ function Tab:AddButton(Configs)
     local Callback = Funcs:GetCallback(Configs, 2)
     
     local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
+    FButton.ClipsDescendants = true -- Necessário para prender o efeito Ripple dentro dos limites do botão
     
+    -- Camada de Hover (Destaque sutil ao passar o cursor)
+    local HoverOverlay = Create("Frame", FButton, {
+        Size = UDim2.new(1, 0, 1, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 2
+    })
+    Make("Corner", HoverOverlay, UDim.new(0, 6))
+
     -- Ícone interativo
     local ButtonIcon = Create("ImageLabel", FButton, {
         Size = UDim2.new(0, 14, 0, 14),
@@ -2137,30 +2148,72 @@ function Tab:AddButton(Configs)
         BackgroundTransparency = 1,
         Image = "rbxassetid://10709791437",
         ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        ImageTransparency = 0.3
+        ImageTransparency = 0.4,
+        ZIndex = 3
     })
 
-    -- Instância UIScale inserida para lidar com a animação de clique em segurança
+    -- UIScale com AnchorPoint ajustado para contrair em direção ao centro
     local ClickScale = Instance.new("UIScale")
     ClickScale.Parent = FButton
     ClickScale.Scale = 1
 
-    -- Animação de Hover no Ícone
+    -- Efeito Ripple (Onda d'água ao clicar)
+    local function SpawnRipple(X, Y)
+        task.spawn(function()
+            local MouseRelative = Vector2.new(X - FButton.AbsolutePosition.X, Y - FButton.AbsolutePosition.Y)
+            local Circle = Create("Frame", FButton, {
+                Position = UDim2.fromOffset(MouseRelative.X, MouseRelative.Y),
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Size = UDim2.fromOffset(0, 0),
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                BackgroundTransparency = 0.85,
+                BorderSizePixel = 0,
+                ZIndex = 1
+            })
+            Make("Corner", Circle, UDim.new(1, 0)) -- Círculo perfeito
+            
+            local TargetSize = math.max(FButton.AbsoluteSize.X, FButton.AbsoluteSize.Y) * 1.5
+            
+            -- Anima expansão e desvanecimento
+            local TweenService = game:GetService("TweenService")
+            local Info = TweenInfo.new(0.4, Enum.EasingStyle.OutQuad, Enum.EasingDirection.Out)
+            
+            TweenService:Create(Circle, Info, {
+                Size = UDim2.fromOffset(TargetSize, TargetSize),
+                BackgroundTransparency = 1
+            }):Play()
+            
+            task.wait(0.4)
+            Circle:Destroy()
+        end)
+    end
+
+    -- Animações de Hover
     FButton.MouseEnter:Connect(function()
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.15})
-        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.15})
+        -- Ilumina o fundo e desloca o ícone
+        CreateTween({HoverOverlay, "BackgroundTransparency", 0.95, 0.2})
+        CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.2})
     end)
 
     FButton.MouseLeave:Connect(function()
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -12, 0.5, 0), 0.15})
-        CreateTween({ButtonIcon, "ImageTransparency", 0.3, 0.15})
+        -- Restaura o estado padrão
+        CreateTween({HoverOverlay, "BackgroundTransparency", 1, 0.2})
+        CreateTween({ButtonIcon, "Position", UDim2.new(1, -12, 0.5, 0), 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+        CreateTween({ButtonIcon, "ImageTransparency", 0.4, 0.2})
     end)
 
-    -- Efeito de Clique no Botão (Feedback Visual via UIScale)
-    FButton.Activated:Connect(function()
-        -- Anima a escala visual em vez do tamanho real do frame
-        CreateTween({ClickScale, "Scale", 0.96, 0.08, true})
-        CreateTween({ClickScale, "Scale", 1, 0.12})
+    -- Animação tátil de Clique (Elasticidade suave + Efeito Onda)
+    FButton.Activated:Connect(function(InputObject)
+        -- Dispara o efeito de onda na posição do clique/toque
+        if InputObject then
+            SpawnRipple(InputObject.Position.X, InputObject.Position.Y)
+        end
+
+        -- Animação de compressão com efeito elástico
+        CreateTween({ClickScale, "Scale", 0.94, 0.08, true, Enum.EasingStyle.Sine, Enum.EasingDirection.Out})
+        CreateTween({ClickScale, "Scale", 1, 0.25, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
+
         Funcs:FireCallback(Callback)
     end)
     
@@ -2181,80 +2234,95 @@ function Tab:AddButton(Configs)
     return Button
 end
 function Tab:AddToggle(Configs)
-			local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
-			local TDesc = Configs.Desc or Configs.Description or ""
-			local Callback = Funcs:GetCallback(Configs, 3)
-			local Flag = Configs[4] or Configs.Flag or false
-			local Default = Configs[2] or Configs.Default or false
-			if CheckFlag(Flag) then Default = GetFlag(Flag) end
-			
-			local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
-			
-			local ToggleHolder = InsertTheme(Create("Frame", Button, {
-				Size = UDim2.new(0, 35, 0, 18),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundColor3 = Theme["Color Stroke"]
-			}), "Stroke")Make("Corner", ToggleHolder, UDim.new(0.5, 0))
-			
-			local Slider = Create("Frame", ToggleHolder, {
-				BackgroundTransparency = 1,
-				Size = UDim2.new(0.8, 0, 0.8, 0),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				AnchorPoint = Vector2.new(0.5, 0.5)
-			})
-			
-			local Toggle = InsertTheme(Create("Frame", Slider, {
-				Size = UDim2.new(0, 12, 0, 12),
-				Position = UDim2.new(0, 0, 0.5),
-				AnchorPoint = Vector2.new(0, 0.5),
-				BackgroundColor3 = Theme["Color Theme"]
-			}), "Theme")Make("Corner", Toggle, UDim.new(0.5, 0))
-			
-			local WaitClick
-			local function SetToggle(Val)
-				if WaitClick then return end
-				
-				WaitClick, Default = true, Val
-				SetFlag(Flag, Default)
-				Funcs:FireCallback(Callback, Default)
-				if Default then
-					CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.25, Wait or false})
-				else
-					CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5), 0.25})
-					CreateTween({Toggle, "BackgroundTransparency", 0.8, 0.25})
-					CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.25, Wait or false})
-				end
-				WaitClick = false
-			end;task.spawn(SetToggle, Default)
-			
-			Button.Activated:Connect(function()
-				SetToggle(not Default)
-			end)
-			
-			local Toggle = {}
-			function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
-			function Toggle:Destroy() Button:Destroy() end
-			function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
-			function Toggle:Set(Val1, Val2)
-				if type(Val1) == "string" and type(Val2) == "string" then
-					LabelFunc:SetTitle(Val1)
-					LabelFunc:SetDesc(Val2)
-				elseif type(Val1) == "string" then
-					LabelFunc:SetTitle(Val1, false, true)
-				elseif type(Val1) == "boolean" then
-					if WaitClick and Val2 then
-						repeat task.wait() until not WaitClick
-					end
-					task.spawn(SetToggle, Val1)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Toggle
-		end
+    local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
+    local TDesc = Configs.Desc or Configs.Description or ""
+    local Callback = Funcs:GetCallback(Configs, 3)
+    local Flag = Configs[4] or Configs.Flag or false
+    local Default = Configs[2] or Configs.Default or false
+    if CheckFlag(Flag) then Default = GetFlag(Flag) end
+    
+    local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
+    
+    -- Fundo do Toggle (arredondado suave/squircle)
+    local ToggleHolder = InsertTheme(Create("Frame", Button, {
+        Size = UDim2.new(0, 36, 0, 18),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35)
+    }), "Stroke")
+    Make("Corner", ToggleHolder, UDim.new(0, 6)) -- Canto squircle no fundo
+    
+    local Slider = Create("Frame", ToggleHolder, {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, -6, 1, -6),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0.5, 0.5)
+    })
+    
+    -- Indicador "meio quadrado e redondo" (Squircle)
+    local Toggle = InsertTheme(Create("Frame", Slider, {
+        Size = UDim2.new(0, 12, 0, 12),
+        Position = UDim2.new(0, 0, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242)
+    }), "Theme")
+    
+    -- Altera de 0.5 (círculo) para 4px (squircle / quadrado arredondado)
+    Make("Corner", Toggle, UDim.new(0, 4))
+    
+    local WaitClick
+    local function SetToggle(Val)
+        if WaitClick then return end
+        
+        WaitClick, Default = true, Val
+        SetFlag(Flag, Default)
+        Funcs:FireCallback(Callback, Default)
+        
+        if Default then
+            CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5, 0), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            CreateTween({Toggle, "BackgroundTransparency", 0, 0.2})
+            CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.2})
+            -- Efeito visual: estica levemente ao ligar
+            CreateTween({Toggle, "Size", UDim2.new(0, 14, 0, 12), 0.1, true})
+            CreateTween({Toggle, "Size", UDim2.new(0, 12, 0, 12), 0.1})
+        else
+            CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5, 0), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            CreateTween({Toggle, "BackgroundTransparency", 0.6, 0.2})
+            CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.2})
+            -- Efeito visual: estica levemente ao desligar
+            CreateTween({Toggle, "Size", UDim2.new(0, 14, 0, 12), 0.1, true})
+            CreateTween({Toggle, "Size", UDim2.new(0, 12, 0, 12), 0.1})
+        end
+        WaitClick = false
+    end
+    
+    task.spawn(SetToggle, Default)
+    
+    Button.Activated:Connect(function()
+        SetToggle(not Default)
+    end)
+    
+    local Toggle = {}
+    function Toggle:Visible(...) Funcs:ToggleVisible(Button, ...) end
+    function Toggle:Destroy() Button:Destroy() end
+    function Toggle:Callback(...) Funcs:InsertCallback(Callback, ...)() end
+    function Toggle:Set(Val1, Val2)
+        if type(Val1) == "string" and type(Val2) == "string" then
+            LabelFunc:SetTitle(Val1)
+            LabelFunc:SetDesc(Val2)
+        elseif type(Val1) == "string" then
+            LabelFunc:SetTitle(Val1, false, true)
+        elseif type(Val1) == "boolean" then
+            if WaitClick and Val2 then
+                repeat task.wait() until not WaitClick
+            end
+            task.spawn(SetToggle, Val1)
+        elseif type(Val1) == "function" then
+            Callback = Val1
+        end
+    end
+    return Toggle
+end
 function Tab:AddDropdown(Configs)
     local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
     local DDesc = Configs.Desc or Configs.Description or ""
@@ -2929,94 +2997,105 @@ function Tab:AddTextBox(Configs)
     return TextBox
 end
 function Tab:AddDiscordInvite(Configs)
-    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Server"
-    local Desc = Configs.Desc or Configs.Description or "Join our community for updates and support!"
+    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Community"
+    local Desc = Configs.Desc or Configs.Description or "Join our Discord server to get updates and support!"
     local Logo = Configs[2] or Configs.Logo or Configs.Icon or "rbxassetid://11481180173"
     local Invite = Configs[3] or Configs.Invite or "https://discord.gg/"
     
-    -- Se o logo vier vazio, usa a imagem padrão do Discord
+    -- Validação e fallback para imagem padrão
     if type(Logo) ~= "string" or Logo:gsub(" ", "") == "" then
         Logo = "rbxassetid://11481180173"
     end
     
-    -- Container principal do Card
+    -- Container Principal da Opção
     local InviteHolder = Create("Frame", Container, {
-        Size = UDim2.new(1, 0, 0, 90),
+        Size = UDim2.new(1, 0, 0, 78),
         Name = "Option",
         BackgroundTransparency = 1
     })
     
+    -- Frame do Card
     local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
         Size = UDim2.new(1, 0, 1, 0),
         Position = UDim2.new(0, 0, 0, 0),
-        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 25),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(22, 23, 27),
         BorderSizePixel = 0
     }), "Frame")
-    Make("Corner", FrameHolder, UDim.new(0, 6))
+    Make("Corner", FrameHolder, UDim.new(0, 8))
     Make("Stroke", FrameHolder)
     
-    -- Ícone / Logo do Discord
+    -- Ícone / Server Avatar (40x40px)
     local ImageLabel = Create("ImageLabel", FrameHolder, {
-        Size = UDim2.new(0, 32, 0, 32),
+        Size = UDim2.new(0, 40, 0, 40),
         Position = UDim2.new(0, 10, 0, 10),
         Image = Logo,
         BackgroundTransparency = 1
     })
-    Make("Corner", ImageLabel, UDim.new(0, 6))
+    Make("Corner", ImageLabel, UDim.new(0, 8))
     
-    -- Título
+    -- Título da Comunidade
     local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-        Size = UDim2.new(1, -56, 0, 16),
-        Position = UDim2.new(0, 50, 0, 8),
+        Size = UDim2.new(1, -170, 0, 18),
+        Position = UDim2.new(0, 58, 0, 10),
         Font = Enum.Font.Ubuntu,
         TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         TextXAlignment = Enum.TextXAlignment.Left,
         BackgroundTransparency = 1,
-        TextSize = 12,
+        TextSize = 13,
         Text = Title,
         TextTruncate = Enum.TextTruncate.AtEnd
     }), "Text")
     
     -- Descrição
     local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-        Size = UDim2.new(1, -56, 0, 14),
-        Position = UDim2.new(0, 50, 0, 24),
-        TextWrapped = true,
+        Size = UDim2.new(1, -170, 0, 28),
+        Position = UDim2.new(0, 58, 0, 30),
         Font = Enum.Font.Ubuntu,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(150, 150, 155),
         TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
         BackgroundTransparency = 1,
         TextSize = 10,
+        TextWrapped = true,
         Text = Desc,
         TextTruncate = Enum.TextTruncate.AtEnd
     }), "DarkText")
     
-    -- Botão de Entrar (Altura ajustada para 22px para touch amigável)
+    -- Botão "Join" posicionado de forma compacta à direita
     local JoinButton = Create("TextButton", FrameHolder, {
-        Size = UDim2.new(1, -20, 0, 22),
-        AnchorPoint = Vector2.new(0.5, 1),
-        Position = UDim2.new(0.5, 0, 1, -8),
-        Text = "Join Discord Server",
+        Size = UDim2.new(0, 100, 0, 28),
+        AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -10, 0.5, 0),
+        Text = "Copy link",
         Font = Enum.Font.Ubuntu,
         TextSize = 11,
         TextColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundColor3 = Color3.fromRGB(88, 101, 242), -- Discord Blurple
         AutoButtonColor = false,
-        BorderSizePixel = 0
+        BorderSizePixel = 0,
+        ZIndex = 2
     })
-    Make("Corner", JoinButton, UDim.new(0, 5))
+    Make("Corner", JoinButton, UDim.new(0, 6))
     
-    -- Instância UIScale para o efeito de clique suave
+    -- Efeito de escala ao clicar
     local BtnScale = Instance.new("UIScale")
     BtnScale.Parent = JoinButton
     
+    -- Efeitos de Hover no botão
+    JoinButton.MouseEnter:Connect(function()
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(71, 82, 196), 0.15})
+    end)
+    JoinButton.MouseLeave:Connect(function()
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.15})
+    end)
+    
     local ClickDelay = false
     JoinButton.Activated:Connect(function()
-        -- Animação visual de toque
-        CreateTween({BtnScale, "Scale", 0.96, 0.08, true})
+        -- Animação tátil de pressão
+        CreateTween({BtnScale, "Scale", 0.93, 0.08, true})
         CreateTween({BtnScale, "Scale", 1, 0.12})
         
-        -- Copia o link com pcall de segurança
+        -- Copiar link para o Clipboard
         if setclipboard then
             pcall(setclipboard, Invite)
         end
@@ -3024,22 +3103,42 @@ function Tab:AddDiscordInvite(Configs)
         if ClickDelay then return end
         ClickDelay = true
         
-        -- Feedback visual em verde de sucesso
-        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(57, 139, 81), 0.2})
-        JoinButton.Text = "Link Copied to Clipboard!"
+        -- Transição para Sucesso (Verde)
+        CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(46, 125, 50), 0.2})
+        JoinButton.Text = "Copied!"
         
-        task.wait(3)
+        task.wait(2.5)
         
-        -- Retorna ao estado original Blurple
+        -- Retorna ao padrão Blurple
         CreateTween({JoinButton, "BackgroundColor3", Color3.fromRGB(88, 101, 242), 0.2})
-        JoinButton.Text = "Join Discord Server"
+        JoinButton.Text = "Copy link"
         
         ClickDelay = false
     end)
     
+    -- Métodos públicos da opção
     local DiscordInvite = {}
-    function DiscordInvite:Destroy() InviteHolder:Destroy() end
-    function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
+    
+    function DiscordInvite:SetInvite(NewInvite)
+        Invite = NewInvite or Invite
+    end
+    
+    function DiscordInvite:SetTitle(NewTitle)
+        LTitle.Text = NewTitle or LTitle.Text
+    end
+    
+    function DiscordInvite:SetDesc(NewDesc)
+        LDesc.Text = NewDesc or LDesc.Text
+    end
+    
+    function DiscordInvite:Destroy() 
+        InviteHolder:Destroy() 
+    end
+    
+    function DiscordInvite:Visible(...) 
+        Funcs:ToggleVisible(InviteHolder, ...) 
+    end
+    
     return DiscordInvite
 end
 		return Tab
