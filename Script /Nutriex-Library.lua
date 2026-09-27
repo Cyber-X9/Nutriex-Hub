@@ -2098,69 +2098,30 @@ function Tab:AddSection(Configs)
     return Section
 end
 function Tab:AddParagraph(Configs)
-    local PName = Configs[1] or Configs.Title or Configs.Name or "Paragraph"
-    local PDesc = Configs[2] or Configs.Text or Configs.Description or ""
-    
-    -- Helper para garantir conversão segura de string
-    local function SafeString(val)
-        if type(GetStr) == "function" then
-            return GetStr(val)
-        end
-        return tostring(val or "")
-    end
-    
-    PName = SafeString(PName)
-    PDesc = SafeString(PDesc)
-    
-    -- Criação da Frame Base
-    local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
-    
-    -- Ajuste dinâmico de altura para suportar múltiplas linhas sem cortar texto
-    if Frame:IsA("GuiObject") then
-        Frame.AutomaticSize = Enum.AutomaticSize.Y
-        Frame.Size = UDim2.new(1, -20, 0, 0)
-    end
-    
-    local Paragraph = {}
-    
-    -- Controlo de Visibilidade e Destruição
-    function Paragraph:Visible(...) 
-        Funcs:ToggleVisible(Frame, ...) 
-    end
-    
-    function Paragraph:Destroy() 
-        Frame:Destroy() 
-    end
-    
-    -- Atualização de Título
-    function Paragraph:SetTitle(Val)
-        PName = SafeString(Val)
-        LabelFunc:SetTitle(PName)
-    end
-    
-    -- Atualização de Descrição / Texto
-    function Paragraph:SetDesc(Val)
-        PDesc = SafeString(Val)
-        LabelFunc:SetDesc(PDesc)
-    end
-    
-    -- Método Polimórfico de Atualização
-    function Paragraph:Set(Val1, Val2)
-        if Val1 and Val2 then
-            Paragraph:SetTitle(Val1)
-            Paragraph:SetDesc(Val2)
-        elseif Val1 then
-            Paragraph:SetDesc(Val1)
-        end
-    end
-    
-    -- Retorna os dados atuais do Parágrafo
-    function Paragraph:Get()
-        return PName, PDesc
-    end
-    
-    return Paragraph
-end
+			local PName = Configs[1] or Configs.Title or "Paragraph"
+			local PDesc = Configs[2] or Configs.Text or ""
+			
+			local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
+			
+			local Paragraph = {}
+			function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
+			function Paragraph:Destroy() Frame:Destroy() end
+			function Paragraph:SetTitle(Val)
+				LabelFunc:SetTitle(GetStr(Val))
+			end
+			function Paragraph:SetDesc(Val)
+				LabelFunc:SetDesc(GetStr(Val))
+			end
+			function Paragraph:Set(Val1, Val2)
+				if Val1 and Val2 then
+					LabelFunc:SetTitle(GetStr(Val1))
+					LabelFunc:SetDesc(GetStr(Val2))
+				elseif Val1 then
+					LabelFunc:SetDesc(GetStr(Val1))
+				end
+			end
+			return Paragraph
+		end
 function Tab:AddButton(Configs)
     local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
     local BDescription = Configs.Desc or Configs.Description or ""
