@@ -3,7 +3,7 @@
  | \| |_  _| |_ _ _(_)_____ __ | || |_  _| |__  
  | .` | || |  _| '_| / -_) \ / | __ | || | '_ \ 
  |_|\_|\_,_|\__|_| |_\___/_\_\ |_||_|\_,_|_.__/  
- ----------------------------------------------
+  -------------------------------------------
  • Nutriex UI library - By CyberX      
  • Version: 1.0                      
 ]]
@@ -28,7 +28,7 @@ local Mouse = LocalPlayer:GetMouse()
 
 local CoreGui = if typeof(gethui) == "function" then gethui() else Services.CoreGui
 
-local NutriexLibrary = {
+local NutriexUI = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
@@ -47,7 +47,7 @@ local NutriexLibrary = {
 		Version = "1.0"
 	},
 	Save = {
-		UISize = {479, 241},
+		UISize = {487, 242},
 		TabSize = 160,
 		Theme = "Darker"
 	},
@@ -885,12 +885,12 @@ local NutriexLibrary = {
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
 
-local Settings = NutriexLibrary.Settings
-local Flags = NutriexLibrary.Flags
+local Settings = NutriexUI.Settings
+local Flags = NutriexUI.Flags
 
 local SetProps, SetChildren, InsertTheme, Create do
 	InsertTheme = function(Instance, Type)
-		table.insert(NutriexLibrary.Instances, {
+		table.insert(NutriexUI.Instances, {
 			Instance = Instance,
 			Type = Type
 		})
@@ -939,14 +939,14 @@ local SetProps, SetChildren, InsertTheme, Create do
 			local decode = HttpService:JSONDecode(readfile(file))
 			
 			if type(decode) == "table" then
-				if rawget(decode, "UISize") then NutriexLibrary.Save["UISize"] = decode["UISize"] end
-				if rawget(decode, "TabSize") then NutriexLibrary.Save["TabSize"] = decode["TabSize"] end
-				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then NutriexLibrary.Save["Theme"] = decode["Theme"] end
+				if rawget(decode, "UISize") then NutriexUI.Save["UISize"] = decode["UISize"] end
+				if rawget(decode, "TabSize") then NutriexUI.Save["TabSize"] = decode["TabSize"] end
+				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then NutriexUI.Save["Theme"] = decode["Theme"] end
 			end
 		end
 	end
 	
-	pcall(Save, "Nutriex-Config.json")
+	pcall(Save, "Nutriex_Config.json")
 end
 
 local Funcs = {} do
@@ -1006,7 +1006,7 @@ local Funcs = {} do
 	end
 end
 
-local Connections, Connection = {}, NutriexLibrary.Connection do
+local Connections, Connection = {}, NutriexUI.Connection do
 	local function NewConnectionList(List)
 		if type(List) ~= "table" then return end
 		
@@ -1172,7 +1172,7 @@ local function MakeDrag(Instance)
 end
 
 local function VerifyTheme(Theme)
-	for name,_ in pairs(NutriexLibrary.Themes) do
+	for name,_ in pairs(NutriexUI.Themes) do
 		if name == Theme then
 			return true
 		end
@@ -1186,14 +1186,14 @@ local function SaveJson(FileName, save)
 	end
 end
 
-local Theme = NutriexLibrary.Themes[NutriexLibrary.Save.Theme]
+local Theme = NutriexUI.Themes[NutriexUI.Save.Theme]
 
 local function AddEle(Name, Func)
-	NutriexLibrary.Elements[Name] = Func
+	NutriexUI.Elements[Name] = Func
 end
 
 local function Make(Ele, Instance, props, ...)
-	local Element = NutriexLibrary.Elements[Ele](Instance, props, ...)
+	local Element = NutriexUI.Elements[Ele](Instance, props, ...)
 	return Element
 end
 
@@ -1340,7 +1340,7 @@ local function GetColor(Instance)
 end
 
 -- /////////// --
-function NutriexLibrary:GetIcon(index)
+function NutriexUI:GetIcon(index)
 	if type(index) ~= "string" or index:find("rbxassetid://") or #index == 0 then
 		return index
 	end
@@ -1363,15 +1363,15 @@ function NutriexLibrary:GetIcon(index)
 	return firstMatch or index
 end
 
-function NutriexLibrary:SetTheme(NewTheme)
+function NutriexUI:SetTheme(NewTheme)
 	if not VerifyTheme(NewTheme) then return end
 	
-	NutriexLibrary.Save.Theme = NewTheme
-	SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
-	Theme = NutriexLibrary.Themes[NewTheme]
+	NutriexUI.Save.Theme = NewTheme
+	SaveJson("Nutriex_Config.json", NutriexUI.Save)
+	Theme = NutriexUI.Themes[NewTheme]
 	
 	Comnection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(NutriexLibrary.Instances, function(_,Val)
+	table.foreach(NutriexUI.Instances, function(_,Val)
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
 		elseif Val.Type == "Frame" then
@@ -1390,12 +1390,12 @@ function NutriexLibrary:SetTheme(NewTheme)
 	end)
 end
 
-function NutriexLibrary:SetScale(NewScale)
+function NutriexUI:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
 --// Code Logic \\--
-function NutriexLibrary:MakeWindow(Configs)
+function NutriexUI:MakeWindow(Configs)
     Configs = Configs or {}
     local WTitle = Configs[1] or Configs.Name or Configs.Title or "Nutriex Hub"
     local WMiniText = Configs[2] or Configs.SubTitle or ""
@@ -1419,7 +1419,7 @@ function NutriexLibrary:MakeWindow(Configs)
     end
     LoadFile()
     
-    local SaveData = NutriexLibrary.Save or {}
+    local SaveData = NutriexUI.Save or {}
     local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
     local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
     local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
@@ -1551,59 +1551,88 @@ function NutriexLibrary:MakeWindow(Configs)
     if type(ConnectSave) == "function" then
         ConnectSave(ControlSize1, function()
             if not Minimized and type(SaveJson) == "function" then
-                NutriexLibrary.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-                SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
+                NutriexUI.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
+                SaveJson("Nutriex_Config.json", NutriexUI.Save)
             end
         end)
         
         ConnectSave(ControlSize2, function()
             if type(SaveJson) == "function" then
-                NutriexLibrary.Save.TabSize = MainScroll.Size.X.Offset
-                SaveJson("Nutriex-Config.json", NutriexLibrary.Save)
+                NutriexUI.Save.TabSize = MainScroll.Size.X.Offset
+                SaveJson("Nutriex_Config.json", NutriexUI.Save)
             end
         end)
     end
    
-    local ButtonsFolder = Create("Folder", TopBar, { Name = "Buttons" })
-    
-    local CloseButton = Create("ImageButton", {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = UDim2.new(1, -10, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
+    -- // ESTRUTURA DA TOPBAR EXPANDIDA COM UI-LIST
+    local ButtonsFolder = Create("Frame", TopBar, { 
+        Size = UDim2.new(0, 0, 1, 0),
+        Position = UDim2.new(1, -10, 0, 0),
+        AnchorPoint = Vector2.new(1, 0),
         BackgroundTransparency = 1,
-        Image = "rbxassetid://10747384394",
-        ImageTransparency = 0.3,
-        AutoButtonColor = false,
-        Name = "Close"
+        Name = "Buttons"
     })
-    
-    local MinimizeButton = Create("ImageButton", {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = UDim2.new(1, -32, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://10734896206",
-        ImageTransparency = 0.3,
-        AutoButtonColor = false,
-        Name = "Minimize"
+
+    Create("UIListLayout", ButtonsFolder, {
+        FillDirection = Enum.FillDirection.Horizontal,
+        HorizontalAlignment = Enum.HorizontalAlignment.Right,
+        VerticalAlignment = Enum.VerticalAlignment.Center,
+        Padding = UDim.new(0, 8),
+        SortOrder = Enum.SortOrder.LayoutOrder
     })
-    
-    CloseButton.Parent = ButtonsFolder
-    MinimizeButton.Parent = ButtonsFolder
-    
-    local function AddBtnEffects(btn)
-        btn.MouseEnter:Connect(function()
-            CreateTween({btn, "ImageTransparency", 0, 0.15})
+
+    local function CreateTopButton(name, icon, order)
+        local Btn = Create("ImageButton", ButtonsFolder, {
+            Size = UDim2.new(0, 14, 0, 14),
+            BackgroundTransparency = 1,
+            Image = icon,
+            ImageTransparency = 0.3,
+            AutoButtonColor = false,
+            Name = name,
+            LayoutOrder = order
+        })
+
+        Btn.MouseEnter:Connect(function()
+            CreateTween({Btn, "ImageTransparency", 0, 0.15})
         end)
-        btn.MouseLeave:Connect(function()
-            CreateTween({btn, "ImageTransparency", 0.3, 0.15})
+        Btn.MouseLeave:Connect(function()
+            CreateTween({Btn, "ImageTransparency", 0.3, 0.15})
         end)
+
+        return Btn
     end
-    AddBtnEffects(CloseButton)
-    AddBtnEffects(MinimizeButton)
-    
+
+    -- Criar Botões em Ordem
+    local SearchButton   = CreateTopButton("Search", "rbxassetid://10709752035", 1)
+    local SettingsButton = CreateTopButton("Settings", "rbxassetid://10709752839", 2)
+    local PinButton      = CreateTopButton("Pin", "rbxassetid://10709752494", 3)
+    local MinimizeButton = CreateTopButton("Minimize", "rbxassetid://10734896206", 4)
+    local CloseButton    = CreateTopButton("Close", "rbxassetid://10747384394", 5)
+
     local Window = {}
     local WaitClick = false
+    local IsPinned = false
+
+    -- Callback do Botão Pin (Always On Top)
+    PinButton.Activated:Connect(function()
+        IsPinned = not IsPinned
+        ScreenGui.DisplayOrder = IsPinned and 9999 or 1
+        CreateTween({PinButton, "ImageColor3", IsPinned and (Theme["Color Theme"] or Color3.fromRGB(88, 101, 242)) or Color3.fromRGB(255, 255, 255), 0.15})
+    end)
+
+    -- Callback do Botão Search
+    SearchButton.Activated:Connect(function()
+        if typeof(Window.OnSearch) == "function" then
+            Window.OnSearch()
+        end
+    end)
+
+    -- Callback do Botão Settings
+    SettingsButton.Activated:Connect(function()
+        if typeof(Window.OnSettings) == "function" then
+            Window.OnSettings()
+        end
+    end)
     
     function Window:CloseBtn()
         if typeof(Window.Dialog) == "function" then
@@ -1691,6 +1720,7 @@ function NutriexLibrary:MakeWindow(Configs)
             Button = Button
         }
     end
+
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
             Title.Text = Val1
@@ -1830,9 +1860,9 @@ function Window:Dialog(Configs)
 end
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
-			NutriexLibrary.Tabs[TabSelect].func:Enable()
+			NutriexUI.Tabs[TabSelect].func:Enable()
 		else
-			for _,Tab in pairs(NutriexLibrary.Tabs) do
+			for _,Tab in pairs(NutriexUI.Tabs) do
 				if Tab.Cont == TabSelect.Cont then
 					Tab.func:Enable()
 				end
@@ -1845,8 +1875,8 @@ function Window:MakeTab(paste, Configs)
     local TName = Configs[1] or Configs.Title or Configs.Name or "Tab!"
     local TIcon = Configs[2] or Configs.Icon or ""
     
-    if type(NutriexLibrary) == "table" and type(NutriexLibrary.GetIcon) == "function" then
-        TIcon = NutriexLibrary:GetIcon(TIcon)
+    if type(NutriexUI) == "table" and type(NutriexUI.GetIcon) == "function" then
+        TIcon = NutriexUI:GetIcon(TIcon)
     end
     
     if type(TIcon) ~= "string" or not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
@@ -1957,8 +1987,8 @@ function Window:MakeTab(paste, Configs)
         Container.Parent = Containers
         Container.Size = UDim2.new(1, 0, 1, 15)
         
-        if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
-            for _, tabData in ipairs(NutriexLibrary.Tabs) do
+        if type(NutriexUI) == "table" and type(NutriexUI.Tabs) == "table" then
+            for _, tabData in ipairs(NutriexUI.Tabs) do
                 if tabData.Cont ~= Container and tabData.func and type(tabData.func.Disable) == "function" then
                     tabData.func:Disable()
                 end
@@ -1978,8 +2008,8 @@ function Window:MakeTab(paste, Configs)
     TabSelect.Activated:Connect(Tabs)
     
     FirstTab = true
-    if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
-        table.insert(NutriexLibrary.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
+    if type(NutriexUI) == "table" and type(NutriexUI.Tabs) == "table" then
+        table.insert(NutriexUI.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
     end
     
     function Tab:Disable()
@@ -2065,8 +2095,8 @@ function Tab:AddSection(Configs)
     local Section = {}
     
     -- Registo no sistema global de opções se a tabela existir
-    if type(NutriexLibrary) == "table" and type(NutriexLibrary.Options) == "table" then
-        table.insert(NutriexLibrary.Options, {type = "Section", Name = SectionName, func = Section})
+    if type(NutriexUI) == "table" and type(NutriexUI.Options) == "table" then
+        table.insert(NutriexUI.Options, {type = "Section", Name = SectionName, func = Section})
     end
     
     function Section:Visible(Bool)
@@ -2095,135 +2125,30 @@ function Tab:AddSection(Configs)
     return Section
 end
 function Tab:AddParagraph(Configs)
-    local PName = Configs[1] or Configs.Title or "Paragraph"
-    local PDesc = Configs[2] or Configs.Text or ""
-    local PIcon = Configs.Icon or ""
-    
-    local Frame = Create("Frame", Container, {
-        Name = "ParagraphFrame",
-        Size = UDim2.new(1, 0, 0, 0),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(25, 25, 25),
-        BackgroundTransparency = 0.4,
-        BorderSizePixel = 0,
-        ClipsDescendants = true
-    })
-    
-    Make("Corner", Frame, UDim.new(0, 6))
-    local FrameStroke = Make("Stroke", Frame, {
-        Color = Theme["Color Stroke"] or Color3.fromRGB(45, 45, 45),
-        Transparency = 0.5,
-        Thickness = 1
-    })
-
-    local AccentBar = Create("Frame", Frame, {
-        Name = "AccentBar",
-        Size = UDim2.new(0, 3, 1, -12),
-        Position = UDim2.new(0, 6, 0.5, 0),
-        AnchorPoint = Vector2.new(0, 0.5),
-        BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(0, 170, 255),
-        BorderSizePixel = 0
-    })
-    Make("Corner", AccentBar, UDim.new(1, 0))
-
-    local IconLabel = Create("ImageLabel", Frame, {
-        Name = "ParagraphIcon",
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(0, 16, 0, 10),
-        BackgroundTransparency = 1,
-        Image = PIcon,
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(200, 200, 200),
-        ImageTransparency = 0.2,
-        Visible = PIcon ~= ""
-    })
-
-    local TextContainer = Create("Frame", Frame, {
-        Name = "TextContainer",
-        Size = UDim2.new(1, PIcon ~= "" and -42 or -24, 0, 0),
-        Position = UDim2.new(0, PIcon ~= "" and 38 or 16, 0, 8),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        BackgroundTransparency = 1
-    })
-
-    Create("UIListLayout", TextContainer, {
-        SortOrder = Enum.SortOrder.LayoutOrder,
-        Padding = UDim.new(0, 3)
-    })
-
-    local TitleLabel = InsertTheme(Create("TextLabel", TextContainer, {
-        Name = "Title",
-        Size = UDim2.new(1, 0, 0, 0),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        BackgroundTransparency = 1,
-        Font = Enum.Font.GothamBold,
-        TextSize = 13,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextWrapped = true,
-        RichText = true,
-        Text = PName,
-        LayoutOrder = 1
-    }), "Text")
-
-    local DescLabel = InsertTheme(Create("TextLabel", TextContainer, {
-        Name = "Description",
-        Size = UDim2.new(1, 0, 0, 0),
-        AutomaticSize = Enum.AutomaticSize.Y,
-        BackgroundTransparency = 1,
-        Font = Enum.Font.Gotham,
-        TextSize = 11,
-        TextColor3 = Theme["Color SubText"] or Color3.fromRGB(170, 170, 170),
-        TextTransparency = 0.25,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextWrapped = true,
-        RichText = true,
-        Text = PDesc,
-        LayoutOrder = 2
-    }), "SubText")
-
-    Create("UIPadding", Frame, {
-        PaddingBottom = UDim.new(0, 10)
-    })
-
-    Frame.MouseEnter:Connect(function()
-        CreateTween({FrameStroke, "Transparency", 0.2, 0.2})
-        CreateTween({Frame, "BackgroundTransparency", 0.25, 0.2})
-    end)
-    
-    Frame.MouseLeave:Connect(function()
-        CreateTween({FrameStroke, "Transparency", 0.5, 0.2})
-        CreateTween({Frame, "BackgroundTransparency", 0.4, 0.2})
-    end)
-
-    local Paragraph = {}
-    
-    function Paragraph:Visible(...) 
-        Funcs:ToggleVisible(Frame, ...) 
-    end
-    
-    function Paragraph:Destroy() 
-        Frame:Destroy() 
-    end
-    
-    function Paragraph:SetTitle(Val)
-        TitleLabel.Text = GetStr(Val)
-    end
-    
-    function Paragraph:SetDesc(Val)
-        DescLabel.Text = GetStr(Val)
-    end
-    
-    function Paragraph:Set(Val1, Val2)
-        if Val1 and Val2 then
-            TitleLabel.Text = GetStr(Val1)
-            DescLabel.Text = GetStr(Val2)
-        elseif Val1 then
-            DescLabel.Text = GetStr(Val1)
-        end
-    end
-    
-    return Paragraph
-end
+			local PName = Configs[1] or Configs.Title or "Paragraph"
+			local PDesc = Configs[2] or Configs.Text or ""
+			
+			local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
+			
+			local Paragraph = {}
+			function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
+			function Paragraph:Destroy() Frame:Destroy() end
+			function Paragraph:SetTitle(Val)
+				LabelFunc:SetTitle(GetStr(Val))
+			end
+			function Paragraph:SetDesc(Val)
+				LabelFunc:SetDesc(GetStr(Val))
+			end
+			function Paragraph:Set(Val1, Val2)
+				if Val1 and Val2 then
+					LabelFunc:SetTitle(GetStr(Val1))
+					LabelFunc:SetDesc(GetStr(Val2))
+				elseif Val1 then
+					LabelFunc:SetDesc(GetStr(Val1))
+				end
+			end
+			return Paragraph
+		end
 function Tab:AddButton(Configs)
     local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
     local BDescription = Configs.Desc or Configs.Description or ""
@@ -3223,5 +3148,4 @@ function Tab:AddDiscordInvite(Configs)
 	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
 	return Window
 end
-
-return NutriexLibrary
+return NutriexUI
