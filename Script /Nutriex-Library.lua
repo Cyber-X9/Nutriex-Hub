@@ -1,14 +1,32 @@
-local MarketplaceService = game:GetService("MarketplaceService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
+--[[
+  _  _      _       _           _  _      _     
+ | \| |_  _| |_ _ _(_)_____ __ | || |_  _| |__  
+ | .` | || |  _| '_| / -_) \ / | __ | || | '_ \ 
+ |_|\_|\_,_|\__|_| |_\___/_\_\ |_||_|\_,_|_.__/  
+ ----------------------------------------------
+ • Nutriex UI library - By CyberX      
+ • Version: 1.0                      
+]]
 
-local Player = Players.LocalPlayer
-local PlayerMouse = Player:GetMouse()
+local Services = setmetatable({}, {
+    __index = function(self, serviceName)
+        local service = game:GetService(serviceName)
+        rawset(self, serviceName, service)
+        return service
+    end
+})
 
-local CoreGui = (gethui and gethui()) or game:GetService("CoreGui");
+local MarketplaceService = Services.MarketplaceService
+local UserInputService = Services.UserInputService
+local TweenService = Services.TweenService
+local HttpService = Services.HttpService
+local RunService = Services.RunService
+local Players = Services.Players
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local CoreGui = if typeof(gethui) == "function" then gethui() else Services.CoreGui
 
 local NutriexLibrary = {
 	Themes = {
@@ -26,7 +44,7 @@ local NutriexLibrary = {
 }
 	},
 	Info = {
-		Version = "1.0.0"
+		Version = "1.0"
 	},
 	Save = {
 		UISize = {479, 241},
@@ -1376,6 +1394,7 @@ function NutriexLibrary:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
+--// Code Logic \\--
 function NutriexLibrary:MakeWindow(Configs)
     Configs = Configs or {}
     local WTitle = Configs[1] or Configs.Name or Configs.Title or "Nutriex Hub"
@@ -1383,7 +1402,6 @@ function NutriexLibrary:MakeWindow(Configs)
     
     Settings.ScriptFile = Configs[3] or Configs.SaveFolder or false
     
-    -- Leitura Segura de Configurações Salvas
     local function LoadFile()
         local File = Settings.ScriptFile
         if type(File) ~= "string" or not readfile or not isfile then return end
@@ -1401,13 +1419,11 @@ function NutriexLibrary:MakeWindow(Configs)
     end
     LoadFile()
     
-    -- Restauração e validação das dimensões da Janela
     local SaveData = NutriexLibrary.Save or {}
     local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
     local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
     local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
 
-    -- Frame Principal (MainFrame)
     local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
         Size = UDim2.fromOffset(UISizeX, UISizeY),
         Position = UDim2.new(0.5, -UISizeX / 2, 0.5, -UISizeY / 2),
@@ -1423,14 +1439,12 @@ function NutriexLibrary:MakeWindow(Configs)
     local Components = Create("Folder", MainFrame, { Name = "Components" })
     local DropdownHolder = Create("Folder", ScreenGui, { Name = "Dropdown" })
     
-    -- TopBar (Barra Superior)
     local TopBar = Create("Frame", Components, {
         Size = UDim2.new(1, 0, 0, 28),
         BackgroundTransparency = 1,
         Name = "Top Bar"
     })
     
-    -- Título e Subtítulo
     local Title = InsertTheme(Create("TextLabel", TopBar, {
         Position = UDim2.new(0, 15, 0.5, 0),
         AnchorPoint = Vector2.new(0, 0.5),
@@ -1459,7 +1473,6 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "SubTitle"
     }), "DarkText")
     
-    -- Áreas Conteúdas (Tabs & Containers)
     local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
@@ -1494,8 +1507,7 @@ function NutriexLibrary:MakeWindow(Configs)
         ClipsDescendants = true,
         Name = "Containers"
     })
-    
-    -- Controlos de Redimensionamento da Janela e das Abas
+
     local ControlSize1 = MakeDrag(Create("ImageButton", MainFrame, {
         Size = UDim2.new(0, 35, 0, 35),
         Position = UDim2.fromOffset(UISizeX, UISizeY),
@@ -1551,8 +1563,7 @@ function NutriexLibrary:MakeWindow(Configs)
             end
         end)
     end
-    
-    -- Botões de Controlo do TopBar (Fechar / Minimizar)
+   
     local ButtonsFolder = Create("Folder", TopBar, { Name = "Buttons" })
     
     local CloseButton = Create("ImageButton", {
@@ -1580,7 +1591,6 @@ function NutriexLibrary:MakeWindow(Configs)
     CloseButton.Parent = ButtonsFolder
     MinimizeButton.Parent = ButtonsFolder
     
-    -- Efeitos Visuais nos Botões (Hover)
     local function AddBtnEffects(btn)
         btn.MouseEnter:Connect(function()
             CreateTween({btn, "ImageTransparency", 0, 0.15})
@@ -1835,7 +1845,6 @@ function Window:MakeTab(paste, Configs)
     local TName = Configs[1] or Configs.Title or Configs.Name or "Tab!"
     local TIcon = Configs[2] or Configs.Icon or ""
     
-    -- Validação segura de ícone
     if type(NutriexLibrary) == "table" and type(NutriexLibrary.GetIcon) == "function" then
         TIcon = NutriexLibrary:GetIcon(TIcon)
     end
@@ -1844,7 +1853,6 @@ function Window:MakeTab(paste, Configs)
         TIcon = false
     end
     
-    -- Botão da Aba no Menu Lateral (Hover e Feedback Visuals)
     local TabSelect = Make("Button", MainScroll, {
         Size = UDim2.new(1, 0, 0, 28),
         BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(255, 255, 255),
@@ -1853,7 +1861,6 @@ function Window:MakeTab(paste, Configs)
     })
     Make("Corner", TabSelect, UDim.new(0, 6))
     
-    -- Título da Aba
     local LabelTitle = InsertTheme(Create("TextLabel", TabSelect, {
         Size = UDim2.new(1, TIcon and -32 or -20, 1, 0),
         Position = UDim2.fromOffset(TIcon and 28 or 16, 0),
@@ -1867,7 +1874,6 @@ function Window:MakeTab(paste, Configs)
         TextTruncate = Enum.TextTruncate.AtEnd
     }), "Text")
     
-    -- Ícone da Aba
     local LabelIcon = InsertTheme(Create("ImageLabel", TabSelect, {
         Position = UDim2.new(0, 8, 0.5, 0),
         Size = UDim2.new(0, 14, 0, 14),
@@ -1879,7 +1885,6 @@ function Window:MakeTab(paste, Configs)
         Visible = TIcon and true or false
     }), "Text")
     
-    -- Indicador Lateral de Seleção (Smooth Bar)
     local Selected = InsertTheme(Create("Frame", TabSelect, {
         Size = FirstTab and UDim2.new(0, 3, 0, 0) or UDim2.new(0, 3, 0, 14),
         Position = UDim2.new(0, 2, 0.5, 0),
@@ -1890,7 +1895,6 @@ function Window:MakeTab(paste, Configs)
     }), "Theme")
     Make("Corner", Selected, UDim.new(1, 0))
     
-    -- Container de Conteúdo da Aba (ScrollingFrame Otimizado)
     local Container = InsertTheme(Create("ScrollingFrame", {
         Size = UDim2.new(1, 0, 1, 0),
         Position = UDim2.new(0, 0, 1, 0),
@@ -1924,8 +1928,7 @@ function Window:MakeTab(paste, Configs)
     end
     
     local Tab = { Enabled = (FirstTab == false), Name = TName, Cont = Container }
-    
-    -- Animações interativas de Hover (MouseIn / MouseLeave)
+
     TabSelect.MouseEnter:Connect(function()
         if not Tab.Enabled then
             CreateTween({TabSelect, "BackgroundTransparency", 0.94, 0.15})
@@ -1945,7 +1948,6 @@ function Window:MakeTab(paste, Configs)
     local function Tabs()
         if Container.Parent and Tab.Enabled then return end
         
-        -- Esconde todos os outros containers ativos
         for _, Frame in ipairs(ContainerList) do
             if Frame:IsA("ScrollingFrame") and Frame ~= Container then
                 Frame.Parent = nil
@@ -1955,7 +1957,6 @@ function Window:MakeTab(paste, Configs)
         Container.Parent = Containers
         Container.Size = UDim2.new(1, 0, 1, 15)
         
-        -- Desativa os estados visuais das outras abas
         if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
             for _, tabData in ipairs(NutriexLibrary.Tabs) do
                 if tabData.Cont ~= Container and tabData.func and type(tabData.func.Disable) == "function" then
@@ -1966,7 +1967,6 @@ function Window:MakeTab(paste, Configs)
         
         Tab.Enabled = true
         
-        -- Tweens fluidos de ativação
         CreateTween({TabSelect, "BackgroundTransparency", 0.88, 0.2})
         CreateTween({Container, "Size", UDim2.new(1, 0, 1, 0), 0.25})
         CreateTween({LabelTitle, "TextTransparency", 0, 0.2})
@@ -1982,7 +1982,6 @@ function Window:MakeTab(paste, Configs)
         table.insert(NutriexLibrary.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
     end
     
-    -- Métodos da instância da Aba
     function Tab:Disable()
         self.Enabled = false
         Container.Parent = nil
@@ -2096,30 +2095,135 @@ function Tab:AddSection(Configs)
     return Section
 end
 function Tab:AddParagraph(Configs)
-			local PName = Configs[1] or Configs.Title or "Paragraph"
-			local PDesc = Configs[2] or Configs.Text or ""
-			
-			local Frame, LabelFunc = ButtonFrame(Container, PName, PDesc, UDim2.new(1, -20))
-			
-			local Paragraph = {}
-			function Paragraph:Visible(...) Funcs:ToggleVisible(Frame, ...) end
-			function Paragraph:Destroy() Frame:Destroy() end
-			function Paragraph:SetTitle(Val)
-				LabelFunc:SetTitle(GetStr(Val))
-			end
-			function Paragraph:SetDesc(Val)
-				LabelFunc:SetDesc(GetStr(Val))
-			end
-			function Paragraph:Set(Val1, Val2)
-				if Val1 and Val2 then
-					LabelFunc:SetTitle(GetStr(Val1))
-					LabelFunc:SetDesc(GetStr(Val2))
-				elseif Val1 then
-					LabelFunc:SetDesc(GetStr(Val1))
-				end
-			end
-			return Paragraph
-		end
+    local PName = Configs[1] or Configs.Title or "Paragraph"
+    local PDesc = Configs[2] or Configs.Text or ""
+    local PIcon = Configs.Icon or "rbxassetid://10723415903"
+    
+    local Frame = Create("Frame", Container, {
+        Name = "ParagraphFrame",
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(25, 25, 25),
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        ClipsDescendants = true
+    })
+    
+    Make("Corner", Frame, UDim.new(0, 6))
+    local FrameStroke = Make("Stroke", Frame, {
+        Color = Theme["Color Stroke"] or Color3.fromRGB(45, 45, 45),
+        Transparency = 0.5,
+        Thickness = 1
+    })
+
+    local AccentBar = Create("Frame", Frame, {
+        Name = "AccentBar",
+        Size = UDim2.new(0, 3, 1, -12),
+        Position = UDim2.new(0, 6, 0.5, 0),
+        AnchorPoint = Vector2.new(0, 0.5),
+        BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(0, 170, 255),
+        BorderSizePixel = 0
+    })
+    Make("Corner", AccentBar, UDim.new(1, 0))
+
+    local IconLabel = Create("ImageLabel", Frame, {
+        Name = "ParagraphIcon",
+        Size = UDim2.new(0, 16, 0, 16),
+        Position = UDim2.new(0, 16, 0, 10),
+        BackgroundTransparency = 1,
+        Image = PIcon,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(200, 200, 200),
+        ImageTransparency = 0.2,
+        Visible = PIcon ~= ""
+    })
+
+    local TextContainer = Create("Frame", Frame, {
+        Name = "TextContainer",
+        Size = UDim2.new(1, PIcon ~= "" and -42 or -24, 0, 0),
+        Position = UDim2.new(0, PIcon ~= "" and 38 or 16, 0, 8),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        BackgroundTransparency = 1
+    })
+
+    Create("UIListLayout", TextContainer, {
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 3)
+    })
+
+    local TitleLabel = InsertTheme(Create("TextLabel", TextContainer, {
+        Name = "Title",
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        BackgroundTransparency = 1,
+        Font = Enum.Font.GothamBold,
+        TextSize = 13,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true,
+        RichText = true,
+        Text = PName,
+        LayoutOrder = 1
+    }), "Text")
+
+    local DescLabel = InsertTheme(Create("TextLabel", TextContainer, {
+        Name = "Description",
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        BackgroundTransparency = 1,
+        Font = Enum.Font.Gotham,
+        TextSize = 11,
+        TextColor3 = Theme["Color SubText"] or Color3.fromRGB(170, 170, 170),
+        TextTransparency = 0.25,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true,
+        RichText = true,
+        Text = PDesc,
+        LayoutOrder = 2
+    }), "SubText")
+
+    Create("UIPadding", Frame, {
+        PaddingBottom = UDim.new(0, 10)
+    })
+
+    Frame.MouseEnter:Connect(function()
+        CreateTween({FrameStroke, "Transparency", 0.2, 0.2})
+        CreateTween({Frame, "BackgroundTransparency", 0.25, 0.2})
+    end)
+    
+    Frame.MouseLeave:Connect(function()
+        CreateTween({FrameStroke, "Transparency", 0.5, 0.2})
+        CreateTween({Frame, "BackgroundTransparency", 0.4, 0.2})
+    end)
+
+    local Paragraph = {}
+    
+    function Paragraph:Visible(...) 
+        Funcs:ToggleVisible(Frame, ...) 
+    end
+    
+    function Paragraph:Destroy() 
+        Frame:Destroy() 
+    end
+    
+    function Paragraph:SetTitle(Val)
+        TitleLabel.Text = GetStr(Val)
+    end
+    
+    function Paragraph:SetDesc(Val)
+        DescLabel.Text = GetStr(Val)
+    end
+    
+    function Paragraph:Set(Val1, Val2)
+        if Val1 and Val2 then
+            TitleLabel.Text = GetStr(Val1)
+            DescLabel.Text = GetStr(Val2)
+        elseif Val1 then
+            DescLabel.Text = GetStr(Val1)
+        end
+    end
+    
+    return Paragraph
+end
 function Tab:AddButton(Configs)
     local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
     local BDescription = Configs.Desc or Configs.Description or ""
