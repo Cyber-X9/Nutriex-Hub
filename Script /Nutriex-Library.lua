@@ -1711,103 +1711,45 @@ function NutriexUI:MakeWindow(Configs)
     end)
     
     function Window:AddMinimizeButton(MinConfigs)
-    MinConfigs = MinConfigs or {}
-    local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-        Size = UDim2.fromOffset(38, 38),
-        Position = UDim2.fromScale(0.15, 0.15),
-        BackgroundTransparency = 0.1,
-        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 30),
-        AutoButtonColor = false,
-        Name = "FloatingMinimizeBtn"
-    }))
-    
-    local Corner = Button:FindFirstChildOfClass("UICorner") or Make("Corner", Button)
-    Corner.CornerRadius = UDim.new(0, 8)
-    if MinConfigs.Corner then
-        SetProps(Corner, MinConfigs.Corner)
-    end
-    
-    local Stroke = Make("Stroke", Button, {
-        Color = Theme["Color Stroke"] or Color3.fromRGB(50, 50, 60),
-        Transparency = 0.3
-    })
-    if MinConfigs.Stroke then
-        SetProps(Stroke, MinConfigs.Stroke)
-    end
-    
-    if MinConfigs.Button then
-        SetProps(Button, MinConfigs.Button)
-    end
-
-    -- Cria/Obtém a escala da janela e a transição de visibilidade suave
-    local MainScale = MainFrame:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", MainFrame)
-    local IsAnimating = false
-
-    -- Animação de Fade + Smooth Scale (Zoom Out/In)
-    local function ToggleWindowFade()
-        if IsAnimating then return end
-        IsAnimating = true
-
-        if MainFrame.Visible then
-            -- Fade Out (Escala encolhe suavemente + Fade de transparência)
-            CreateTween({MainScale, "Scale", 0.92, 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
-            
-            -- Anima a transparência do grupo sem alterar o estilo dos botões
-            local TweenService = game:GetService("TweenService")
-            local Info = TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-            
-            -- Se o MainFrame for CanvasGroup, ajusta GroupTransparency; caso contrário, ajusta o Canvas de forma suave
-            if MainFrame:IsA("CanvasGroup") then
-                TweenService:Create(MainFrame, Info, {GroupTransparency = 1}):Play()
-            else
-                CreateTween({MainFrame, "BackgroundTransparency", 1, 0.22, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
-            end
-
-            task.delay(0.25, function()
-                MainFrame.Visible = false
-                IsAnimating = false
-            end)
-        else
-            -- Prepara a janela antes do Fade In
-            MainScale.Scale = 0.92
-            if MainFrame:IsA("CanvasGroup") then
-                MainFrame.GroupTransparency = 1
-            else
-                MainFrame.BackgroundTransparency = 1
-            end
-            MainFrame.Visible = true
-
-            -- Fade In + Zoom In (Com efeito mola/elástico no final)
-            CreateTween({MainScale, "Scale", 1, 0.3, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
-
-            if MainFrame:IsA("CanvasGroup") then
-                local TweenService = game:GetService("TweenService")
-                local Info = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-                TweenService:Create(MainFrame, Info, {GroupTransparency = 0}):Play()
-            else
-                CreateTween({MainFrame, "BackgroundTransparency", 0.05, 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
-            end
-
-            task.delay(0.3, function()
-                IsAnimating = false
-            end)
-        end
-    end
-
-    Button.Activated:Connect(function()
-        -- Feedback no botão flutuante ao clicar
-        CreateTween({Button, "Size", UDim2.fromOffset(32, 32), 0.08, true})
-        CreateTween({Button, "Size", UDim2.fromOffset(38, 38), 0.2, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
+        MinConfigs = MinConfigs or {}
+        local Button = MakeDrag(Create("ImageButton", ScreenGui, {
+            Size = UDim2.fromOffset(38, 38),
+            Position = UDim2.fromScale(0.15, 0.15),
+            BackgroundTransparency = 0.1,
+            BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 30),
+            AutoButtonColor = false,
+            Name = "FloatingMinimizeBtn"
+        }))
         
-        ToggleWindowFade()
-    end)
-    
-    return {
-        Stroke = Stroke,
-        Corner = Corner,
-        Button = Button
-    }
-end
+        local Corner = Button:FindFirstChildOfClass("UICorner") or Make("Corner", Button)
+        Corner.CornerRadius = UDim.new(0, 8)
+        if MinConfigs.Corner then
+            SetProps(Corner, MinConfigs.Corner)
+        end
+        
+        local Stroke = Make("Stroke", Button, {
+            Color = Theme["Color Stroke"] or Color3.fromRGB(50, 50, 60),
+            Transparency = 0.3
+        })
+        if MinConfigs.Stroke then
+            SetProps(Stroke, MinConfigs.Stroke)
+        end
+        
+        if MinConfigs.Button then
+            SetProps(Button, MinConfigs.Button)
+        end
+        
+        Button.Activated:Connect(function()
+            Window:Minimize()
+        end)
+        
+        return {
+            Stroke = Stroke,
+            Corner = Corner,
+            Button = Button
+        }
+    end
+
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
             Title.Text = Val1
