@@ -1739,55 +1739,66 @@ function NutriexUI:MakeWindow(Configs)
         SetProps(Button, MinConfigs.Button)
     end
 
-    -- Guarda a transparência inicial para o Fade In
-    local TargetBgTrans = Button.BackgroundTransparency
+    -- Cria/Obtém a escala da janela e a transição de visibilidade suave
+    local MainScale = MainFrame:FindFirstChildOfClass("UIScale") or Instance.new("UIScale", MainFrame)
+    local IsAnimating = false
 
-    -- Animação de Fade Out / Fade In ao alternar a visibilidade da Janela
+    -- Animação de Fade + Smooth Scale (Zoom Out/In)
     local function ToggleWindowFade()
-        MainFrame.Visible = true
-        if MainFrame.BackgroundTransparency < 1 then
-            -- Fade Out (Ocultar Janela)
-            CreateTween({MainFrame, "BackgroundTransparency", 1, 0.2})
-            for _, child in ipairs(MainFrame:GetDescendants()) do
-                if child:IsA("BasePart") or child:IsA("GuiObject") then
-                    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-                        CreateTween({child, "TextTransparency", 1, 0.2})
-                    end
-                    if child:IsA("ImageLabel") or child:IsA("ImageButton") then
-                        CreateTween({child, "ImageTransparency", 1, 0.2})
-                    end
-                    if child:IsA("UIStroke") then
-                        CreateTween({child, "Transparency", 1, 0.2})
-                    end
-                    CreateTween({child, "BackgroundTransparency", 1, 0.2})
-                end
+        if IsAnimating then return end
+        IsAnimating = true
+
+        if MainFrame.Visible then
+            -- Fade Out (Escala encolhe suavemente + Fade de transparência)
+            CreateTween({MainScale, "Scale", 0.92, 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            
+            -- Anima a transparência do grupo sem alterar o estilo dos botões
+            local TweenService = game:GetService("TweenService")
+            local Info = TweenInfo.new(0.22, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+            
+            -- Se o MainFrame for CanvasGroup, ajusta GroupTransparency; caso contrário, ajusta o Canvas de forma suave
+            if MainFrame:IsA("CanvasGroup") then
+                TweenService:Create(MainFrame, Info, {GroupTransparency = 1}):Play()
+            else
+                CreateTween({MainFrame, "BackgroundTransparency", 1, 0.22, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
             end
-            task.delay(0.2, function()
+
+            task.delay(0.25, function()
                 MainFrame.Visible = false
+                IsAnimating = false
             end)
         else
-            -- Fade In (Mostrar Janela)
-            CreateTween({MainFrame, "BackgroundTransparency", 0.05, 0.2})
-            for _, child in ipairs(MainFrame:GetDescendants()) do
-                if child:IsA("BasePart") or child:IsA("GuiObject") then
-                    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
-                        CreateTween({child, "TextTransparency", 0, 0.2})
-                    end
-                    if child:IsA("ImageLabel") or child:IsA("ImageButton") then
-                        CreateTween({child, "ImageTransparency", 0.35, 0.2})
-                    end
-                    if child:IsA("UIStroke") then
-                        CreateTween({child, "Transparency", 0.2, 0.2})
-                    end
-                    if child ~= MainFrame then
-                        CreateTween({child, "BackgroundTransparency", 0, 0.2})
-                    end
-                end
+            -- Prepara a janela antes do Fade In
+            MainScale.Scale = 0.92
+            if MainFrame:IsA("CanvasGroup") then
+                MainFrame.GroupTransparency = 1
+            else
+                MainFrame.BackgroundTransparency = 1
             end
+            MainFrame.Visible = true
+
+            -- Fade In + Zoom In (Com efeito mola/elástico no final)
+            CreateTween({MainScale, "Scale", 1, 0.3, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
+
+            if MainFrame:IsA("CanvasGroup") then
+                local TweenService = game:GetService("TweenService")
+                local Info = TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+                TweenService:Create(MainFrame, Info, {GroupTransparency = 0}):Play()
+            else
+                CreateTween({MainFrame, "BackgroundTransparency", 0.05, 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            end
+
+            task.delay(0.3, function()
+                IsAnimating = false
+            end)
         end
     end
-    
+
     Button.Activated:Connect(function()
+        -- Feedback no botão flutuante ao clicar
+        CreateTween({Button, "Size", UDim2.fromOffset(32, 32), 0.08, true})
+        CreateTween({Button, "Size", UDim2.fromOffset(38, 38), 0.2, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
+        
         ToggleWindowFade()
     end)
     
@@ -1797,7 +1808,6 @@ function NutriexUI:MakeWindow(Configs)
         Button = Button
     }
 end
-
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
             Title.Text = Val1
