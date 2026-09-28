@@ -1711,44 +1711,92 @@ function NutriexUI:MakeWindow(Configs)
     end)
     
     function Window:AddMinimizeButton(MinConfigs)
-        MinConfigs = MinConfigs or {}
-        local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-            Size = UDim2.fromOffset(38, 38),
-            Position = UDim2.fromScale(0.15, 0.15),
-            BackgroundTransparency = 0.1,
-            BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 30),
-            AutoButtonColor = false,
-            Name = "FloatingMinimizeBtn"
-        }))
-        
-        local Corner = Button:FindFirstChildOfClass("UICorner") or Make("Corner", Button)
-        Corner.CornerRadius = UDim.new(0, 8)
-        if MinConfigs.Corner then
-            SetProps(Corner, MinConfigs.Corner)
-        end
-        
-        local Stroke = Make("Stroke", Button, {
-            Color = Theme["Color Stroke"] or Color3.fromRGB(50, 50, 60),
-            Transparency = 0.3
-        })
-        if MinConfigs.Stroke then
-            SetProps(Stroke, MinConfigs.Stroke)
-        end
-        
-        if MinConfigs.Button then
-            SetProps(Button, MinConfigs.Button)
-        end
-        
-        Button.Activated:Connect(function()
-            Window:Minimize()
-        end)
-        
-        return {
-            Stroke = Stroke,
-            Corner = Corner,
-            Button = Button
-        }
+    MinConfigs = MinConfigs or {}
+    local Button = MakeDrag(Create("ImageButton", ScreenGui, {
+        Size = UDim2.fromOffset(38, 38),
+        Position = UDim2.fromScale(0.15, 0.15),
+        BackgroundTransparency = 0.1,
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 30),
+        AutoButtonColor = false,
+        Name = "FloatingMinimizeBtn"
+    }))
+    
+    local Corner = Button:FindFirstChildOfClass("UICorner") or Make("Corner", Button)
+    Corner.CornerRadius = UDim.new(0, 8)
+    if MinConfigs.Corner then
+        SetProps(Corner, MinConfigs.Corner)
     end
+    
+    local Stroke = Make("Stroke", Button, {
+        Color = Theme["Color Stroke"] or Color3.fromRGB(50, 50, 60),
+        Transparency = 0.3
+    })
+    if MinConfigs.Stroke then
+        SetProps(Stroke, MinConfigs.Stroke)
+    end
+    
+    if MinConfigs.Button then
+        SetProps(Button, MinConfigs.Button)
+    end
+
+    -- Guarda a transparência inicial para o Fade In
+    local TargetBgTrans = Button.BackgroundTransparency
+
+    -- Animação de Fade Out / Fade In ao alternar a visibilidade da Janela
+    local function ToggleWindowFade()
+        MainFrame.Visible = true
+        if MainFrame.BackgroundTransparency < 1 then
+            -- Fade Out (Ocultar Janela)
+            CreateTween({MainFrame, "BackgroundTransparency", 1, 0.2})
+            for _, child in ipairs(MainFrame:GetDescendants()) do
+                if child:IsA("BasePart") or child:IsA("GuiObject") then
+                    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                        CreateTween({child, "TextTransparency", 1, 0.2})
+                    end
+                    if child:IsA("ImageLabel") or child:IsA("ImageButton") then
+                        CreateTween({child, "ImageTransparency", 1, 0.2})
+                    end
+                    if child:IsA("UIStroke") then
+                        CreateTween({child, "Transparency", 1, 0.2})
+                    end
+                    CreateTween({child, "BackgroundTransparency", 1, 0.2})
+                end
+            end
+            task.delay(0.2, function()
+                MainFrame.Visible = false
+            end)
+        else
+            -- Fade In (Mostrar Janela)
+            CreateTween({MainFrame, "BackgroundTransparency", 0.05, 0.2})
+            for _, child in ipairs(MainFrame:GetDescendants()) do
+                if child:IsA("BasePart") or child:IsA("GuiObject") then
+                    if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
+                        CreateTween({child, "TextTransparency", 0, 0.2})
+                    end
+                    if child:IsA("ImageLabel") or child:IsA("ImageButton") then
+                        CreateTween({child, "ImageTransparency", 0.35, 0.2})
+                    end
+                    if child:IsA("UIStroke") then
+                        CreateTween({child, "Transparency", 0.2, 0.2})
+                    end
+                    if child ~= MainFrame then
+                        CreateTween({child, "BackgroundTransparency", 0, 0.2})
+                    end
+                end
+            end
+        end
+    end
+    
+    Button.Activated:Connect(function()
+        ToggleWindowFade()
+    end)
+    
+    return {
+        Stroke = Stroke,
+        Corner = Corner,
+        Button = Button
+    }
+end
 
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
