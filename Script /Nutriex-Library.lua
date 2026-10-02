@@ -1424,25 +1424,39 @@ function NutriexUI:MakeWindow(Configs)
     local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
     local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
 
+    -- Define BackgroundColor3 como Branco se for um ColorSequence para o UIGradient renderizar corretamente
+    local MainBgColor = Color3.fromRGB(255, 255, 255)
+    if typeof(Theme["Color Hub 1"]) == "Color3" then
+        MainBgColor = Theme["Color Hub 1"]
+    end
+
     local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
         Size = UDim2.fromOffset(UISizeX, UISizeY),
         Position = UDim2.new(0.5, -UISizeX / 2, 0.5, -UISizeY / 2),
         BackgroundTransparency = 0.05,
-        BackgroundColor3 = Theme["Color Hub 1"] or Color3.fromRGB(18, 18, 22),
+        BackgroundColor3 = MainBgColor,
         Name = "Hub",
         AutoButtonColor = false
     }), "Main")
     
-    Make("Gradient", MainFrame, { Rotation = 45 })
+    -- Aplica o ColorSequence no UIGradient
+    if typeof(Theme["Color Hub 1"]) == "ColorSequence" then
+        Create("UIGradient", MainFrame, {
+            Color = Theme["Color Hub 1"],
+            Rotation = 45
+        })
+    else
+        Make("Gradient", MainFrame, { Rotation = 45 })
+    end
+
     local MainCorner = Make("Corner", MainFrame)
     if MainCorner:IsA("UICorner") then
         MainCorner.CornerRadius = UDim.new(0, 10)
     end
 
-    -- Stroke para destacar as bordas do menu
     Make("Stroke", MainFrame, {
-        Color = Theme["Color Stroke"] or Color3.fromRGB(45, 45, 55),
-        Transparency = 0.5
+        Color = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        Transparency = 0.4
     })
 
     MakeDrag(MainFrame)
@@ -1451,7 +1465,7 @@ function NutriexUI:MakeWindow(Configs)
     local DropdownHolder = Create("Folder", ScreenGui, { Name = "Dropdown" })
     
     local TopBar = Create("Frame", Components, {
-        Size = UDim2.new(1, 0, 0, 32),
+        Size = UDim2.new(1, 0, 0, 30),
         BackgroundTransparency = 1,
         Name = "Top Bar"
     })
@@ -1463,7 +1477,7 @@ function NutriexUI:MakeWindow(Configs)
         Text = WTitle,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextSize = 13,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(240, 240, 245),
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         BackgroundTransparency = 1,
         Font = Enum.Font.Ubuntu,
         Name = "Title"
@@ -1475,7 +1489,7 @@ function NutriexUI:MakeWindow(Configs)
         AnchorPoint = Vector2.new(0, 1),
         Position = UDim2.new(1, 6, 0.85, 0),
         Text = WMiniText,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(140, 140, 150),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(130, 130, 130),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Bottom,
@@ -1491,7 +1505,7 @@ function NutriexUI:MakeWindow(Configs)
         ScrollBarThickness = 2,
         BackgroundTransparency = 1,
         ScrollBarImageTransparency = 0.3,
-        ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242),
+        ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(255, 255, 255),
         CanvasSize = UDim2.new(0, 0, 0, 0),
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
         ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -1584,7 +1598,7 @@ function NutriexUI:MakeWindow(Configs)
         BackgroundTransparency = 1,
         Image = "rbxassetid://10747384394",
         ImageTransparency = 0.3,
-        ImageColor3 = Color3.fromRGB(240, 240, 240),
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         AutoButtonColor = false,
         Name = "Close"
     })
@@ -1596,7 +1610,7 @@ function NutriexUI:MakeWindow(Configs)
         BackgroundTransparency = 1,
         Image = "rbxassetid://10734896206",
         ImageTransparency = 0.3,
-        ImageColor3 = Color3.fromRGB(240, 240, 240),
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         AutoButtonColor = false,
         Name = "Minimize"
     })
@@ -1606,11 +1620,11 @@ function NutriexUI:MakeWindow(Configs)
     
     CloseButton.MouseEnter:Connect(function()
         CreateTween({CloseButton, "ImageTransparency", 0, 0.15})
-        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 80, 80), 0.15})
+        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 75, 75), 0.15})
     end)
     CloseButton.MouseLeave:Connect(function()
         CreateTween({CloseButton, "ImageTransparency", 0.3, 0.15})
-        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(240, 240, 240), 0.15})
+        CreateTween({CloseButton, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(245, 245, 245), 0.15})
     end)
 
     MinimizeButton.MouseEnter:Connect(function()
@@ -1680,7 +1694,7 @@ function NutriexUI:MakeWindow(Configs)
             Size = UDim2.fromOffset(35, 35),
             Position = UDim2.fromScale(0.15, 0.15),
             BackgroundTransparency = 0.2,
-            BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(25, 25, 25),
+            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
             AutoButtonColor = false,
             Name = "FloatingMinimizeBtn"
         }))
