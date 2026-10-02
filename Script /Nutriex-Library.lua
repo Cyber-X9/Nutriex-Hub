@@ -28,19 +28,19 @@ local Mouse = LocalPlayer:GetMouse()
 
 local CoreGui = if typeof(gethui) == "function" then gethui() else Services.CoreGui
 
-local NutriexUI = {
+local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 25, 25)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(19, 19, 19))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 22, 22)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(15, 15, 15)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10))
     }),
-    ["Color Hub 2"] = Color3.fromRGB(20, 20, 20),
-    ["Color Stroke"] = Color3.fromRGB(35, 35, 35),
+    ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
+    ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
     ["Color Theme"] = Color3.fromRGB(255, 255, 255),
     ["Color Text"] = Color3.fromRGB(245, 245, 245),
-    ["Color Dark Text"] = Color3.fromRGB(130, 130, 130)
+    ["Color Dark Text"] = Color3.fromRGB(120, 120, 120)
 }
 	},
 	Info = {
@@ -885,12 +885,12 @@ local NutriexUI = {
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
 
-local Settings = NutriexUI.Settings
-local Flags = NutriexUI.Flags
+local Settings = NutriexLibrary.Settings
+local Flags = NutriexLibrary.Flags
 
 local SetProps, SetChildren, InsertTheme, Create do
 	InsertTheme = function(Instance, Type)
-		table.insert(NutriexUI.Instances, {
+		table.insert(NutriexLibrary.Instances, {
 			Instance = Instance,
 			Type = Type
 		})
@@ -939,9 +939,9 @@ local SetProps, SetChildren, InsertTheme, Create do
 			local decode = HttpService:JSONDecode(readfile(file))
 			
 			if type(decode) == "table" then
-				if rawget(decode, "UISize") then NutriexUI.Save["UISize"] = decode["UISize"] end
-				if rawget(decode, "TabSize") then NutriexUI.Save["TabSize"] = decode["TabSize"] end
-				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then NutriexUI.Save["Theme"] = decode["Theme"] end
+				if rawget(decode, "UISize") then NutriexLibrary.Save["UISize"] = decode["UISize"] end
+				if rawget(decode, "TabSize") then NutriexLibrary.Save["TabSize"] = decode["TabSize"] end
+				if rawget(decode, "Theme") and VerifyTheme(decode["Theme"]) then NutriexLibrary.Save["Theme"] = decode["Theme"] end
 			end
 		end
 	end
@@ -1006,7 +1006,7 @@ local Funcs = {} do
 	end
 end
 
-local Connections, Connection = {}, NutriexUI.Connection do
+local Connections, Connection = {}, NutriexLibrary.Connection do
 	local function NewConnectionList(List)
 		if type(List) ~= "table" then return end
 		
@@ -1172,7 +1172,7 @@ local function MakeDrag(Instance)
 end
 
 local function VerifyTheme(Theme)
-	for name,_ in pairs(NutriexUI.Themes) do
+	for name,_ in pairs(NutriexLibrary.Themes) do
 		if name == Theme then
 			return true
 		end
@@ -1186,14 +1186,14 @@ local function SaveJson(FileName, save)
 	end
 end
 
-local Theme = NutriexUI.Themes[NutriexUI.Save.Theme]
+local Theme = NutriexLibrary.Themes[NutriexLibrary.Save.Theme]
 
 local function AddEle(Name, Func)
-	NutriexUI.Elements[Name] = Func
+	NutriexLibrary.Elements[Name] = Func
 end
 
 local function Make(Ele, Instance, props, ...)
-	local Element = NutriexUI.Elements[Ele](Instance, props, ...)
+	local Element = NutriexLibrary.Elements[Ele](Instance, props, ...)
 	return Element
 end
 
@@ -1340,7 +1340,7 @@ local function GetColor(Instance)
 end
 
 -- /////////// --
-function NutriexUI:GetIcon(index)
+function NutriexLibrary:GetIcon(index)
 	if type(index) ~= "string" or index:find("rbxassetid://") or #index == 0 then
 		return index
 	end
@@ -1363,15 +1363,15 @@ function NutriexUI:GetIcon(index)
 	return firstMatch or index
 end
 
-function NutriexUI:SetTheme(NewTheme)
+function NutriexLibrary:SetTheme(NewTheme)
 	if not VerifyTheme(NewTheme) then return end
 	
-	NutriexUI.Save.Theme = NewTheme
-	SaveJson("Nutriex_Config.json", NutriexUI.Save)
-	Theme = NutriexUI.Themes[NewTheme]
+	NutriexLibrary.Save.Theme = NewTheme
+	SaveJson("Nutriex_Config.json", NutriexLibrary.Save)
+	Theme = NutriexLibrary.Themes[NewTheme]
 	
 	Comnection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(NutriexUI.Instances, function(_,Val)
+	table.foreach(NutriexLibrary.Instances, function(_,Val)
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
 		elseif Val.Type == "Frame" then
@@ -1390,12 +1390,12 @@ function NutriexUI:SetTheme(NewTheme)
 	end)
 end
 
-function NutriexUI:SetScale(NewScale)
+function NutriexLibrary:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
 --// Code Logic \\--
-function NutriexUI:MakeWindow(Configs)
+function NutriexLibrary:MakeWindow(Configs)
     Configs = Configs or {}
     local WTitle = Configs[1] or Configs.Name or Configs.Title or "Nutriex Hub"
     local WMiniText = Configs[2] or Configs.SubTitle or ""
@@ -1419,7 +1419,7 @@ function NutriexUI:MakeWindow(Configs)
     end
     LoadFile()
     
-    local SaveData = NutriexUI.Save or {}
+    local SaveData = NutriexLibrary.Save or {}
     local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
     local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
     local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
@@ -1576,15 +1576,15 @@ function NutriexUI:MakeWindow(Configs)
     if type(ConnectSave) == "function" then
         ConnectSave(ControlSize1, function()
             if not Minimized and type(SaveJson) == "function" then
-                NutriexUI.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
-                SaveJson("Nutriex_Config.json", NutriexUI.Save)
+                NutriexLibrary.Save.UISize = {MainFrame.Size.X.Offset, MainFrame.Size.Y.Offset}
+                SaveJson("Nutriex_Config.json", NutriexLibrary.Save)
             end
         end)
         
         ConnectSave(ControlSize2, function()
             if type(SaveJson) == "function" then
-                NutriexUI.Save.TabSize = MainScroll.Size.X.Offset
-                SaveJson("Nutriex_Config.json", NutriexUI.Save)
+                NutriexLibrary.Save.TabSize = MainScroll.Size.X.Offset
+                SaveJson("Nutriex_Config.json", NutriexLibrary.Save)
             end
         end)
     end
@@ -1863,9 +1863,9 @@ function Window:Dialog(Configs)
 end
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
-			NutriexUI.Tabs[TabSelect].func:Enable()
+			NutriexLibrary.Tabs[TabSelect].func:Enable()
 		else
-			for _,Tab in pairs(NutriexUI.Tabs) do
+			for _,Tab in pairs(NutriexLibrary.Tabs) do
 				if Tab.Cont == TabSelect.Cont then
 					Tab.func:Enable()
 				end
@@ -1878,8 +1878,8 @@ function Window:MakeTab(paste, Configs)
     local TName = Configs[1] or Configs.Title or Configs.Name or "Tab!"
     local TIcon = Configs[2] or Configs.Icon or ""
     
-    if type(NutriexUI) == "table" and type(NutriexUI.GetIcon) == "function" then
-        TIcon = NutriexUI:GetIcon(TIcon)
+    if type(NutriexLibrary) == "table" and type(NutriexLibrary.GetIcon) == "function" then
+        TIcon = NutriexLibrary:GetIcon(TIcon)
     end
     
     if type(TIcon) ~= "string" or not TIcon:find("rbxassetid://") or TIcon:gsub("rbxassetid://", ""):len() < 6 then
@@ -1990,8 +1990,8 @@ function Window:MakeTab(paste, Configs)
         Container.Parent = Containers
         Container.Size = UDim2.new(1, 0, 1, 15)
         
-        if type(NutriexUI) == "table" and type(NutriexUI.Tabs) == "table" then
-            for _, tabData in ipairs(NutriexUI.Tabs) do
+        if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
+            for _, tabData in ipairs(NutriexLibrary.Tabs) do
                 if tabData.Cont ~= Container and tabData.func and type(tabData.func.Disable) == "function" then
                     tabData.func:Disable()
                 end
@@ -2011,8 +2011,8 @@ function Window:MakeTab(paste, Configs)
     TabSelect.Activated:Connect(Tabs)
     
     FirstTab = true
-    if type(NutriexUI) == "table" and type(NutriexUI.Tabs) == "table" then
-        table.insert(NutriexUI.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
+    if type(NutriexLibrary) == "table" and type(NutriexLibrary.Tabs) == "table" then
+        table.insert(NutriexLibrary.Tabs, {TabInfo = {Name = TName, Icon = TIcon}, func = Tab, Cont = Container})
     end
     
     function Tab:Disable()
@@ -2065,14 +2065,12 @@ function Window:MakeTab(paste, Configs)
 function Tab:AddSection(Configs)
     local SectionName = type(Configs) == "string" and Configs or Configs[1] or Configs.Name or Configs.Title or Configs.Section or "Section"
     
-    -- Container principal da Seção (Aumentado para 28px para respiro visual)
     local SectionFrame = Create("Frame", Container, {
         Size = UDim2.new(1, 0, 0, 28),
         BackgroundTransparency = 1,
         Name = "Option"
     })
     
-    -- Indicador visual moderno (Pequeno bloco colorido ou linha de destaque opcional à esquerda)
     local Indicator = InsertTheme(Create("Frame", SectionFrame, {
         Size = UDim2.new(0, 3, 0, 12),
         Position = UDim2.new(0, 0, 0.5, 0),
@@ -2082,7 +2080,6 @@ function Tab:AddSection(Configs)
     }), "Theme")
     Make("Corner", Indicator, UDim.new(1, 0))
     
-    -- Texto da Seção
     local SectionLabel = InsertTheme(Create("TextLabel", SectionFrame, {
         Font = Enum.Font.Ubuntu,
         Text = SectionName,
@@ -2097,9 +2094,8 @@ function Tab:AddSection(Configs)
     
     local Section = {}
     
-    -- Registo no sistema global de opções se a tabela existir
-    if type(NutriexUI) == "table" and type(NutriexUI.Options) == "table" then
-        table.insert(NutriexUI.Options, {type = "Section", Name = SectionName, func = Section})
+    if type(NutriexLibrary) == "table" and type(NutriexLibrary.Options) == "table" then
+        table.insert(NutriexLibrary.Options, {type = "Section", Name = SectionName, func = Section})
     end
     
     function Section:Visible(Bool)
@@ -2371,23 +2367,35 @@ function Tab:AddDropdown(Configs)
 
     local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
     
+    -- Tratamento seguro para suporte a temas com ColorSequence e Color3
+    local StrokeColor = typeof(Theme["Color Stroke"]) == "Color3" and Theme["Color Stroke"] or Color3.fromRGB(45, 45, 50)
+    local BgColor = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(18, 18, 22)
+    local ThemeColor = typeof(Theme["Color Theme"]) == "Color3" and Theme["Color Theme"] or Color3.fromRGB(88, 101, 242)
+    local TextColor = typeof(Theme["Color Text"]) == "Color3" and Theme["Color Text"] or Color3.fromRGB(240, 240, 245)
+
+    -- Botão Seletor Principal
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
-        Size = UDim2.new(0, 150, 0, 22),
+        Size = UDim2.new(0, 150, 0, 26),
         Position = UDim2.new(1, -10, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundColor3 = Theme["Color Stroke"],
+        BackgroundColor3 = BgColor,
         BorderSizePixel = 0
-    }), "Stroke")
-    Make("Corner", SelectedFrame, UDim.new(0, 5))
+    }), "Background")
+    Make("Corner", SelectedFrame, UDim.new(0, 6))
+    
+    local SelectedStroke = Make("Stroke", SelectedFrame, {
+        Color = StrokeColor,
+        Transparency = 0.3
+    })
     
     local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
-        Size = UDim2.new(1, -28, 1, 0),
+        Size = UDim2.new(1, -30, 1, 0),
         AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 8, 0.5, 0),
+        Position = UDim2.new(0, 10, 0.5, 0),
         BackgroundTransparency = 1,
         Font = Enum.Font.Ubuntu,
         TextSize = 11,
-        TextColor3 = Theme["Color Text"],
+        TextColor3 = TextColor,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextTruncate = Enum.TextTruncate.AtEnd,
         Text = "..."
@@ -2395,11 +2403,12 @@ function Tab:AddDropdown(Configs)
     
     local Arrow = Create("ImageLabel", SelectedFrame, {
         Size = UDim2.new(0, 12, 0, 12),
-        Position = UDim2.new(1, -6, 0.5, 0),
+        Position = UDim2.new(1, -8, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         Image = "rbxassetid://10709791523",
         BackgroundTransparency = 1,
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255)
+        ImageColor3 = TextColor,
+        ImageTransparency = 0.3
     })
     
     local NoClickFrame = Create("TextButton", DropdownHolder, {
@@ -2411,10 +2420,11 @@ function Tab:AddDropdown(Configs)
         ZIndex = 99 
     })
     
+    -- Pop-up da Lista Interativa
     local DropFrame = Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
-        BackgroundTransparency = 0.05,
-        BackgroundColor3 = Theme["Color Background"] or Color3.fromRGB(0, 0, 0),
+        BackgroundTransparency = 0.02,
+        BackgroundColor3 = BgColor,
         AnchorPoint = Vector2.new(0, 0),
         Name = "DropdownFrame",
         ClipsDescendants = true,
@@ -2422,11 +2432,14 @@ function Tab:AddDropdown(Configs)
         Active = true,
         ZIndex = 100
     })
-    Make("Corner", DropFrame, UDim.new(0, 6))
-    Make("Stroke", DropFrame)
+    Make("Corner", DropFrame, UDim.new(0, 8))
+    Make("Stroke", DropFrame, {
+        Color = StrokeColor,
+        Transparency = 0.2
+    })
     
     local ScrollFrame = InsertTheme(Create("ScrollingFrame", DropFrame, {
-        ScrollBarImageColor3 = Theme["Color Theme"],
+        ScrollBarImageColor3 = ThemeColor,
         Size = UDim2.new(1, 0, 1, 0),
         ScrollBarThickness = 2,
         BackgroundTransparency = 1,
@@ -2438,13 +2451,13 @@ function Tab:AddDropdown(Configs)
         ZIndex = 101
     }, {
         Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 4),
-            PaddingRight = UDim.new(0, 4),
-            PaddingTop = UDim.new(0, 4),
-            PaddingBottom = UDim.new(0, 4)
+            PaddingLeft = UDim.new(0, 5),
+            PaddingRight = UDim.new(0, 5),
+            PaddingTop = UDim.new(0, 5),
+            PaddingBottom = UDim.new(0, 5)
         }),
         Create("UIListLayout", {
-            Padding = UDim.new(0, 3)
+            Padding = UDim.new(0, 4)
         })
     }), "ScrollBar")
     
@@ -2454,10 +2467,15 @@ function Tab:AddDropdown(Configs)
     local function Disable()
         if WaitClick or not DropFrame or not DropFrame.Parent then return end
         WaitClick = true
-        CreateTween({Arrow, "Rotation", 0, 0.18})
-        CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.18, true})
-        NoClickFrame.Visible = false
-        WaitClick = false
+        CreateTween({Arrow, "Rotation", 0, 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+        CreateTween({Arrow, "ImageTransparency", 0.3, 0.2})
+        CreateTween({SelectedStroke, "Color", StrokeColor, 0.2})
+        CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+        
+        task.delay(0.2, function()
+            NoClickFrame.Visible = false
+            WaitClick = false
+        end)
     end
     
     local function GetFrameSize()
@@ -2472,9 +2490,9 @@ function Tab:AddDropdown(Configs)
                 Count += 1
             end
         end
-        ScrollSize = math.clamp((Count * 24) + 8, 10, 150)
+        ScrollSize = math.clamp((Count * 26) + 10, 10, 170)
         if NoClickFrame.Visible then
-            CreateTween({DropFrame, "Size", GetFrameSize(), 0.18, true})
+            CreateTween({DropFrame, "Size", GetFrameSize(), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
         end
     end
     
@@ -2482,27 +2500,29 @@ function Tab:AddDropdown(Configs)
         if WaitClick then return end
         WaitClick = true
         if NoClickFrame.Visible then
-            CreateTween({Arrow, "Rotation", 0, 0.18})
-            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.18, true})
-            NoClickFrame.Visible = false
+            Disable()
         else
             NoClickFrame.Visible = true
-            CreateTween({Arrow, "Rotation", 180, 0.18})
-            CreateTween({DropFrame, "Size", GetFrameSize(), 0.18, true})
+            CreateTween({Arrow, "Rotation", 180, 0.22, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            CreateTween({Arrow, "ImageTransparency", 0, 0.2})
+            CreateTween({SelectedStroke, "Color", ThemeColor, 0.2})
+            CreateTween({DropFrame, "Size", GetFrameSize(), 0.22, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
+            WaitClick = false
         end
-        WaitClick = false
     end
     
     local function CalculatePos()
         if not SelectedFrame or not SelectedFrame.Parent then return end
         local FramePos = SelectedFrame.AbsolutePosition
         local ScreenSize = ScreenGui.AbsoluteSize
-        local ClampX = math.clamp((FramePos.X / UIScale), 0, (ScreenSize.X / UIScale) - DropFrame.Size.X.Offset)
-        local ClampY = (FramePos.Y / UIScale) + SelectedFrame.AbsoluteSize.Y + 4
+        local Scale = UIScale or 1
+        
+        local ClampX = math.clamp((FramePos.X / Scale), 0, (ScreenSize.X / Scale) - DropFrame.Size.X.Offset)
+        local ClampY = (FramePos.Y / Scale) + SelectedFrame.AbsoluteSize.Y + 5
         
         local AnchorY = 0
         if FramePos.Y > (ScreenSize.Y / 1.3) then
-            ClampY = (FramePos.Y / UIScale) - 4
+            ClampY = (FramePos.Y / Scale) - 5
             AnchorY = 1
         end
         
@@ -2551,9 +2571,16 @@ function Tab:AddDropdown(Configs)
                 local Slt = if MultiSelect then v.Stats else (v.Value == Selected)
                 local nodes = v.nodes
                 if nodes then
-                    CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.2})
-                    CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(3, 12) or UDim2.fromOffset(3, 0), 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.45, 0.2})
+                    -- Animação do Indicador Lateral Ativo
+                    CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.18})
+                    CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(3, 14) or UDim2.fromOffset(3, 0), 0.18})
+                    
+                    -- Transparência do Texto
+                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.45, 0.18})
+                    CreateTween({nodes[3], "TextColor3", Slt and ThemeColor or TextColor, 0.18})
+                    
+                    -- Fundo do Item Selecionado
+                    CreateTween({nodes[1], "BackgroundTransparency", Slt and 0.92 or 1, 0.18})
                 end
             end
             UpdateLabel()
@@ -2575,7 +2602,6 @@ function Tab:AddDropdown(Configs)
         
         AddOption = function(index, Value)
             local Name = tostring(type(index) == "string" and index or Value)
-            
             if Options[Name] then return end
             
             local OptionData = {
@@ -2596,17 +2622,18 @@ function Tab:AddDropdown(Configs)
             
             local OptionBtn = Make("Button", ScrollFrame, {
                 Name = "Option",
-                Size = UDim2.new(1, 0, 0, 22),
+                Size = UDim2.new(1, 0, 0, 24),
                 BackgroundTransparency = 1,
+                BackgroundColor3 = ThemeColor,
                 AutoButtonColor = false,
                 ZIndex = 102
             })
-            Make("Corner", OptionBtn, UDim.new(0, 4))
+            Make("Corner", OptionBtn, UDim.new(0, 5))
             
             local IndicatorBar = InsertTheme(Create("Frame", OptionBtn, {
-                Position = UDim2.new(0, 2, 0.5, 0),
+                Position = UDim2.new(0, 3, 0.5, 0),
                 Size = UDim2.new(0, 3, 0, 0),
-                BackgroundColor3 = Theme["Color Theme"],
+                BackgroundColor3 = ThemeColor,
                 BackgroundTransparency = 1,
                 AnchorPoint = Vector2.new(0, 0.5),
                 BorderSizePixel = 0,
@@ -2615,12 +2642,12 @@ function Tab:AddDropdown(Configs)
             Make("Corner", IndicatorBar, UDim.new(1, 0))
             
             local OptionLabel = InsertTheme(Create("TextLabel", OptionBtn, {
-                Size = UDim2.new(1, -16, 1, 0),
-                Position = UDim2.new(0, 10, 0, 0),
+                Size = UDim2.new(1, -18, 1, 0),
+                Position = UDim2.new(0, 12, 0, 0),
                 Text = Name,
-                TextColor3 = Theme["Color Text"],
+                TextColor3 = TextColor,
                 Font = Enum.Font.Ubuntu,
-                TextSize = 12,
+                TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1,
                 TextTransparency = 0.45,
@@ -2628,11 +2655,19 @@ function Tab:AddDropdown(Configs)
             }), "Text")
             
             table.insert(OptionData.Connections, OptionBtn.MouseEnter:Connect(function()
-                CreateTween({OptionBtn, "BackgroundTransparency", 0.92, 0.12})
+                local Slt = if MultiSelect then OptionData.Stats else (OptionData.Value == Selected)
+                if not Slt then
+                    CreateTween({OptionBtn, "BackgroundTransparency", 0.96, 0.12})
+                    CreateTween({OptionLabel, "TextTransparency", 0.2, 0.12})
+                end
             end))
             
             table.insert(OptionData.Connections, OptionBtn.MouseLeave:Connect(function()
-                CreateTween({OptionBtn, "BackgroundTransparency", 1, 0.12})
+                local Slt = if MultiSelect then OptionData.Stats else (OptionData.Value == Selected)
+                if not Slt then
+                    CreateTween({OptionBtn, "BackgroundTransparency", 1, 0.12})
+                    CreateTween({OptionLabel, "TextTransparency", 0.45, 0.12})
+                end
             end))
             
             table.insert(OptionData.Connections, OptionBtn.Activated:Connect(function()
@@ -2684,6 +2719,28 @@ function Tab:AddDropdown(Configs)
         CallbackSelected()
         UpdateSelected()
     end
+    
+    -- Efeitos no Botão Principal
+    SelectedFrame.MouseEnter:Connect(function()
+        if not NoClickFrame.Visible then
+            CreateTween({SelectedStroke, "Transparency", 0.1, 0.15})
+            CreateTween({Arrow, "ImageTransparency", 0, 0.15})
+        end
+    end)
+    
+    SelectedFrame.MouseLeave:Connect(function()
+        if not NoClickFrame.Visible then
+            CreateTween({SelectedStroke, "Transparency", 0.3, 0.15})
+            CreateTween({Arrow, "ImageTransparency", 0.3, 0.15})
+        end
+    end)
+    
+    AddConnection(SelectedFrame.InputBegan, function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            Minimize()
+            CalculateSize()
+        end
+    end)
     
     AddConnection(Button.Activated, Minimize)
     AddConnection(Button.Activated, CalculateSize)
@@ -2956,7 +3013,6 @@ function Tab:AddTextBox(Configs)
     
     local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
     
-    -- Aumentei a altura (24) e adicionei fundo próprio para destacar do botão base
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
         Size = UDim2.new(0, 150, 0, 18),
         Position = UDim2.new(1, -10, 0.5, 0),
@@ -2966,14 +3022,12 @@ function Tab:AddTextBox(Configs)
     }), "Background")
     Make("Corner", SelectedFrame, UDim.new(0, 4))
     
-    -- Borda (Stroke) para animação de foco
     local BoxStroke = InsertTheme(Create("UIStroke", SelectedFrame, {
         Color = Theme["Color Stroke"],
         Thickness = 1,
         ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     }), "Stroke")
     
-    -- Ícone do Lápis movido para DENTRO da caixa (lado esquerdo)
     local Pencil = Create("ImageLabel", SelectedFrame, {
         Size = UDim2.new(0, 12, 0, 12),
         Position = UDim2.new(0, 8, 0.5, 0),
@@ -2984,7 +3038,6 @@ function Tab:AddTextBox(Configs)
         ImageTransparency = 0.5
     })
     
-    -- Texto alinhado à esquerda e afastado do ícone
     local TextBoxInput = InsertTheme(Create("TextBox", SelectedFrame, {
         Size = UDim2.new(1, -30, 1, 0),
         AnchorPoint = Vector2.new(0, 0.5),
@@ -2996,7 +3049,7 @@ function Tab:AddTextBox(Configs)
         TextColor3 = Theme["Color Text"],
         ClearTextOnFocus = TClearText,
         PlaceholderText = TPlaceholderText,
-        Text = TDefault, -- BUG CORRIGIDO: Agora o texto padrão é aplicado
+        Text = TDefault, 
         ClipsDescendants = true
     }), "Text")
     
@@ -3151,4 +3204,4 @@ function Tab:AddDiscordInvite(Configs)
 	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
 	return Window
 end
-return NutriexUI
+return NutriexLibrary
