@@ -32,9 +32,9 @@ local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 22, 22)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(15, 15, 15)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(5, 5, 5)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(3, 3, 3)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(5, 5, 5))
     }),
     ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
     ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
