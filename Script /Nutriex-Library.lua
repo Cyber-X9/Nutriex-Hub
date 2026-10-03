@@ -32,9 +32,9 @@ local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(5, 5, 5)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(3, 3, 3)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(5, 5, 5))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 10, 10)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10))
     }),
     ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
     ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
@@ -42,6 +42,70 @@ local NutriexLibrary = {
     ["Color Text"] = Color3.fromRGB(245, 245, 245),
     ["Color Dark Text"] = Color3.fromRGB(120, 120, 120)
 }
+    Blue = {
+        ["Color Hub 1"] = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 15, 25)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(5, 5, 12)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 15, 25))
+        }),
+        ["Color Hub 2"] = Color3.fromRGB(15, 20, 30),
+        ["Color Stroke"] = Color3.fromRGB(30, 50, 80), 
+        ["Color Theme"] = Color3.fromRGB(0, 140, 255),
+        ["Color Text"] = Color3.fromRGB(245, 245, 245),
+        ["Color Dark Text"] = Color3.fromRGB(120, 130, 150)
+    },
+
+    Red = {
+        ["Color Hub 1"] = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 10, 10)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(12, 5, 5)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 10, 10))
+        }),
+        ["Color Hub 2"] = Color3.fromRGB(30, 15, 15),
+        ["Color Stroke"] = Color3.fromRGB(80, 30, 30), 
+        ["Color Theme"] = Color3.fromRGB(255, 50, 50),
+        ["Color Text"] = Color3.fromRGB(245, 245, 245),
+        ["Color Dark Text"] = Color3.fromRGB(150, 120, 120)
+    },
+
+    Green = {
+        ["Color Hub 1"] = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 25, 15)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(5, 12, 8)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 25, 15))
+        }),
+        ["Color Hub 2"] = Color3.fromRGB(15, 30, 20),
+        ["Color Stroke"] = Color3.fromRGB(30, 80, 45), 
+        ["Color Theme"] = Color3.fromRGB(40, 220, 100),
+        ["Color Text"] = Color3.fromRGB(245, 245, 245),
+        ["Color Dark Text"] = Color3.fromRGB(120, 150, 130)
+    },
+
+    Purple = {
+        ["Color Hub 1"] = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(20, 10, 25)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(10, 5, 12)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(20, 10, 25))
+        }),
+        ["Color Hub 2"] = Color3.fromRGB(25, 15, 30),
+        ["Color Stroke"] = Color3.fromRGB(65, 30, 85), 
+        ["Color Theme"] = Color3.fromRGB(160, 50, 255),
+        ["Color Text"] = Color3.fromRGB(245, 245, 245),
+        ["Color Dark Text"] = Color3.fromRGB(140, 120, 150)
+    },
+
+    Orange = {
+        ["Color Hub 1"] = ColorSequence.new({
+            ColorSequenceKeypoint.new(0.00, Color3.fromRGB(25, 15, 10)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(12, 8, 5)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(25, 15, 10))
+        }),
+        ["Color Hub 2"] = Color3.fromRGB(30, 20, 15),
+        ["Color Stroke"] = Color3.fromRGB(85, 50, 30), 
+        ["Color Theme"] = Color3.fromRGB(255, 130, 30),
+        ["Color Text"] = Color3.fromRGB(245, 245, 245),
+        ["Color Dark Text"] = Color3.fromRGB(150, 130, 120)
+ }
 	},
 	Info = {
 		Version = "1.0"
@@ -1370,8 +1434,9 @@ function NutriexLibrary:SetTheme(NewTheme)
 	SaveJson("Nutriex_Config.json", NutriexLibrary.Save)
 	Theme = NutriexLibrary.Themes[NewTheme]
 	
-	Comnection:FireConnection("ThemeChanged", NewTheme)
-	table.foreach(NutriexLibrary.Instances, function(_,Val)
+	Connection:FireConnection("ThemeChanged", NewTheme) 
+	
+	for _, Val in ipairs(NutriexLibrary.Instances) do
 		if Val.Type == "Gradient" then
 			Val.Instance.Color = Theme["Color Hub 1"]
 		elseif Val.Type == "Frame" then
@@ -1387,7 +1452,7 @@ function NutriexLibrary:SetTheme(NewTheme)
 		elseif Val.Type == "ScrollBar" then
 			Val.Instance[GetColor(Val.Instance)] = Theme["Color Theme"]
 		end
-	end)
+	end
 end
 
 function NutriexLibrary:SetScale(NewScale)
@@ -2373,7 +2438,7 @@ function Tab:AddDropdown(Configs)
     local TextColor = typeof(Theme["Color Text"]) == "Color3" and Theme["Color Text"] or Color3.fromRGB(240, 240, 245)
 
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
-        Size = UDim2.new(0, 150, 0, 26),
+        Size = UDim2.new(0, 150, 0, 18),
         Position = UDim2.new(1, -10, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundColor3 = BgColor,
