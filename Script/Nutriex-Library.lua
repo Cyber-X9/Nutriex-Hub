@@ -2375,8 +2375,8 @@ function Tab:AddDropdown(Configs)
         Position = UDim2.new(0, 8, 0.5, 0),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamMedium,
-        TextScaled = false, -- Desativado para a letra nao ficar gigante
-        TextSize = 12,      -- Tamanho proporcional e limpo
+        TextScaled = false,
+        TextSize = 12,
         TextColor3 = Theme["Color Text"],
         TextXAlignment = Enum.TextXAlignment.Left,
         TextTruncate = Enum.TextTruncate.AtEnd,
@@ -2419,7 +2419,7 @@ function Tab:AddDropdown(Configs)
         BorderSizePixel = 0,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollingDirection = Enum.ScrollingDirection.Y,
-        AutomaticCanvasSize = "Y", -- Usando a string direta como solicitado
+        AutomaticCanvasSize = "Y",
         Active = true
     }, {
         Create("UIPadding", {
@@ -2459,8 +2459,8 @@ function Tab:AddDropdown(Configs)
     local function Disable()
         if WaitClick then return end
         WaitClick = true
-        CreateTween({Arrow, "Rotation", 0, 0.2})
-        CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.2, true})
+        CreateTween({Arrow, "Rotation", 0, 0.2, "Quad", "Out"})
+        CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.2, "Quad", "Out", true})
         NoClickFrame.Visible = false
         WaitClick = false
     end
@@ -2469,15 +2469,15 @@ function Tab:AddDropdown(Configs)
         if WaitClick then return end
         WaitClick = true
         if NoClickFrame.Visible then
-            CreateTween({Arrow, "Rotation", 0, 0.2})
-            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.2, true})
+            CreateTween({Arrow, "Rotation", 0, 0.2, "Quad", "Out"})
+            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, 0), 0.2, "Quad", "Out", true})
             NoClickFrame.Visible = false
         else
             CalculatePos()
             ScrollSize = GetCalculatedHeight()
             NoClickFrame.Visible = true
-            CreateTween({Arrow, "Rotation", 180, 0.2})
-            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, ScrollSize), 0.2, true})
+            CreateTween({Arrow, "Rotation", 180, 0.2, "Quad", "Out"})
+            CreateTween({DropFrame, "Size", UDim2.new(0, 150, 0, ScrollSize), 0.2, "Quad", "Out", true})
         end
         WaitClick = false
     end
@@ -2511,15 +2511,15 @@ function Tab:AddDropdown(Configs)
             if MultiSelect then
                 for _, v in pairs(Options) do
                     local nodes, Stats = v.nodes, v.Stats
-                    CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.2})
+                    CreateTween({nodes[2], "BackgroundTransparency", Stats and 0 or 0.8, 0.2, "Quad", "Out"})
+                    CreateTween({nodes[3], "TextTransparency", Stats and 0 or 0.4, 0.2, "Quad", "Out"})
                 end
             else
                 for _, v in pairs(Options) do
                     local Slt = v.Value == Selected
                     local nodes = v.nodes
-                    CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.2})
-                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.2})
+                    CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.2, "Quad", "Out"})
+                    CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.4, 0.2, "Quad", "Out"})
                 end
             end
             UpdateLabel()
