@@ -2375,8 +2375,8 @@ function Tab:AddDropdown(Configs)
         Position = UDim2.new(0, 8, 0.5, 0),
         BackgroundTransparency = 1,
         Font = Enum.Font.GothamMedium,
-        TextScaled = false, -- Corrigido: desativado para nao esticar o texto
-        TextSize = 12,      -- Tamanho limpo e proporcional
+        TextScaled = false, -- Desativado para a letra nao ficar gigante
+        TextSize = 12,      -- Tamanho proporcional e limpo
         TextColor3 = Theme["Color Text"],
         TextXAlignment = Enum.TextXAlignment.Left,
         TextTruncate = Enum.TextTruncate.AtEnd,
@@ -2419,7 +2419,7 @@ function Tab:AddDropdown(Configs)
         BorderSizePixel = 0,
         CanvasSize = UDim2.new(0, 0, 0, 0),
         ScrollingDirection = Enum.ScrollingDirection.Y,
-        AutomaticCanvasSize = Enum.AutomaticCanvasSize.Y,
+        AutomaticCanvasSize = "Y", -- Usando a string direta como solicitado
         Active = true
     }, {
         Create("UIPadding", {
@@ -2449,7 +2449,6 @@ function Tab:AddDropdown(Configs)
     local function CalculatePos()
         local FramePos = SelectedFrame.AbsolutePosition
         local FrameSize = SelectedFrame.AbsoluteSize
-        local ScreenSize = ScreenGui.AbsoluteSize
         
         local ClampX = (FramePos.X + FrameSize.X) / UIScale
         local ClampY = (FramePos.Y + FrameSize.Y + 4) / UIScale
@@ -2569,7 +2568,7 @@ function Tab:AddDropdown(Configs)
                 Text = Name,
                 TextColor3 = Theme["Color Text"],
                 Font = Enum.Font.Gotham,
-                TextSize = 11, -- Tamanho fixo e alinhado para as opcoes
+                TextSize = 11,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundTransparency = 1,
                 TextTransparency = 0.4
