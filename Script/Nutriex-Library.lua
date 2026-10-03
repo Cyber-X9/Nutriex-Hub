@@ -2388,7 +2388,7 @@ function Tab:AddDropdown(Configs)
     })
     
     local ActiveLabel = InsertTheme(Create("TextLabel", SelectedFrame, {
-        Size = UDim2.new(1, -30, 1, 0),
+        Size =.  UDim2.new(1, -25, 1, 0),
         AnchorPoint = Vector2.new(0, 0.5),
         Position = UDim2.new(0, 10, 0.5, 0),
         BackgroundTransparency = 1,
