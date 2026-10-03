@@ -2155,7 +2155,7 @@ function Tab:AddButton(Configs)
     local Callback = Funcs:GetCallback(Configs, 2)
     
     local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
-    FButton.ClipsDescendants = true -- Necessário para prender o efeito Ripple dentro dos limites do botão
+    FButton.ClipsDescendants = true -- Necessario para prender o efeito Ripple dentro dos limites do botao
     
     -- Camada de Hover (Destaque sutil ao passar o cursor)
     local HoverOverlay = Create("Frame", FButton, {
@@ -2167,7 +2167,7 @@ function Tab:AddButton(Configs)
     })
     Make("Corner", HoverOverlay, UDim.new(0, 6))
 
-    -- Ícone interativo
+    -- Icone interativo
     local ButtonIcon = Create("ImageLabel", FButton, {
         Size = UDim2.new(0, 14, 0, 14),
         Position = UDim2.new(1, -12, 0.5, 0),
@@ -2179,12 +2179,12 @@ function Tab:AddButton(Configs)
         ZIndex = 3
     })
 
-    -- UIScale com AnchorPoint ajustado para contrair em direção ao centro
+    -- UIScale com AnchorPoint ajustado para contrair em direcao ao centro
     local ClickScale = Instance.new("UIScale")
     ClickScale.Parent = FButton
     ClickScale.Scale = 1
 
-    -- Efeito Ripple (Onda d'água ao clicar)
+    -- Efeito Ripple (Onda d'agua ao clicar)
     local function SpawnRipple(X, Y)
         task.spawn(function()
             local MouseRelative = Vector2.new(X - FButton.AbsolutePosition.X, Y - FButton.AbsolutePosition.Y)
@@ -2197,13 +2197,13 @@ function Tab:AddButton(Configs)
                 BorderSizePixel = 0,
                 ZIndex = 1
             })
-            Make("Corner", Circle, UDim.new(1, 0)) -- Círculo perfeito
+            Make("Corner", Circle, UDim.new(1, 0)) -- Circulo perfeito
             
             local TargetSize = math.max(FButton.AbsoluteSize.X, FButton.AbsoluteSize.Y) * 1.5
             
-            -- Anima expansão e desvanecimento
+            -- Anima expansao e desvanecimento (CORRIGIDO: Enum.EasingStyle.Quad em vez de OutQuad)
             local TweenService = game:GetService("TweenService")
-            local Info = TweenInfo.new(0.4, Enum.EasingStyle.OutQuad, Enum.EasingDirection.Out)
+            local Info = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             
             TweenService:Create(Circle, Info, {
                 Size = UDim2.fromOffset(TargetSize, TargetSize),
@@ -2215,31 +2215,27 @@ function Tab:AddButton(Configs)
         end)
     end
 
-    -- Animações de Hover
+    -- Animacoes de Hover (CORRIGIDOS os parametros passados para o CreateTween)
     FButton.MouseEnter:Connect(function()
-        -- Ilumina o fundo e desloca o ícone
-        CreateTween({HoverOverlay, "BackgroundTransparency", 0.95, 0.2})
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
-        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.2})
+        CreateTween({HoverOverlay, "BackgroundTransparency", 0.95, 0.2, "Quad", "Out"})
+        CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.25, "Quart", "Out"})
+        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.2, "Quad", "Out"})
     end)
 
     FButton.MouseLeave:Connect(function()
-        -- Restaura o estado padrão
-        CreateTween({HoverOverlay, "BackgroundTransparency", 1, 0.2})
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -12, 0.5, 0), 0.25, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
-        CreateTween({ButtonIcon, "ImageTransparency", 0.4, 0.2})
+        CreateTween({HoverOverlay, "BackgroundTransparency", 1, 0.2, "Quad", "Out"})
+        CreateTween({ButtonIcon, "Position", UDim2.new(1, -12, 0.5, 0), 0.25, "Quart", "Out"})
+        CreateTween({ButtonIcon, "ImageTransparency", 0.4, 0.2, "Quad", "Out"})
     end)
 
-    -- Animação tátil de Clique (Elasticidade suave + Efeito Onda)
+    -- Animacao tatil de Clique
     FButton.Activated:Connect(function(InputObject)
-        -- Dispara o efeito de onda na posição do clique/toque
         if InputObject then
             SpawnRipple(InputObject.Position.X, InputObject.Position.Y)
         end
 
-        -- Animação de compressão com efeito elástico
-        CreateTween({ClickScale, "Scale", 0.94, 0.08, true, Enum.EasingStyle.Sine, Enum.EasingDirection.Out})
-        CreateTween({ClickScale, "Scale", 1, 0.25, false, Enum.EasingStyle.Back, Enum.EasingDirection.Out})
+        CreateTween({ClickScale, "Scale", 0.94, 0.08, "Sine", "Out", true})
+        CreateTween({ClickScale, "Scale", 1, 0.25, "Back", "Out"})
 
         Funcs:FireCallback(Callback)
     end)
