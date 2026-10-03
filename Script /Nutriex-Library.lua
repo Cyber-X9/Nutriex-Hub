@@ -2393,7 +2393,6 @@ function Tab:AddDropdown(Configs)
 				BackgroundTransparency = 1,
 				Visible = false,
 				Text = ""
-				ZIndex= 99
 			})
 			
 			local DropFrame = Create("Frame", NoClickFrame, {
