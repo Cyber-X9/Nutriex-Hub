@@ -34,7 +34,7 @@ local NutriexLibrary = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(22, 22, 22)),
         ColorSequenceKeypoint.new(0.50, Color3.fromRGB(15, 15, 15)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10))
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 0, 0))
     }),
     ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
     ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
@@ -2367,13 +2367,11 @@ function Tab:AddDropdown(Configs)
 
     local Button, LabelFunc = ButtonFrame(Container, DName, DDesc, UDim2.new(1, -180))
     
-    -- Tratamento seguro para suporte a temas com ColorSequence e Color3
     local StrokeColor = typeof(Theme["Color Stroke"]) == "Color3" and Theme["Color Stroke"] or Color3.fromRGB(45, 45, 50)
     local BgColor = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(18, 18, 22)
     local ThemeColor = typeof(Theme["Color Theme"]) == "Color3" and Theme["Color Theme"] or Color3.fromRGB(88, 101, 242)
     local TextColor = typeof(Theme["Color Text"]) == "Color3" and Theme["Color Text"] or Color3.fromRGB(240, 240, 245)
 
-    -- Botão Seletor Principal
     local SelectedFrame = InsertTheme(Create("Frame", Button, {
         Size = UDim2.new(0, 150, 0, 26),
         Position = UDim2.new(1, -10, 0.5, 0),
@@ -2420,7 +2418,6 @@ function Tab:AddDropdown(Configs)
         ZIndex = 99 
     })
     
-    -- Pop-up da Lista Interativa
     local DropFrame = Create("Frame", NoClickFrame, {
         Size = UDim2.new(0, 150, 0, 0),
         BackgroundTransparency = 0.02,
@@ -2571,15 +2568,12 @@ function Tab:AddDropdown(Configs)
                 local Slt = if MultiSelect then v.Stats else (v.Value == Selected)
                 local nodes = v.nodes
                 if nodes then
-                    -- Animação do Indicador Lateral Ativo
                     CreateTween({nodes[2], "BackgroundTransparency", Slt and 0 or 1, 0.18})
                     CreateTween({nodes[2], "Size", Slt and UDim2.fromOffset(3, 14) or UDim2.fromOffset(3, 0), 0.18})
                     
-                    -- Transparência do Texto
                     CreateTween({nodes[3], "TextTransparency", Slt and 0 or 0.45, 0.18})
                     CreateTween({nodes[3], "TextColor3", Slt and ThemeColor or TextColor, 0.18})
                     
-                    -- Fundo do Item Selecionado
                     CreateTween({nodes[1], "BackgroundTransparency", Slt and 0.92 or 1, 0.18})
                 end
             end
@@ -2720,7 +2714,6 @@ function Tab:AddDropdown(Configs)
         UpdateSelected()
     end
     
-    -- Efeitos no Botão Principal
     SelectedFrame.MouseEnter:Connect(function()
         if not NoClickFrame.Visible then
             CreateTween({SelectedStroke, "Transparency", 0.1, 0.15})
@@ -2738,11 +2731,13 @@ function Tab:AddDropdown(Configs)
     AddConnection(SelectedFrame.InputBegan, function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             Minimize()
+            CalculatePos()
             CalculateSize()
         end
     end)
     
     AddConnection(Button.Activated, Minimize)
+    AddConnection(Button.Activated, CalculatePos)
     AddConnection(Button.Activated, CalculateSize)
     AddConnection(NoClickFrame.MouseButton1Down, Disable)
     AddConnection(NoClickFrame.MouseButton1Click, Disable)
@@ -2835,7 +2830,6 @@ end
     
     local Button, LabelFunc = ButtonFrame(Container, SName, SDesc, UDim2.new(1, -180))
     
-    -- Contentor principal transparente para capturar cliques
     local SliderHolder = Create("TextButton", Button, {
         Size = UDim2.new(0.45, 0, 1, 0),
         Position = UDim2.new(1, -10, 0, 0),
@@ -2845,7 +2839,6 @@ end
         BackgroundTransparency = 1
     })
     
-    -- Barra de Fundo (Track)
     local SliderBar = InsertTheme(Create("Frame", SliderHolder, {
         BackgroundColor3 = Theme["Color Stroke"],
         Size = UDim2.new(1, -45, 0, 6),
@@ -2853,17 +2846,15 @@ end
         AnchorPoint = Vector2.new(0, 0.5),
         BorderSizePixel = 0
     }), "Stroke")
-    Make("Corner", SliderBar, UDim.new(1, 0)) -- Borda totalmente arredondada
+    Make("Corner", SliderBar, UDim.new(1, 0)) 
     
-    -- Barra de Preenchimento (Progress)
     local Indicator = InsertTheme(Create("Frame", SliderBar, {
         BackgroundColor3 = Theme["Color Theme"],
         Size = UDim2.fromScale(0.3, 1),
         BorderSizePixel = 0
     }), "Theme")
     Make("Corner", Indicator, UDim.new(1, 0))
-    
-    -- Ponto de Controlo / Knob (Manípulo)
+
     local SliderIcon = Create("Frame", SliderBar, {
         Size = UDim2.new(0, 14, 0, 14),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -2872,9 +2863,8 @@ end
         BorderSizePixel = 0,
         ZIndex = 3
     })
-    Make("Corner", SliderIcon, UDim.new(1, 0)) -- Círculo perfeito
+    Make("Corner", SliderIcon, UDim.new(1, 0))
     
-    -- Sombra do Knob
     local KnobStroke = Create("UIStroke", SliderIcon, {
         Color = Color3.fromRGB(0, 0, 0),
         Transparency = 0.85,
@@ -2882,7 +2872,6 @@ end
         ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     })
 
-    -- Label para o Valor Atual
     local LabelVal = InsertTheme(Create("TextLabel", SliderHolder, {
         Size = UDim2.new(0, 35, 0, 20),
         AnchorPoint = Vector2.new(1, 0.5),
@@ -2925,7 +2914,6 @@ end
         UpdateLabel(NewValue)
     end
     
-    -- Efeitos Visuais ao Interagir (Hover & Drag)
     local isDragging = false
 
     SliderHolder.MouseEnter:Connect(function()
@@ -2956,7 +2944,6 @@ end
         SetFlag(Flag, Default)
     end)
     
-    -- Animação ao alterar o texto do valor
     LabelVal:GetPropertyChangedSignal("Text"):Connect(function()
         UIScale.Scale = 0.8
         CreateTween({UIScale, "Scale", 1.15, 0.08})
