@@ -41,7 +41,7 @@ local NutriexLibrary = {
     ["Color Theme"] = Color3.fromRGB(255, 255, 255),
     ["Color Text"] = Color3.fromRGB(245, 245, 245),
     ["Color Dark Text"] = Color3.fromRGB(120, 120, 120)
-}
+},
 Green = {
     ["Color Hub 1"] = ColorSequence.new({
         ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 35, 20)),
