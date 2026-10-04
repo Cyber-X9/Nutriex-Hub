@@ -2317,7 +2317,6 @@ function Tab:AddDropdown(Configs)
         BackgroundTransparency = 1,
         Visible = false,
         Text = "",
-        ZIndex = 99 
     })
 			
 			local DropFrame = Create("Frame", NoClickFrame, {
@@ -2665,7 +2664,7 @@ function Tab:AddDropdown(Configs)
         Position = UDim2.fromScale(0.3, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
         BorderSizePixel = 0,
-        ZIndex = 3
+        ZIndex = 1
     })
     Make("Corner", SliderIcon, UDim.new(1, 0))
     
