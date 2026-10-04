@@ -2298,7 +2298,7 @@ function Tab:AddDropdown(Configs)
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
 				Font = Enum.Font.Ubuntu,
-				TextScaled = false,
+				TextScaled = true,
 				TextColor3 = Theme["Color Text"],
 				Text = "..."
 			}), "Text")
