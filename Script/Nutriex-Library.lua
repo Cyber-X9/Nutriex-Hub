@@ -2150,112 +2150,40 @@ function Tab:AddParagraph(Configs)
 			return Paragraph
 		end
 function Tab:AddButton(Configs)
-    local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
-    local BDescription = Configs.Desc or Configs.Description or ""
-    local Callback = Funcs:GetCallback(Configs, 2)
-    
-    local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
-    FButton.ClipsDescendants = true -- Necessario para prender o efeito Ripple dentro dos limites do botao
-    
-    -- Camada de Hover (Destaque sutil ao passar o cursor)
-    local HoverOverlay = Create("Frame", FButton, {
-        Size = UDim2.new(1, 0, 1, 0),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        ZIndex = 2
-    })
-    Make("Corner", HoverOverlay, UDim.new(0, 6))
-
-    -- Icone interativo
-    local ButtonIcon = Create("ImageLabel", FButton, {
-        Size = UDim2.new(0, 14, 0, 14),
-        Position = UDim2.new(1, -12, 0.5, 0),
-        AnchorPoint = Vector2.new(1, 0.5),
-        BackgroundTransparency = 1,
-        Image = "rbxassetid://10709791437",
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
-        ImageTransparency = 0.4,
-        ZIndex = 3
-    })
-
-    -- UIScale com AnchorPoint ajustado para contrair em direcao ao centro
-    local ClickScale = Instance.new("UIScale")
-    ClickScale.Parent = FButton
-    ClickScale.Scale = 1
-
-    -- Efeito Ripple (Onda d'agua ao clicar)
-    local function SpawnRipple(X, Y)
-        task.spawn(function()
-            local MouseRelative = Vector2.new(X - FButton.AbsolutePosition.X, Y - FButton.AbsolutePosition.Y)
-            local Circle = Create("Frame", FButton, {
-                Position = UDim2.fromOffset(MouseRelative.X, MouseRelative.Y),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.fromOffset(0, 0),
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                BackgroundTransparency = 0.85,
-                BorderSizePixel = 0,
-                ZIndex = 1
-            })
-            Make("Corner", Circle, UDim.new(1, 0)) -- Circulo perfeito
-            
-            local TargetSize = math.max(FButton.AbsoluteSize.X, FButton.AbsoluteSize.Y) * 1.5
-            
-            -- Anima expansao e desvanecimento (CORRIGIDO: Enum.EasingStyle.Quad em vez de OutQuad)
-            local TweenService = game:GetService("TweenService")
-            local Info = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            
-            TweenService:Create(Circle, Info, {
-                Size = UDim2.fromOffset(TargetSize, TargetSize),
-                BackgroundTransparency = 1
-            }):Play()
-            
-            task.wait(0.4)
-            Circle:Destroy()
-        end)
-    end
-
-    -- Animacoes de Hover (CORRIGIDOS os parametros passados para o CreateTween)
-    FButton.MouseEnter:Connect(function()
-        CreateTween({HoverOverlay, "BackgroundTransparency", 0.95, 0.2, "Quad", "Out"})
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -8, 0.5, 0), 0.25, "Quart", "Out"})
-        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.2, "Quad", "Out"})
-    end)
-
-    FButton.MouseLeave:Connect(function()
-        CreateTween({HoverOverlay, "BackgroundTransparency", 1, 0.2, "Quad", "Out"})
-        CreateTween({ButtonIcon, "Position", UDim2.new(1, -12, 0.5, 0), 0.25, "Quart", "Out"})
-        CreateTween({ButtonIcon, "ImageTransparency", 0.4, 0.2, "Quad", "Out"})
-    end)
-
-    -- Animacao tatil de Clique
-    FButton.Activated:Connect(function(InputObject)
-        if InputObject then
-            SpawnRipple(InputObject.Position.X, InputObject.Position.Y)
-        end
-
-        CreateTween({ClickScale, "Scale", 0.94, 0.08, "Sine", "Out", true})
-        CreateTween({ClickScale, "Scale", 1, 0.25, "Back", "Out"})
-
-        Funcs:FireCallback(Callback)
-    end)
-    
-    local Button = {}
-    function Button:Visible(...) Funcs:ToggleVisible(FButton, ...) end
-    function Button:Destroy() FButton:Destroy() end
-    function Button:Callback(...) Funcs:InsertCallback(Callback, ...) end
-    function Button:Set(Val1, Val2)
-        if type(Val1) == "string" and type(Val2) == "string" then
-            LabelFunc:SetTitle(Val1)
-            LabelFunc:SetDesc(Val2)
-        elseif type(Val1) == "string" then
-            LabelFunc:SetTitle(Val1)
-        elseif type(Val1) == "function" then
-            Callback = Val1
-        end
-    end
-    return Button
-end
+			local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
+			local BDescription = Configs.Desc or Configs.Description or ""
+			local Callback = Funcs:GetCallback(Configs, 2)
+			
+			local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
+			
+			local ButtonIcon = Create("ImageLabel", FButton, {
+				Size = UDim2.new(0, 14, 0, 14),
+				Position = UDim2.new(1, -10, 0.5),
+				AnchorPoint = Vector2.new(1, 0.5),
+				BackgroundTransparency = 1,
+				Image = "rbxassetid://10709791437"
+			})
+			
+			FButton.Activated:Connect(function()
+				Funcs:FireCallback(Callback)
+			end)
+			
+			local Button = {}
+			function Button:Visible(...) Funcs:ToggleVisible(FButton, ...) end
+			function Button:Destroy() FButton:Destroy() end
+			function Button:Callback(...) Funcs:InsertCallback(Callback, ...) end
+			function Button:Set(Val1, Val2)
+				if type(Val1) == "string" and type(Val2) == "string" then
+					LabelFunc:SetTitle(Val1)
+					LabelFunc:SetDesc(Val2)
+				elseif type(Val1) == "string" then
+					LabelFunc:SetTitle(Val1)
+				elseif type(Val1) == "function" then
+					Callback = Val1
+				end
+			end
+			return Button
+		end
 function Tab:AddToggle(Configs)
     local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
     local TDesc = Configs.Desc or Configs.Description or ""
