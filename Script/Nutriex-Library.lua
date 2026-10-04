@@ -1690,40 +1690,104 @@ function NutriexLibrary:MakeWindow(Configs)
     end)
     
     function Window:AddMinimizeButton(MinConfigs)
-        MinConfigs = MinConfigs or {}
-        local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-            Size = UDim2.fromOffset(35, 35),
-            Position = UDim2.fromScale(0.15, 0.15),
-            BackgroundTransparency = 0.2,
-            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
-            AutoButtonColor = false,
-            Name = "FloatingMinimizeBtn"
-        }))
-        
-        local Stroke, Corner
-        if MinConfigs.Corner then
-            Corner = Make("Corner", Button)
-            SetProps(Corner, MinConfigs.Corner)
-        end
-        if MinConfigs.Stroke then
-            Stroke = Make("Stroke", Button)
-            SetProps(Stroke, MinConfigs.Stroke)
-        end
-        
-        if MinConfigs.Button then
-            SetProps(Button, MinConfigs.Button)
-        end
-        
-        Button.Activated:Connect(function()
-            Window:Minimize()
-        end)
-        
-        return {
-            Stroke = Stroke,
-            Corner = Corner,
-            Button = Button
-        }
+    MinConfigs = MinConfigs or {}
+    
+    local BaseColor = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20)
+    local AccentColor = typeof(Theme["Color Hub 1"]) == "Color3" and Theme["Color Hub 1"] or Color3.fromRGB(120, 90, 255)
+    
+    -- Botão Principal (Mantém a compatibilidade com a Image no botão original)
+    local Button = MakeDrag(Create("ImageButton", ScreenGui, {
+        Size = UDim2.fromOffset(38, 38),
+        Position = UDim2.fromScale(0.15, 0.15),
+        BackgroundTransparency = 0,
+        BackgroundColor3 = BaseColor,
+        AutoButtonColor = false,
+        Name = "FloatingMinimizeBtn",
+        ClipsDescendants = false
+    }))
+
+    -- Cantos Arredondados Padrão
+    local Corner = Make("Corner", Button)
+    Corner.CornerRadius = UDim.new(0, 7)
+
+    -- Borda Fluida Elegante
+    local Stroke = Make("Stroke", Button)
+    Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Transparency = 0.85
+    Stroke.Thickness = 1.2
+
+    -- Gradiente no Fundo para dar Efeito Visual Moderno
+    local Gradient = Create("UIGradient", Button, {
+        Rotation = 45,
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(1, BaseColor)
+        }),
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0.88),
+            NumberSequenceKeypoint.new(1, 0.98)
+        })
+    })
+
+    -- Sombra Projetada Suave (Drop Shadow)
+    local Shadow = Create("ImageLabel", Button, {
+        Name = "Shadow",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.55),
+        Size = UDim2.new(1, 16, 1, 16),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://6015897843",
+        ImageColor3 = Color3.fromRGB(0, 0, 0),
+        ImageTransparency = 0.5,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 499, 499),
+        ZIndex = -1
+    })
+
+    -- Sobrescreve as propriedades com as enviadas pela chamada Window:AddMinimizeButton
+    if MinConfigs.Corner then 
+        SetProps(Corner, MinConfigs.Corner) 
     end
+    if MinConfigs.Stroke then 
+        SetProps(Stroke, MinConfigs.Stroke) 
+    end
+    if MinConfigs.Button then 
+        SetProps(Button, MinConfigs.Button) 
+    end
+
+    -- Animações Suaves Interativas (Tween)
+    local TweenService = game:GetService("TweenService")
+    local TweenInfoFast = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
+    Button.MouseEnter:Connect(function()
+        TweenService:Create(Button, TweenInfoFast, {Size = UDim2.fromOffset(41, 41)}):Play()
+        TweenService:Create(Stroke, TweenInfoFast, {Transparency = 0.4, Color = AccentColor}):Play()
+    end)
+
+    Button.MouseLeave:Connect(function()
+        TweenService:Create(Button, TweenInfoFast, {Size = UDim2.fromOffset(38, 38)}):Play()
+        TweenService:Create(Stroke, TweenInfoFast, {Transparency = 0.85, Color = Color3.fromRGB(255, 255, 255)}):Play()
+    end)
+
+    Button.MouseButton1Down:Connect(function()
+        TweenService:Create(Button, TweenInfoFast, {Size = UDim2.fromOffset(35, 35)}):Play()
+    end)
+
+    Button.MouseButton1Up:Connect(function()
+        TweenService:Create(Button, TweenInfoFast, {Size = UDim2.fromOffset(41, 41)}):Play()
+    end)
+
+    Button.Activated:Connect(function()
+        Window:Minimize()
+    end)
+
+    return {
+        Stroke = Stroke,
+        Corner = Corner,
+        Button = Button
+    }
+end
 
     function Window:Set(Val1, Val2)
         if type(Val1) == "string" then
