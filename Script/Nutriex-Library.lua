@@ -1123,8 +1123,41 @@ local GetFlag, SetFlag, CheckFlag do
 	end)
 end
 
+-- Tabela de caracteres do Base64 padrão
+local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+local Base64 = {}
+
+-- Função para Codificar texto/bytes em Base64
+function Base64.Encode(data)
+    return ((data:gsub('.', function(x) 
+        local r, b = '', x:byte()
+        for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
+        return r;
+    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c = 0
+        for i = 1, 6 do c = c + (x:sub(i,i) == '1' and 2^(6-i) or 0) end
+        return b:sub(c+1, c+1)
+    end) .. ({ '', '==', '=' })[#data%3 + 1])
+end
+
+-- Função para Gerar Letras/Texto Aleatório em Base64
+function Base64.Random(length)
+    length = length or 16
+    local bytes = {}
+    for i = 1, length do
+        -- Gera bytes aleatórios de 0 a 255
+        bytes[i] = string.char(math.random(0, 255))
+    end
+    -- Codifica os bytes aleatórios gerados para o formato Base64
+    local rawString = table.concat(bytes)
+    return Base64.Encode(rawString):sub(1, length) -- Corta para o tamanho desejado
+end
+local randomGuiName = "" .. Base64.Random(12)
+
 local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = "Nutriex-Library",
+	Name = randomGuiName,
 }, {
 	Create("UIScale", {
 		Scale = UIScale,
