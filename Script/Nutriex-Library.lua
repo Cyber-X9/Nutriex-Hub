@@ -1090,13 +1090,13 @@ end
 --// Nutriex Security | By CyberX \\-- 
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
-local Set = {}
+local Base64 = {}
 
-function Set.Encode(data)
+function Base64.Encode(data)
     return ((data:gsub('.', function(x) 
-        local r, b_val = '', x:byte()
-        for i = 8, 1, -1 do r = r .. (b_val % 2^i - b_val % 2^(i-1) > 0 and '1' or '0') end
-        return r
+        local r, b = '', x:byte()
+        for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
+        return r;
     end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
         if (#x < 6) then return '' end
         local c = 0
@@ -1105,108 +1105,20 @@ function Set.Encode(data)
     end) .. ({ '', '==', '=' })[#data%3 + 1])
 end
 
-function Set.RandomString(length)
+function Base64.Random(length)
     length = length or 16
     local bytes = {}
     for i = 1, length do
         bytes[i] = string.char(math.random(0, 255))
     end
     local rawString = table.concat(bytes)
-    return Set.Encode(rawString):sub(1, length) 
+    return Base64.Encode(rawString):sub(1, length) 
 end
 
-local AntiBan = {}
-AntiBan.Enabled = true
-AntiBan.StaffList = {}
-
-local Services = {
-    Players = game:GetService("Players"),
-    TeleportService = game:GetService("TeleportService"),
-    HttpService = game:GetService("HttpService"),
-    StarterGui = game:GetService("StarterGui")
-}
-
-local LocalPlayer = Services.Players.LocalPlayer
-
-local function ShowNotification(title, text, duration)
-    pcall(function()
-        Services.StarterGui:SetCore("SendNotification", {
-            Title = title,
-            Text = text,
-            Duration = duration or 5
-        })
-    end)
-end
-
-local function ServerHop()
-    ShowNotification("Nutriex Security", "Searching for a safe server...", 5)
-    
-    local servers = {}
-    local req = request or http_request or (syn and syn.request)
-    
-    if req then
-        local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
-        local success, response = pcall(function()
-            return Services.HttpService:JSONDecode(req({Url = url}).Body)
-        end)
-        
-        if success and response and response.data then
-            for _, server in ipairs(response.data) do
-                if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    table.insert(servers, server.id)
-                end
-            end
-        end
-    end
-
-    if #servers > 0 then
-        Services.TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
-    else
-        Services.TeleportService:Teleport(game.PlaceId, LocalPlayer)
-    end
-end
-
-local function IsStaff(player)
-    if table.find(AntiBan.StaffList, player.UserId) then
-        return true
-    end
-    return false
-end
-
-local isHopping = false
-local function ActionOnStaffFound(staffPlayer)
-    if not AntiBan.Enabled or isHopping then return end
-    isHopping = true
-    
-    local staffName = staffPlayer.Name
-    ShowNotification("Nutriex Security", "Admin " .. staffName .. " joined. Hopping server in 3s...", 3)
-    
-    task.wait(3)
-    ServerHop()
-end
-
-local function ApplyHooks()
-    local oldNamecall
-    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-        local method = getnamecallmethod()
-        if not checkcaller() and AntiBan.Enabled then
-            if method == "FireServer" or method == "InvokeServer" then
-                local name = self.Name:lower()
-                if name:find("ban") or name:find("report") or name:find("cheat") or name:find("detect") or name:find("log") then
-                    return nil
-                end
-            end
-        end
-        return oldNamecall(self, ...)
-    end)
-end
-
-function AntiBan:Init(customStaffList)
-
-local GuiName = "" .. Set.AntiBan(12)
+local randomGuiName = "" .. Base64.Random(12)
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = GuiName,
+	Name = randomGuiName,
 }, {
 	Create("UIScale", {
 		Scale = UIScale,
