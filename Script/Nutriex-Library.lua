@@ -1087,7 +1087,7 @@ local GetFlag, SetFlag, CheckFlag do
 		end
 	end)
 end
---// Nutriex Security - Only an advanced Anti-ban | By CyberX \\-- 
+--// Nutriex Security | By CyberX \\-- 
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
 local Set = {}
@@ -1119,14 +1119,13 @@ local AntiBan = {}
 AntiBan.Enabled = true
 AntiBan.StaffList = {}
 
-local Services = setmetatable({}, {
-    __index = function(self, serviceName)
-        local rawService = game:GetService(serviceName)
-        return (cloneref and cloneref(rawService)) or rawService
-    end
-})
+local Services = {
+    Players = game:GetService("Players"),
+    TeleportService = game:GetService("TeleportService"),
+    HttpService = game:GetService("HttpService"),
+    StarterGui = game:GetService("StarterGui")
+}
 
-local CoreGui = if typeof(gethui) == "function" then gethui() else Services.CoreGui
 local LocalPlayer = Services.Players.LocalPlayer
 
 local function ShowNotification(title, text, duration)
@@ -1203,59 +1202,21 @@ local function ApplyHooks()
 end
 
 function AntiBan:Init(customStaffList)
-    if customStaffList and type(customStaffList) == "table" then
-        self.StaffList = customStaffList
-    end
 
-    pcall(ApplyHooks)
+local GuiName = "" .. Set.AntiBan(12)
 
-    for _, player in ipairs(Services.Players:GetPlayers()) do
-        if player ~= LocalPlayer and IsStaff(player) then
-            task.spawn(function()
-                ActionOnStaffFound(player)
-            end)
-            break
-        end
-    end
+local ScreenGui = Create("ScreenGui", CoreGui, {
+	Name = GuiName,
+}, {
+	Create("UIScale", {
+		Scale = UIScale,
+		Name = "Scale"
+	})
+})
 
-    Services.Players.PlayerAdded:Connect(function(player)
-        if IsStaff(player) then
-            ActionOnStaffFound(player)
-        end
-    end)
-
-    local GuiName = Set.RandomString(16)
-
-    local ScreenGui = Create("ScreenGui", CoreGui, {
-        Name = GuiName,
-        ResetOnSpawn = false,
-        DisplayOrder = 999
-    }, {
-        Create("UIScale", {
-            Scale = UIScale,
-            Name = "Scale"
-        })
-    })
-
-    if syn and syn.protect_gui then
-        syn.protect_gui(ScreenGui)
-    elseif protectgui then
-        protectgui(ScreenGui)
-    end
-
-    local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
-    if ScreenFind and ScreenFind ~= ScreenGui then
-        ScreenFind:Destroy()
-    end
-
-	AntiBan:Init()
-				
-    task.spawn(function()
-        while ScreenGui and ScreenGui.Parent do
-            task.wait(math.random(20, 35))
-            ScreenGui.Name = Set.RandomString(math.random(16, 24))
-        end
-    end)
+local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
+if ScreenFind and ScreenFind ~= ScreenGui then
+	ScreenFind:Destroy()
 end
 
 local function GetStr(val)
