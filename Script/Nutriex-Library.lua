@@ -3125,7 +3125,7 @@ function Tab:AddDiscordInvite(Configs)
         TextColor3 = Color3.fromRGB(88, 101, 242),
         BackgroundColor3 = Color3.fromRGB(88, 101, 242),
         BackgroundTransparency = 0.88,
-        Font = Enum.Font.UbuntuBold,
+        Font = Enum.Font.Ubuntu,
         TextSize = 9,
         Text = "  " .. Invite .. "  ",
         ZIndex = 2
@@ -3135,7 +3135,7 @@ function Tab:AddDiscordInvite(Configs)
     local LTitle = InsertTheme(Create("TextLabel", HeaderFrame, {
         Size = UDim2.new(1, -120, 0, 16),
         Position = UDim2.fromOffset(44, 0),
-        Font = Enum.Font.UbuntuBold,
+        Font = Enum.Font.Ubuntu,
         TextColor3 = Theme["Color Text"],
         TextXAlignment = Enum.TextXAlignment.Left,
         BackgroundTransparency = 1,
@@ -3162,7 +3162,7 @@ function Tab:AddDiscordInvite(Configs)
         Size = UDim2.new(1, 0, 0, 26),
         Position = UDim2.new(0, 0, 0, 46),
         Text = "Join Discord Server",
-        Font = Enum.Font.UbuntuBold,
+        Font = Enum.Font.Ubuntu,
         TextSize = 11,
         TextColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundColor3 = Color3.fromRGB(88, 101, 242),
