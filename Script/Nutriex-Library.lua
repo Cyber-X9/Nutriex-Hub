@@ -3216,5 +3216,4 @@ end
 	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
 	return Window
 end
-return AntiBan
 return NutriexLibrary
