@@ -1248,6 +1248,8 @@ function AntiBan:Init(customStaffList)
         ScreenFind:Destroy()
     end
 
+	AntiBan:Init()
+				
     task.spawn(function()
         while ScreenGui and ScreenGui.Parent do
             task.wait(math.random(20, 35))
