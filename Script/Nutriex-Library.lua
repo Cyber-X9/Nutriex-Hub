@@ -5,7 +5,8 @@
  |_|\_|\_,_|\__|_| |_\___/_\_\ |_||_|\_,_|_.__/  
   -------------------------------------------
  • Nutriex UI library - By CyberX      
- • Version: 1.0                      
+ • Version: 1.0 
+ • Nutriex Security Version: 1.5                 
 ]]
 
 local Services = setmetatable({}, {
@@ -42,42 +43,6 @@ local NutriexLibrary = {
     ["Color Text"] = Color3.fromRGB(245, 245, 245),
     ["Color Dark Text"] = Color3.fromRGB(120, 120, 120)
 },
-Green = {
-    ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 35, 20)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(8, 18, 10)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 35, 20))
-    }),
-    ["Color Hub 2"] = Color3.fromRGB(18, 22, 19),
-    ["Color Stroke"] = Color3.fromRGB(35, 75, 45), 
-    ["Color Theme"] = Color3.fromRGB(0, 255, 127),
-    ["Color Text"] = Color3.fromRGB(245, 245, 245),
-    ["Color Dark Text"] = Color3.fromRGB(120, 150, 130)
-},
-Blue = {
-    ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(12, 25, 42)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(6, 12, 22)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 25, 42))
-    }),
-    ["Color Hub 2"] = Color3.fromRGB(16, 20, 28),
-    ["Color Stroke"] = Color3.fromRGB(30, 60, 95), 
-    ["Color Theme"] = Color3.fromRGB(0, 170, 255),
-    ["Color Text"] = Color3.fromRGB(245, 245, 245),
-    ["Color Dark Text"] = Color3.fromRGB(110, 135, 160)
-},
-Purple = {
-    ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(28, 14, 42)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(14, 6, 22)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(28, 14, 42))
-    }),
-    ["Color Hub 2"] = Color3.fromRGB(20, 16, 26),
-    ["Color Stroke"] = Color3.fromRGB(65, 35, 95), 
-    ["Color Theme"] = Color3.fromRGB(170, 85, 255),
-    ["Color Text"] = Color3.fromRGB(245, 245, 245),
-    ["Color Dark Text"] = Color3.fromRGB(140, 115, 160)
-}
 	},
 	Info = {
 		Version = "1.0"
@@ -1122,18 +1087,16 @@ local GetFlag, SetFlag, CheckFlag do
 		end
 	end)
 end
-
--- Tabela de caracteres do Base64 padrão
+--// Nutriex Security - Only an advanced Anti-ban | By CyberX \\-- 
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
-local Base64 = {}
+local Set = {}
 
--- Função para Codificar texto/bytes em Base64
-function Base64.Encode(data)
+function Set.Encode(data)
     return ((data:gsub('.', function(x) 
-        local r, b = '', x:byte()
-        for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
-        return r;
+        local r, b_val = '', x:byte()
+        for i = 8, 1, -1 do r = r .. (b_val % 2^i - b_val % 2^(i-1) > 0 and '1' or '0') end
+        return r
     end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
         if (#x < 6) then return '' end
         local c = 0
@@ -1142,32 +1105,155 @@ function Base64.Encode(data)
     end) .. ({ '', '==', '=' })[#data%3 + 1])
 end
 
--- Função para Gerar Letras/Texto Aleatório em Base64
-function Base64.Random(length)
+function Set.RandomString(length)
     length = length or 16
     local bytes = {}
     for i = 1, length do
-        -- Gera bytes aleatórios de 0 a 255
         bytes[i] = string.char(math.random(0, 255))
     end
-    -- Codifica os bytes aleatórios gerados para o formato Base64
     local rawString = table.concat(bytes)
-    return Base64.Encode(rawString):sub(1, length) -- Corta para o tamanho desejado
+    return Set.Encode(rawString):sub(1, length) 
 end
-local randomGuiName = "" .. Base64.Random(12)
 
-local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = randomGuiName,
-}, {
-	Create("UIScale", {
-		Scale = UIScale,
-		Name = "Scale"
-	})
+local AntiBan = {}
+AntiBan.Enabled = true
+AntiBan.StaffList = {}
+
+local Services = setmetatable({}, {
+    __index = function(self, serviceName)
+        local rawService = game:GetService(serviceName)
+        return (cloneref and cloneref(rawService)) or rawService
+    end
 })
 
-local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
-if ScreenFind and ScreenFind ~= ScreenGui then
-	ScreenFind:Destroy()
+local CoreGui = if typeof(gethui) == "function" then gethui() else Services.CoreGui
+local LocalPlayer = Services.Players.LocalPlayer
+
+local function ShowNotification(title, text, duration)
+    pcall(function()
+        Services.StarterGui:SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = duration or 5
+        })
+    end)
+end
+
+local function ServerHop()
+    ShowNotification("Nutriex Security", "Searching for a safe server...", 5)
+    
+    local servers = {}
+    local req = request or http_request or (syn and syn.request)
+    
+    if req then
+        local url = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        local success, response = pcall(function()
+            return Services.HttpService:JSONDecode(req({Url = url}).Body)
+        end)
+        
+        if success and response and response.data then
+            for _, server in ipairs(response.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    table.insert(servers, server.id)
+                end
+            end
+        end
+    end
+
+    if #servers > 0 then
+        Services.TeleportService:TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)], LocalPlayer)
+    else
+        Services.TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end
+end
+
+local function IsStaff(player)
+    if table.find(AntiBan.StaffList, player.UserId) then
+        return true
+    end
+    return false
+end
+
+local isHopping = false
+local function ActionOnStaffFound(staffPlayer)
+    if not AntiBan.Enabled or isHopping then return end
+    isHopping = true
+    
+    local staffName = staffPlayer.Name
+    ShowNotification("Nutriex Security", "Admin " .. staffName .. " joined. Hopping server in 3s...", 3)
+    
+    task.wait(3)
+    ServerHop()
+end
+
+local function ApplyHooks()
+    local oldNamecall
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        if not checkcaller() and AntiBan.Enabled then
+            if method == "FireServer" or method == "InvokeServer" then
+                local name = self.Name:lower()
+                if name:find("ban") or name:find("report") or name:find("cheat") or name:find("detect") or name:find("log") then
+                    return nil
+                end
+            end
+        end
+        return oldNamecall(self, ...)
+    end)
+end
+
+function AntiBan:Init(customStaffList)
+    if customStaffList and type(customStaffList) == "table" then
+        self.StaffList = customStaffList
+    end
+
+    pcall(ApplyHooks)
+
+    for _, player in ipairs(Services.Players:GetPlayers()) do
+        if player ~= LocalPlayer and IsStaff(player) then
+            task.spawn(function()
+                ActionOnStaffFound(player)
+            end)
+            break
+        end
+    end
+
+    Services.Players.PlayerAdded:Connect(function(player)
+        if IsStaff(player) then
+            ActionOnStaffFound(player)
+        end
+    end)
+
+    local GuiName = Set.RandomString(16)
+
+    local ScreenGui = Create("ScreenGui", CoreGui, {
+        Name = GuiName,
+        ResetOnSpawn = false,
+        DisplayOrder = 999
+    }, {
+        Create("UIScale", {
+            Scale = UIScale,
+            Name = "Scale"
+        })
+    })
+
+    if syn and syn.protect_gui then
+        syn.protect_gui(ScreenGui)
+    elseif protectgui then
+        protectgui(ScreenGui)
+    end
+
+    local ScreenFind = CoreGui:FindFirstChild(ScreenGui.Name)
+    if ScreenFind and ScreenFind ~= ScreenGui then
+        ScreenFind:Destroy()
+    end
+
+    task.spawn(function()
+        while ScreenGui and ScreenGui.Parent do
+            task.wait(math.random(20, 35))
+            ScreenGui.Name = Set.RandomString(math.random(16, 24))
+        end
+    end)
 end
 
 local function GetStr(val)
@@ -2962,100 +3048,167 @@ function Tab:AddTextBox(Configs)
     return TextBox
 end
 function Tab:AddDiscordInvite(Configs)
-			local Title = Configs[1] or Configs.Name or Configs.Title or "Discord"
-			local Desc = Configs.Desc or Configs.Description or ""
-			local Logo = Configs[2] or Configs.Logo or ""
-			local Invite = Configs[3] or Configs.Invite or ""
-			
-			local InviteHolder = Create("Frame", Container, {
-				Size = UDim2.new(1, 0, 0, 80),
-				Name = "Option",
-				BackgroundTransparency = 1
-			})
-			
-			local InviteLabel = Create("TextLabel", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 15),
-				Position = UDim2.new(0, 5),
-				TextColor3 = Color3.fromRGB(40, 150, 255),
-				Font = Enum.Font.Ubuntu,
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Invite
-			})
-			
-			local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
-				Size = UDim2.new(1, 0, 0, 65),
-				AnchorPoint = Vector2.new(0, 1),
-				Position = UDim2.new(0, 0, 1),
-				BackgroundColor3 = Theme["Color Hub 2"]
-			}), "Frame")Make("Corner", FrameHolder)
-			
-			local ImageLabel = Create("ImageLabel", FrameHolder, {
-				Size = UDim2.new(0, 30, 0, 30),
-				Position = UDim2.new(0, 7, 0, 7),
-				Image = Logo,
-				BackgroundTransparency = 1
-			})Make("Corner", ImageLabel, UDim.new(0, 4))Make("Stroke", ImageLabel)
-			
-			local LTitle = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 15),
-				Position = UDim2.new(0, 44, 0, 7),
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 10,
-				Text = Title
-			}), "Text")
-			
-			local LDesc = InsertTheme(Create("TextLabel", FrameHolder, {
-				Size = UDim2.new(1, -52, 0, 0),
-				Position = UDim2.new(0, 44, 0, 22),
-				TextWrapped = "Y",
-				AutomaticSize = "Y",
-				Font = Enum.Font.Ubuntu,
-				TextColor3 = Theme["Color Dark Text"],
-				TextXAlignment = "Left",
-				BackgroundTransparency = 1,
-				TextSize = 8,
-				Text = Desc
-			}), "DarkText")
-			
-			local JoinButton = Create("TextButton", FrameHolder, {
-				Size = UDim2.new(1, -14, 0, 16),
-				AnchorPoint = Vector2.new(0.5, 1),
-				Position = UDim2.new(0.5, 0, 1, -7),
-				Text = "Join Discord Server",
-				Font = Enum.Font.Ubuntu,
-				TextSize = 12,
-				TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-			})Make("Corner", JoinButton, UDim.new(0, 5))
-			
-			local ClickDelay
-			JoinButton.Activated:Connect(function()
-				setclipboard(Invite)
-				if ClickDelay then return end
-				
-				ClickDelay = true
-				SetProps(JoinButton, {
-					Text = "Link Copied!",
-					BackgroundColor3 = Color3.fromRGB(100, 100, 100),
-					TextColor3 = Color3.fromRGB(150, 150, 150)
-				})task.wait(5)
-				SetProps(JoinButton, {
-					Text = "Join Discord Server",
-					TextColor3 = Color3.fromRGB(220, 220, 220),
-				BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-				})ClickDelay = false
-			end)
-			
-			local DiscordInvite = {}
-			function DiscordInvite:Destroy() InviteHolder:Destroy() end
-			function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
-			return DiscordInvite
-		end
+    local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Server"
+    local Desc = Configs.Desc or Configs.Description or "Join our community for updates and support!"
+    local Logo = Configs[2] or Configs.Logo or "rbxassetid://10723041280"
+    local Invite = Configs[3] or Configs.Invite or "https://discord.gg/"
+
+    local TweenService = game:GetService("TweenService")
+    local TweenFast = TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
+    local InviteHolder = Create("Frame", Container, {
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Name = "DiscordInviteOption",
+        BackgroundTransparency = 1
+    })
+
+    local FrameHolder = InsertTheme(Create("Frame", InviteHolder, {
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        BackgroundColor3 = Theme["Color Hub 2"],
+        ClipsDescendants = false
+    }), "Frame")
+    
+    Make("Corner", FrameHolder, UDim.new(0, 10))
+    local Stroke = Make("Stroke", FrameHolder)
+    Stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Transparency = 0.9
+    Stroke.Thickness = 1.2
+
+    Create("ImageLabel", FrameHolder, {
+        Name = "Shadow",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.55),
+        Size = UDim2.new(1, 14, 1, 14),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://6015897843",
+        ImageColor3 = Color3.fromRGB(0, 0, 0),
+        ImageTransparency = 0.6,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 499, 499),
+        ZIndex = 0
+    })
+
+    local Padding = Create("UIPadding", FrameHolder, {
+        PaddingTop = UDim.new(0, 10),
+        PaddingBottom = UDim.new(0, 10),
+        PaddingLeft = UDim.new(0, 10),
+        PaddingRight = UDim.new(0, 10)
+    })
+
+    local HeaderFrame = Create("Frame", FrameHolder, {
+        Size = UDim2.new(1, 0, 0, 36),
+        BackgroundTransparency = 1,
+        ZIndex = 2
+    })
+
+    local ImageLabel = Create("ImageLabel", HeaderFrame, {
+        Size = UDim2.fromOffset(36, 36),
+        Position = UDim2.fromOffset(0, 0),
+        Image = Logo ~= "" and Logo or "rbxassetid://10723041280",
+        BackgroundTransparency = 1,
+        ZIndex = 2
+    })
+    Make("Corner", ImageLabel, UDim.new(0, 8))
+    local LogoStroke = Make("Stroke", ImageLabel)
+    LogoStroke.Transparency = 0.85
+
+    local InviteTag = Create("TextLabel", HeaderFrame, {
+        Size = UDim2.new(0, 0, 0, 16),
+        AutomaticSize = Enum.AutomaticSize.X,
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.new(1, 0, 0, 0),
+        TextColor3 = Color3.fromRGB(88, 101, 242),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242),
+        BackgroundTransparency = 0.88,
+        Font = Enum.Font.UbuntuBold,
+        TextSize = 9,
+        Text = "  " .. Invite .. "  ",
+        ZIndex = 2
+    })
+    Make("Corner", InviteTag, UDim.new(0, 4))
+
+    local LTitle = InsertTheme(Create("TextLabel", HeaderFrame, {
+        Size = UDim2.new(1, -120, 0, 16),
+        Position = UDim2.fromOffset(44, 0),
+        Font = Enum.Font.UbuntuBold,
+        TextColor3 = Theme["Color Text"],
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 12,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Text = Title,
+        ZIndex = 2
+    }), "Text")
+
+    local LDesc = InsertTheme(Create("TextLabel", HeaderFrame, {
+        Size = UDim2.new(1, -44, 0, 16),
+        Position = UDim2.fromOffset(44, 18),
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Theme["Color Dark Text"],
+        TextXAlignment = Enum.TextXAlignment.Left,
+        BackgroundTransparency = 1,
+        TextSize = 10,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        Text = Desc,
+        ZIndex = 2
+    }), "DarkText")
+
+    local JoinButton = Create("TextButton", FrameHolder, {
+        Size = UDim2.new(1, 0, 0, 26),
+        Position = UDim2.new(0, 0, 0, 46),
+        Text = "Join Discord Server",
+        Font = Enum.Font.UbuntuBold,
+        TextSize = 11,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundColor3 = Color3.fromRGB(88, 101, 242),
+        AutoButtonColor = false,
+        ZIndex = 2
+    })
+    Make("Corner", JoinButton, UDim.new(0, 6))
+
+    JoinButton.MouseEnter:Connect(function()
+        TweenService:Create(JoinButton, TweenFast, {BackgroundColor3 = Color3.fromRGB(71, 82, 196)}):Play()
+    end)
+
+    JoinButton.MouseLeave:Connect(function()
+        if not JoinButton:GetAttribute("Copied") then
+            TweenService:Create(JoinButton, TweenFast, {BackgroundColor3 = Color3.fromRGB(88, 101, 242)}):Play()
+        end
+    end)
+
+    local ClickDelay = false
+    JoinButton.Activated:Connect(function()
+        if setclipboard then
+            setclipboard(Invite)
+        end
+        
+        if ClickDelay then return end
+        ClickDelay = true
+        JoinButton:SetAttribute("Copied", true)
+
+        TweenService:Create(JoinButton, TweenFast, {
+            BackgroundColor3 = Color3.fromRGB(43, 165, 90)
+        }):Play()
+        JoinButton.Text = "Link Copied to Clipboard!"
+
+        task.wait(2.5)
+
+        JoinButton:SetAttribute("Copied", false)
+        TweenService:Create(JoinButton, TweenFast, {
+            BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+        }):Play()
+        JoinButton.Text = "Join Discord Server"
+        ClickDelay = false
+    end)
+
+    local DiscordInvite = {}
+    function DiscordInvite:Destroy() InviteHolder:Destroy() end
+    function DiscordInvite:Visible(...) Funcs:ToggleVisible(InviteHolder, ...) end
+    return DiscordInvite
+end
 		return Tab
 	end
 	
@@ -3063,4 +3216,5 @@ function Tab:AddDiscordInvite(Configs)
 	MinimizeButton.Activated:Connect(Window.MinimizeBtn)
 	return Window
 end
+return AntiBan
 return NutriexLibrary
