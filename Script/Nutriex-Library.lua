@@ -1368,7 +1368,6 @@ local function GetColor(Instance)
 	return ""
 end
 
--- /////////// --
 function NutriexLibrary:GetIcon(index)
 	if type(index) ~= "string" or index:find("rbxassetid://") or #index == 0 then
 		return index
@@ -1450,9 +1449,9 @@ function NutriexLibrary:MakeWindow(Configs)
     LoadFile()
     
     local SaveData = NutriexLibrary.Save or {}
-    local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
-    local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
-    local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
+    local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 540, 450, 1000)
+    local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 360, 240, 520)
+    local TabSizeX = math.clamp(SaveData.TabSize or 165, 140, 250)
 
     local MainBgColor = Color3.fromRGB(255, 255, 255)
     if typeof(Theme["Color Hub 1"]) == "Color3" then
@@ -1462,13 +1461,12 @@ function NutriexLibrary:MakeWindow(Configs)
     local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
         Size = UDim2.fromOffset(UISizeX, UISizeY),
         Position = UDim2.new(0.5, -UISizeX / 2, 0.5, -UISizeY / 2),
-        BackgroundTransparency = 0.05,
+        BackgroundTransparency = 0.01,
         BackgroundColor3 = MainBgColor,
         Name = "Hub",
         AutoButtonColor = false
     }), "Main")
     
-    -- Aplica o ColorSequence no UIGradient
     if typeof(Theme["Color Hub 1"]) == "ColorSequence" then
         Create("UIGradient", MainFrame, {
             Color = Theme["Color Hub 1"],
@@ -1480,12 +1478,12 @@ function NutriexLibrary:MakeWindow(Configs)
 
     local MainCorner = Make("Corner", MainFrame)
     if MainCorner:IsA("UICorner") then
-        MainCorner.CornerRadius = UDim.new(0, 10)
+        MainCorner.CornerRadius = UDim.new(0, 14)
     end
 
     Make("Stroke", MainFrame, {
-        Color = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
-        Transparency = 0.4
+        Color = Theme["Color Stroke"] or Color3.fromRGB(60, 60, 60),
+        Transparency = 0.25
     })
 
     MakeDrag(MainFrame)
@@ -1494,21 +1492,21 @@ function NutriexLibrary:MakeWindow(Configs)
     local DropdownHolder = Create("Folder", ScreenGui, { Name = "Dropdown" })
     
     local TopBar = Create("Frame", Components, {
-        Size = UDim2.new(1, 0, 0, 30),
+        Size = UDim2.new(1, 0, 0, 40),
         BackgroundTransparency = 1,
         Name = "Top Bar"
     })
     
     local Title = InsertTheme(Create("TextLabel", TopBar, {
-        Position = UDim2.new(0, 15, 0.5, 0),
+        Position = UDim2.new(0, 20, 0.5, 0),
         AnchorPoint = Vector2.new(0, 0.5),
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = WTitle,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = 13,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
+        TextSize = 15,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
-        Font = Enum.Font.Ubuntu,
+        Font = Enum.Font.GothamBold,
         Name = "Title"
     }), "Text")
     
@@ -1516,14 +1514,14 @@ function NutriexLibrary:MakeWindow(Configs)
         Size = UDim2.fromScale(0, 1),
         AutomaticSize = Enum.AutomaticSize.X,
         AnchorPoint = Vector2.new(0, 1),
-        Position = UDim2.new(1, 6, 0.85, 0),
+        Position = UDim2.new(1, 10, 0.85, 0),
         Text = WMiniText,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(130, 130, 130),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Bottom,
-        TextSize = 9,
-        Font = Enum.Font.Ubuntu,
+        TextSize = 11,
+        Font = Enum.Font.Gotham,
         Name = "SubTitle"
     }), "DarkText")
     
@@ -1531,9 +1529,9 @@ function NutriexLibrary:MakeWindow(Configs)
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
         AnchorPoint = Vector2.new(0, 1),
-        ScrollBarThickness = 2,
+        ScrollBarThickness = 3,
         BackgroundTransparency = 1,
-        ScrollBarImageTransparency = 0.3,
+        ScrollBarImageTransparency = 0.15,
         ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(255, 255, 255),
         CanvasSize = UDim2.new(0, 0, 0, 0),
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -1542,13 +1540,13 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "Tab Scroll"
     }, {
         Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 10),
-            PaddingRight = UDim.new(0, 10),
-            PaddingTop = UDim.new(0, 8),
-            PaddingBottom = UDim.new(0, 8)
+            PaddingLeft = UDim.new(0, 14),
+            PaddingRight = UDim.new(0, 14),
+            PaddingTop = UDim.new(0, 14),
+            PaddingBottom = UDim.new(0, 14)
         }),
         Create("UIListLayout", {
-            Padding = UDim.new(0, 5),
+            Padding = UDim.new(0, 8),
             SortOrder = Enum.SortOrder.LayoutOrder
         })
     }), "ScrollBar")
@@ -1572,7 +1570,7 @@ function NutriexLibrary:MakeWindow(Configs)
     }))
     
     local ControlSize2 = MakeDrag(Create("ImageButton", MainFrame, {
-        Size = UDim2.new(0, 20, 1, -30),
+        Size = UDim2.new(0, 20, 1, -40),
         Position = UDim2.new(0, TabSizeX, 1, 0),
         AnchorPoint = Vector2.new(0.5, 1),
         Active = true,
@@ -1587,9 +1585,9 @@ function NutriexLibrary:MakeWindow(Configs)
         if Minimized then return end
         
         local Pos1, Pos2 = ControlSize1.Position, ControlSize2.Position
-        local NewWidth = math.clamp(Pos1.X.Offset, 430, 1000)
-        local NewHeight = math.clamp(Pos1.Y.Offset, 200, 500)
-        local NewTabWidth = math.clamp(Pos2.X.Offset, 135, 250)
+        local NewWidth = math.clamp(Pos1.X.Offset, 450, 1000)
+        local NewHeight = math.clamp(Pos1.Y.Offset, 240, 520)
+        local NewTabWidth = math.clamp(Pos2.X.Offset, 140, 250)
         
         ControlSize1.Position = UDim2.fromOffset(NewWidth, NewHeight)
         ControlSize2.Position = UDim2.new(0, NewTabWidth, 1, 0)
@@ -1621,25 +1619,25 @@ function NutriexLibrary:MakeWindow(Configs)
     local ButtonsFolder = Create("Folder", TopBar, { Name = "Buttons" })
     
     local CloseButton = Create("ImageButton", {
-        Size = UDim2.new(0, 15, 0, 15),
-        Position = UDim2.new(1, -12, 0.5, 0),
+        Size = UDim2.new(0, 18, 0, 18),
+        Position = UDim2.new(1, -16, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundTransparency = 1,
         Image = "rbxassetid://10747384394",
-        ImageTransparency = 0.3,
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
+        ImageTransparency = 0.2,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         AutoButtonColor = false,
         Name = "Close"
     })
     
     local MinimizeButton = Create("ImageButton", {
-        Size = UDim2.new(0, 15, 0, 15),
-        Position = UDim2.new(1, -34, 0.5, 0),
+        Size = UDim2.new(0, 18, 0, 18),
+        Position = UDim2.new(1, -42, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundTransparency = 1,
         Image = "rbxassetid://10734896206",
-        ImageTransparency = 0.3,
-        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
+        ImageTransparency = 0.2,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         AutoButtonColor = false,
         Name = "Minimize"
     })
@@ -1649,18 +1647,18 @@ function NutriexLibrary:MakeWindow(Configs)
     
     CloseButton.MouseEnter:Connect(function()
         CreateTween({CloseButton, "ImageTransparency", 0, 0.15})
-        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 75, 75), 0.15})
+        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 85, 85), 0.15})
     end)
     CloseButton.MouseLeave:Connect(function()
-        CreateTween({CloseButton, "ImageTransparency", 0.3, 0.15})
-        CreateTween({CloseButton, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(245, 245, 245), 0.15})
+        CreateTween({CloseButton, "ImageTransparency", 0.2, 0.15})
+        CreateTween({CloseButton, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(255, 255, 255), 0.15})
     end)
 
     MinimizeButton.MouseEnter:Connect(function()
         CreateTween({MinimizeButton, "ImageTransparency", 0, 0.15})
     end)
     MinimizeButton.MouseLeave:Connect(function()
-        CreateTween({MinimizeButton, "ImageTransparency", 0.3, 0.15})
+        CreateTween({MinimizeButton, "ImageTransparency", 0.2, 0.15})
     end)
     
     local Window = {}
@@ -1720,10 +1718,10 @@ function NutriexLibrary:MakeWindow(Configs)
     function Window:AddMinimizeButton(MinConfigs)
         MinConfigs = MinConfigs or {}
         local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-            Size = UDim2.fromOffset(35, 35),
+            Size = UDim2.fromOffset(38, 38),
             Position = UDim2.fromScale(0.15, 0.15),
-            BackgroundTransparency = 0.2,
-            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
+            BackgroundTransparency = 0.1,
+            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(24, 24, 24),
             AutoButtonColor = false,
             Name = "FloatingMinimizeBtn"
         }))
@@ -1760,7 +1758,7 @@ function NutriexLibrary:MakeWindow(Configs)
         if type(Val2) == "string" then
             SubTitle.Text = Val2
         end
-    end    
+    end
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
     if Minimized then
