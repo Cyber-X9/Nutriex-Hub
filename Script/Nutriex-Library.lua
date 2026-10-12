@@ -33,9 +33,9 @@ local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 10, 10)),
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
         ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(10, 10, 10))
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
     }),
     ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
     ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
@@ -883,6 +883,33 @@ local NutriexLibrary = {
 	end)()
 }
 
+local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+
+local Base64 = {}
+
+function Base64.Encode(data)
+    return ((data:gsub('.', function(x) 
+        local r, b = '', x:byte()
+        for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
+        return r;
+    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if (#x < 6) then return '' end
+        local c = 0
+        for i = 1, 6 do c = c + (x:sub(i,i) == '1' and 2^(6-i) or 0) end
+        return b:sub(c+1, c+1)
+    end) .. ({ '', '==', '=' })[#data%3 + 1])
+end
+
+function Base64.Random(length)
+    length = length or 16
+    local bytes = {}
+    for i = 1, length do
+        bytes[i] = string.char(math.random(0, 255))
+    end
+    local rawString = table.concat(bytes)
+    return Base64.Encode(rawString):sub(1, length) 
+end
+
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
 
@@ -1087,34 +1114,6 @@ local GetFlag, SetFlag, CheckFlag do
 		end
 	end)
 end
---// Nutriex Security | By CyberX \\-- 
-local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
-local Base64 = {}
-
-function Base64.Encode(data)
-    return ((data:gsub('.', function(x) 
-        local r, b = '', x:byte()
-        for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
-        return r;
-    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-        if (#x < 6) then return '' end
-        local c = 0
-        for i = 1, 6 do c = c + (x:sub(i,i) == '1' and 2^(6-i) or 0) end
-        return b:sub(c+1, c+1)
-    end) .. ({ '', '==', '=' })[#data%3 + 1])
-end
-
-function Base64.Random(length)
-    length = length or 16
-    local bytes = {}
-    for i = 1, length do
-        bytes[i] = string.char(math.random(0, 255))
-    end
-    local rawString = table.concat(bytes)
-    return Base64.Encode(rawString):sub(1, length) 
-end
-
 local randomGuiName = "" .. Base64.Random(12)
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
@@ -1451,9 +1450,9 @@ function NutriexLibrary:MakeWindow(Configs)
     LoadFile()
     
     local SaveData = NutriexLibrary.Save or {}
-    local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 520, 450, 1000)
-    local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 340, 220, 520)
-    local TabSizeX = math.clamp(SaveData.TabSize or 160, 140, 250)
+    local UISizeX = math.clamp((SaveData.UISize and SaveData.UISize[1]) or 500, 430, 1000)
+    local UISizeY = math.clamp((SaveData.UISize and SaveData.UISize[2]) or 320, 200, 500)
+    local TabSizeX = math.clamp(SaveData.TabSize or 150, 135, 250)
 
     local MainBgColor = Color3.fromRGB(255, 255, 255)
     if typeof(Theme["Color Hub 1"]) == "Color3" then
@@ -1463,12 +1462,13 @@ function NutriexLibrary:MakeWindow(Configs)
     local MainFrame = InsertTheme(Create("ImageButton", ScreenGui, {
         Size = UDim2.fromOffset(UISizeX, UISizeY),
         Position = UDim2.new(0.5, -UISizeX / 2, 0.5, -UISizeY / 2),
-        BackgroundTransparency = 0.02,
+        BackgroundTransparency = 0.05,
         BackgroundColor3 = MainBgColor,
         Name = "Hub",
         AutoButtonColor = false
     }), "Main")
     
+    -- Aplica o ColorSequence no UIGradient
     if typeof(Theme["Color Hub 1"]) == "ColorSequence" then
         Create("UIGradient", MainFrame, {
             Color = Theme["Color Hub 1"],
@@ -1480,12 +1480,12 @@ function NutriexLibrary:MakeWindow(Configs)
 
     local MainCorner = Make("Corner", MainFrame)
     if MainCorner:IsA("UICorner") then
-        MainCorner.CornerRadius = UDim.new(0, 12)
+        MainCorner.CornerRadius = UDim.new(0, 10)
     end
 
     Make("Stroke", MainFrame, {
-        Color = Theme["Color Stroke"] or Color3.fromRGB(50, 50, 50),
-        Transparency = 0.3
+        Color = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        Transparency = 0.4
     })
 
     MakeDrag(MainFrame)
@@ -1494,21 +1494,21 @@ function NutriexLibrary:MakeWindow(Configs)
     local DropdownHolder = Create("Folder", ScreenGui, { Name = "Dropdown" })
     
     local TopBar = Create("Frame", Components, {
-        Size = UDim2.new(1, 0, 0, 36),
+        Size = UDim2.new(1, 0, 0, 30),
         BackgroundTransparency = 1,
         Name = "Top Bar"
     })
     
     local Title = InsertTheme(Create("TextLabel", TopBar, {
-        Position = UDim2.new(0, 18, 0.5, 0),
+        Position = UDim2.new(0, 15, 0.5, 0),
         AnchorPoint = Vector2.new(0, 0.5),
         AutomaticSize = Enum.AutomaticSize.XY,
         Text = WTitle,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = 14,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(250, 250, 250),
+        TextSize = 13,
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         BackgroundTransparency = 1,
-        Font = Enum.Font.GothamBold,
+        Font = Enum.Font.Ubuntu,
         Name = "Title"
     }), "Text")
     
@@ -1516,14 +1516,14 @@ function NutriexLibrary:MakeWindow(Configs)
         Size = UDim2.fromScale(0, 1),
         AutomaticSize = Enum.AutomaticSize.X,
         AnchorPoint = Vector2.new(0, 1),
-        Position = UDim2.new(1, 8, 0.85, 0),
+        Position = UDim2.new(1, 6, 0.85, 0),
         Text = WMiniText,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(150, 150, 150),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(130, 130, 130),
         BackgroundTransparency = 1,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Bottom,
-        TextSize = 10,
-        Font = Enum.Font.Gotham,
+        TextSize = 9,
+        Font = Enum.Font.Ubuntu,
         Name = "SubTitle"
     }), "DarkText")
     
@@ -1531,9 +1531,9 @@ function NutriexLibrary:MakeWindow(Configs)
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
         AnchorPoint = Vector2.new(0, 1),
-        ScrollBarThickness = 3,
+        ScrollBarThickness = 2,
         BackgroundTransparency = 1,
-        ScrollBarImageTransparency = 0.2,
+        ScrollBarImageTransparency = 0.3,
         ScrollBarImageColor3 = Theme["Color Theme"] or Color3.fromRGB(255, 255, 255),
         CanvasSize = UDim2.new(0, 0, 0, 0),
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
@@ -1542,13 +1542,13 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "Tab Scroll"
     }, {
         Create("UIPadding", {
-            PaddingLeft = UDim.new(0, 12),
-            PaddingRight = UDim.new(0, 12),
-            PaddingTop = UDim.new(0, 12),
-            PaddingBottom = UDim.new(0, 12)
+            PaddingLeft = UDim.new(0, 10),
+            PaddingRight = UDim.new(0, 10),
+            PaddingTop = UDim.new(0, 8),
+            PaddingBottom = UDim.new(0, 8)
         }),
         Create("UIListLayout", {
-            Padding = UDim.new(0, 6),
+            Padding = UDim.new(0, 5),
             SortOrder = Enum.SortOrder.LayoutOrder
         })
     }), "ScrollBar")
@@ -1572,7 +1572,7 @@ function NutriexLibrary:MakeWindow(Configs)
     }))
     
     local ControlSize2 = MakeDrag(Create("ImageButton", MainFrame, {
-        Size = UDim2.new(0, 20, 1, -36),
+        Size = UDim2.new(0, 20, 1, -30),
         Position = UDim2.new(0, TabSizeX, 1, 0),
         AnchorPoint = Vector2.new(0.5, 1),
         Active = true,
@@ -1587,9 +1587,9 @@ function NutriexLibrary:MakeWindow(Configs)
         if Minimized then return end
         
         local Pos1, Pos2 = ControlSize1.Position, ControlSize2.Position
-        local NewWidth = math.clamp(Pos1.X.Offset, 450, 1000)
-        local NewHeight = math.clamp(Pos1.Y.Offset, 220, 520)
-        local NewTabWidth = math.clamp(Pos2.X.Offset, 140, 250)
+        local NewWidth = math.clamp(Pos1.X.Offset, 430, 1000)
+        local NewHeight = math.clamp(Pos1.Y.Offset, 200, 500)
+        local NewTabWidth = math.clamp(Pos2.X.Offset, 135, 250)
         
         ControlSize1.Position = UDim2.fromOffset(NewWidth, NewHeight)
         ControlSize2.Position = UDim2.new(0, NewTabWidth, 1, 0)
@@ -1621,24 +1621,24 @@ function NutriexLibrary:MakeWindow(Configs)
     local ButtonsFolder = Create("Folder", TopBar, { Name = "Buttons" })
     
     local CloseButton = Create("ImageButton", {
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(1, -14, 0.5, 0),
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(1, -12, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundTransparency = 1,
         Image = "rbxassetid://10747384394",
-        ImageTransparency = 0.25,
+        ImageTransparency = 0.3,
         ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         AutoButtonColor = false,
         Name = "Close"
     })
     
     local MinimizeButton = Create("ImageButton", {
-        Size = UDim2.new(0, 16, 0, 16),
-        Position = UDim2.new(1, -38, 0.5, 0),
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(1, -34, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundTransparency = 1,
         Image = "rbxassetid://10734896206",
-        ImageTransparency = 0.25,
+        ImageTransparency = 0.3,
         ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245),
         AutoButtonColor = false,
         Name = "Minimize"
@@ -1649,10 +1649,10 @@ function NutriexLibrary:MakeWindow(Configs)
     
     CloseButton.MouseEnter:Connect(function()
         CreateTween({CloseButton, "ImageTransparency", 0, 0.15})
-        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 80, 80), 0.15})
+        CreateTween({CloseButton, "ImageColor3", Color3.fromRGB(255, 75, 75), 0.15})
     end)
     CloseButton.MouseLeave:Connect(function()
-        CreateTween({CloseButton, "ImageTransparency", 0.25, 0.15})
+        CreateTween({CloseButton, "ImageTransparency", 0.3, 0.15})
         CreateTween({CloseButton, "ImageColor3", Theme["Color Text"] or Color3.fromRGB(245, 245, 245), 0.15})
     end)
 
@@ -1660,7 +1660,7 @@ function NutriexLibrary:MakeWindow(Configs)
         CreateTween({MinimizeButton, "ImageTransparency", 0, 0.15})
     end)
     MinimizeButton.MouseLeave:Connect(function()
-        CreateTween({MinimizeButton, "ImageTransparency", 0.25, 0.15})
+        CreateTween({MinimizeButton, "ImageTransparency", 0.3, 0.15})
     end)
     
     local Window = {}
@@ -1720,10 +1720,10 @@ function NutriexLibrary:MakeWindow(Configs)
     function Window:AddMinimizeButton(MinConfigs)
         MinConfigs = MinConfigs or {}
         local Button = MakeDrag(Create("ImageButton", ScreenGui, {
-            Size = UDim2.fromOffset(36, 36),
+            Size = UDim2.fromOffset(35, 35),
             Position = UDim2.fromScale(0.15, 0.15),
-            BackgroundTransparency = 0.15,
-            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(22, 22, 22),
+            BackgroundTransparency = 0.2,
+            BackgroundColor3 = typeof(Theme["Color Hub 2"]) == "Color3" and Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
             AutoButtonColor = false,
             Name = "FloatingMinimizeBtn"
         }))
@@ -1760,7 +1760,7 @@ function NutriexLibrary:MakeWindow(Configs)
         if type(Val2) == "string" then
             SubTitle.Text = Val2
         end
-    end
+    end    
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
     if Minimized then
@@ -1786,15 +1786,15 @@ function Window:Dialog(Configs)
     
     local Frame = Create("Frame", Screen, {
         Active = true,
-        Size = UDim2.fromOffset(290, 175),
+        Size = UDim2.fromOffset(270, 165),
         Position = UDim2.fromScale(0.5, 0.5),
         AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(22, 22, 22),
+        BackgroundColor3 = Theme["Color Hub 2"] or Color3.fromRGB(20, 20, 20),
         BorderSizePixel = 0,
         ZIndex = 51
     })
     Make("Gradient", Frame, {Rotation = 270})
-    Make("Corner", Frame, UDim.new(0, 12))
+    Make("Corner", Frame, UDim.new(0, 10))
     Make("Stroke", Frame)
     
     local DialogScale = Instance.new("UIScale")
@@ -1802,34 +1802,34 @@ function Window:Dialog(Configs)
     DialogScale.Parent = Frame
     
     InsertTheme(Create("TextLabel", Frame, {
-        Font = Enum.Font.GothamBold,
-        Size = UDim2.new(1, -36, 0, 24),
+        Font = Enum.Font.Ubuntu,
+        Size = UDim2.new(1, -30, 0, 22),
         Text = DTitle,
         TextXAlignment = Enum.TextXAlignment.Left,
-        TextColor3 = Theme["Color Text"] or Color3.fromRGB(250, 250, 250),
+        TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
         TextSize = 15,
-        Position = UDim2.fromOffset(18, 16),
+        Position = UDim2.fromOffset(15, 12),
         BackgroundTransparency = 1,
         ZIndex = 52
     }), "Text")
     
     InsertTheme(Create("TextLabel", Frame, {
-        Font = Enum.Font.Gotham,
-        Size = UDim2.new(1, -36, 0, 60),
+        Font = Enum.Font.Ubuntu,
+        Size = UDim2.new(1, -30, 0, 55),
         Text = DText,
         TextXAlignment = Enum.TextXAlignment.Left,
         TextYAlignment = Enum.TextYAlignment.Top,
-        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(160, 160, 160),
+        TextColor3 = Theme["Color Dark Text"] or Color3.fromRGB(180, 180, 180),
         TextSize = 12,
-        Position = UDim2.fromOffset(18, 44),
+        Position = UDim2.fromOffset(15, 38),
         BackgroundTransparency = 1,
         TextWrapped = true,
         ZIndex = 52
     }), "DarkText")
     
     local ButtonsHolder = Create("Frame", Frame, {
-        Size = UDim2.new(1, -32, 0, 36),
-        Position = UDim2.new(0, 16, 1, -16),
+        Size = UDim2.new(1, -24, 0, 34),
+        Position = UDim2.new(0, 12, 1, -12),
         AnchorPoint = Vector2.new(0, 1),
         BackgroundTransparency = 1,
         ZIndex = 52
@@ -1842,7 +1842,7 @@ function Window:Dialog(Configs)
         HorizontalAlignment = Enum.HorizontalAlignment.Center
     })
     
-    CreateTween({Screen, "BackgroundTransparency", 0.35, 0.15})
+    CreateTween({Screen, "BackgroundTransparency", 0.4, 0.15})
     CreateTween({DialogScale, "Scale", 1, 0.15})
     
     local ButtonsList, Dialog = {}, {}
@@ -1853,16 +1853,16 @@ function Window:Dialog(Configs)
         
         local Button = Create("TextButton", ButtonsHolder, {
             Text = Name,
-            Font = Enum.Font.GothamBold,
+            Font = Enum.Font.Ubuntu,
             TextSize = 12,
-            TextColor3 = Theme["Color Text"] or Color3.fromRGB(250, 250, 250),
-            BackgroundColor3 = Color3.fromRGB(16, 16, 16),
+            TextColor3 = Theme["Color Text"] or Color3.fromRGB(255, 255, 255),
+            BackgroundColor3 = Color3.fromRGB(15, 15, 15),
             AutoButtonColor = true,
             BorderSizePixel = 0,
             ZIndex = 53
         })
         
-        Make("Corner", Button, UDim.new(0, 8))
+        Make("Corner", Button, UDim.new(0, 6))
         Make("Stroke", Button)
         
         table.insert(ButtonsList, Button)
@@ -1890,7 +1890,6 @@ function Window:Dialog(Configs)
     
     return Dialog
 end
-
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
 			NutriexLibrary.Tabs[TabSelect].func:Enable()
@@ -2179,40 +2178,50 @@ function Tab:AddParagraph(Configs)
 			return Paragraph
 		end
 function Tab:AddButton(Configs)
-			local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
-			local BDescription = Configs.Desc or Configs.Description or ""
-			local Callback = Funcs:GetCallback(Configs, 2)
-			
-			local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -20))
-			
-			local ButtonIcon = Create("ImageLabel", FButton, {
-				Size = UDim2.new(0, 14, 0, 14),
-				Position = UDim2.new(1, -10, 0.5),
-				AnchorPoint = Vector2.new(1, 0.5),
-				BackgroundTransparency = 1,
-				Image = "rbxassetid://10709791437"
-			})
-			
-			FButton.Activated:Connect(function()
-				Funcs:FireCallback(Callback)
-			end)
-			
-			local Button = {}
-			function Button:Visible(...) Funcs:ToggleVisible(FButton, ...) end
-			function Button:Destroy() FButton:Destroy() end
-			function Button:Callback(...) Funcs:InsertCallback(Callback, ...) end
-			function Button:Set(Val1, Val2)
-				if type(Val1) == "string" and type(Val2) == "string" then
-					LabelFunc:SetTitle(Val1)
-					LabelFunc:SetDesc(Val2)
-				elseif type(Val1) == "string" then
-					LabelFunc:SetTitle(Val1)
-				elseif type(Val1) == "function" then
-					Callback = Val1
-				end
-			end
-			return Button
-		end
+    local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
+    local BDescription = Configs.Desc or Configs.Description or ""
+    local Callback = Funcs:GetCallback(Configs, 2)
+    
+    local FButton, LabelFunc = ButtonFrame(Container, BName, BDescription, UDim2.new(1, -16))
+    
+    local ButtonIcon = Create("ImageLabel", FButton, {
+        Size = UDim2.new(0, 15, 0, 15),
+        Position = UDim2.new(1, -12, 0.5),
+        AnchorPoint = Vector2.new(1, 0.5),
+        BackgroundTransparency = 1,
+        Image = "rbxassetid://10709791437",
+        ImageTransparency = 0.25,
+        ImageColor3 = Theme["Color Text"] or Color3.fromRGB(245, 245, 245)
+    })
+    
+    FButton.MouseEnter:Connect(function()
+        CreateTween({ButtonIcon, "ImageTransparency", 0, 0.15})
+    end)
+    
+    FButton.MouseLeave:Connect(function()
+        CreateTween({ButtonIcon, "ImageTransparency", 0.25, 0.15})
+    end)
+    
+    FButton.Activated:Connect(function()
+        Funcs:FireCallback(Callback)
+    end)
+    
+    local Button = {}
+    function Button:Visible(...) Funcs:ToggleVisible(FButton, ...) end
+    function Button:Destroy() FButton:Destroy() end
+    function Button:Callback(...) Funcs:InsertCallback(Callback, ...) end
+    function Button:Set(Val1, Val2)
+        if type(Val1) == "string" and type(Val2) == "string" then
+            LabelFunc:SetTitle(Val1)
+            LabelFunc:SetDesc(Val2)
+        elseif type(Val1) == "string" then
+            LabelFunc:SetTitle(Val1)
+        elseif type(Val1) == "function" then
+            Callback = Val1
+        end
+    end
+    return Button
+end
 function Tab:AddToggle(Configs)
     local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
     local TDesc = Configs.Desc or Configs.Description or ""
@@ -2223,14 +2232,13 @@ function Tab:AddToggle(Configs)
     
     local Button, LabelFunc = ButtonFrame(Container, TName, TDesc, UDim2.new(1, -38))
     
-    -- Fundo do Toggle (arredondado suave/squircle)
     local ToggleHolder = InsertTheme(Create("Frame", Button, {
         Size = UDim2.new(0, 36, 0, 18),
         Position = UDim2.new(1, -10, 0.5, 0),
         AnchorPoint = Vector2.new(1, 0.5),
         BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35)
     }), "Stroke")
-    Make("Corner", ToggleHolder, UDim.new(0, 6)) -- Canto squircle no fundo
+    Make("Corner", ToggleHolder, UDim.new(0, 6)) 
     
     local Slider = Create("Frame", ToggleHolder, {
         BackgroundTransparency = 1,
@@ -2239,7 +2247,6 @@ function Tab:AddToggle(Configs)
         AnchorPoint = Vector2.new(0.5, 0.5)
     })
     
-    -- Indicador "meio quadrado e redondo" (Squircle)
     local Toggle = InsertTheme(Create("Frame", Slider, {
         Size = UDim2.new(0, 12, 0, 12),
         Position = UDim2.new(0, 0, 0.5, 0),
@@ -2247,7 +2254,6 @@ function Tab:AddToggle(Configs)
         BackgroundColor3 = Theme["Color Theme"] or Color3.fromRGB(88, 101, 242)
     }), "Theme")
     
-    -- Altera de 0.5 (círculo) para 4px (squircle / quadrado arredondado)
     Make("Corner", Toggle, UDim.new(0, 4))
     
     local WaitClick
@@ -2262,14 +2268,12 @@ function Tab:AddToggle(Configs)
             CreateTween({Toggle, "Position", UDim2.new(1, 0, 0.5, 0), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
             CreateTween({Toggle, "BackgroundTransparency", 0, 0.2})
             CreateTween({Toggle, "AnchorPoint", Vector2.new(1, 0.5), 0.2})
-            -- Efeito visual: estica levemente ao ligar
             CreateTween({Toggle, "Size", UDim2.new(0, 14, 0, 12), 0.1, true})
             CreateTween({Toggle, "Size", UDim2.new(0, 12, 0, 12), 0.1})
         else
             CreateTween({Toggle, "Position", UDim2.new(0, 0, 0.5, 0), 0.2, false, Enum.EasingStyle.Quart, Enum.EasingDirection.Out})
             CreateTween({Toggle, "BackgroundTransparency", 0.6, 0.2})
             CreateTween({Toggle, "AnchorPoint", Vector2.new(0, 0.5), 0.2})
-            -- Efeito visual: estica levemente ao desligar
             CreateTween({Toggle, "Size", UDim2.new(0, 14, 0, 12), 0.1, true})
             CreateTween({Toggle, "Size", UDim2.new(0, 12, 0, 12), 0.1})
         end
