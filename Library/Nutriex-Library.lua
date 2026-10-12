@@ -75,10 +75,9 @@ Icons = (function()
     end
   end)()
 }
+--// Code Logic \\--
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
 local Base64 = {}
-
 function Base64.Encode(data)
     return ((data:gsub('.', function(x) 
         local r, b = '', x:byte()
@@ -91,7 +90,6 @@ function Base64.Encode(data)
         return b:sub(c+1, c+1)
     end) .. ({ '', '==', '=' })[#data%3 + 1])
 end
-
 function Base64.Random(length)
     length = length or 16
     local bytes = {}
@@ -420,7 +418,7 @@ end
 
 AddEle("Corner", function(parent, CornerRadius)
 	local New = SetProps(Create("UICorner", parent, {
-		CornerRadius = CornerRadius or UDim.new(0, 7)
+		CornerRadius = CornerRadius or UDim.new(0, 6)
 	}), props)
 	return New
 end)
@@ -615,7 +613,7 @@ function NutriexLibrary:SetScale(NewScale)
 	NewScale = ViewportSize.Y / math.clamp(NewScale, 300, 2000)
 	UIScale, ScreenGui.Scale.Scale = NewScale, NewScale
 end
---// Code Logic \\--
+--// Window \\--
 function NutriexLibrary:MakeWindow(Configs)
     Configs = Configs or {}
     local WTitle = Configs[1] or Configs.Name or Configs.Title or "Nutriex Hub"
@@ -717,6 +715,24 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "SubTitle"
     }), "DarkText")
     
+    local TopBarDivider = InsertTheme(Create("Frame", Components, {
+        Size = UDim2.new(1, 0, 0, 1),
+        Position = UDim2.new(0, 0, 0, 30),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        Name = "TopBarDivider"
+    }), "Stroke")
+
+    local TabDivider = InsertTheme(Create("Frame", Components, {
+        Size = UDim2.new(0, 1, 1, -30),
+        Position = UDim2.new(0, TabSizeX, 0, 30),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        Name = "TabDivider"
+    }), "Stroke")
+
     local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
@@ -786,6 +802,8 @@ function NutriexLibrary:MakeWindow(Configs)
         
         MainScroll.Size = UDim2.new(0, NewTabWidth, 1, -TopBar.Size.Y.Offset)
         Containers.Size = UDim2.new(1, -NewTabWidth, 1, -TopBar.Size.Y.Offset)
+        TabDivider.Position = UDim2.new(0, NewTabWidth, 0, 30)
+        TabDivider.Size = UDim2.new(0, 1, 1, -30)
         MainFrame.Size = ControlSize1.Position
     end
     
@@ -882,12 +900,16 @@ function NutriexLibrary:MakeWindow(Configs)
             CreateTween({MainFrame, "Size", SaveSize, 0.22, true})
             ControlSize1.Visible = true
             ControlSize2.Visible = true
+            TopBarDivider.Visible = true
+            TabDivider.Visible = true
             Minimized = false
         else
             MinimizeButton.Image = "rbxassetid://10734924532"
             SaveSize = MainFrame.Size
             ControlSize1.Visible = false
             ControlSize2.Visible = false
+            TopBarDivider.Visible = false
+            TabDivider.Visible = false
             CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, TopBar.Size.Y.Offset), 0.22, true})
             Minimized = true
         end
@@ -950,7 +972,9 @@ function NutriexLibrary:MakeWindow(Configs)
         if type(Val2) == "string" then
             SubTitle.Text = Val2
         end
-    end        
+    end
+end
+--// Dialog \\--
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
     if Minimized then
@@ -1080,6 +1104,7 @@ function Window:Dialog(Configs)
     
     return Dialog
 end
+--// Select Tab \\--
 	function Window:SelectTab(TabSelect)
 		if type(TabSelect) == "number" then
 			NutriexLibrary.Tabs[TabSelect].func:Enable()
@@ -1091,6 +1116,7 @@ end
 			end
 		end
 	end
+--// Tab \\--
 local ContainerList = {}
 function Window:MakeTab(paste, Configs)
     if type(paste) == "table" then Configs = paste end
@@ -1316,7 +1342,7 @@ function Tab:AddSection(Configs)
     if type(NutriexLibrary) == "table" and type(NutriexLibrary.Options) == "table" then
         table.insert(NutriexLibrary.Options, {type = "Section", Name = SectionName, func = Section})
     end
-    
+    --// Section \\--
     function Section:Visible(Bool)
         if Bool == nil then 
             SectionFrame.Visible = not SectionFrame.Visible 
@@ -1342,6 +1368,7 @@ function Tab:AddSection(Configs)
     
     return Section
 end
+--// Paragraph \\--
 function Tab:AddParagraph(Configs)
     local PName = Configs[1] or Configs.Title or "Paragraph"
     local PDesc = Configs[2] or Configs.Text or ""
@@ -1367,6 +1394,7 @@ function Tab:AddParagraph(Configs)
     end
     return Paragraph
 end
+--// Button \\--
 function Tab:AddButton(Configs)
     local BName = Configs[1] or Configs.Name or Configs.Title or "Button!"
     local BDescription = Configs.Desc or Configs.Description or ""
@@ -1412,6 +1440,7 @@ function Tab:AddButton(Configs)
     end
     return Button
 end
+--// Toggle \\--
 function Tab:AddToggle(Configs)
     local TName = Configs[1] or Configs.Name or Configs.Title or "Toggle"
     local TDesc = Configs.Desc or Configs.Description or ""
@@ -1497,6 +1526,7 @@ function Tab:AddToggle(Configs)
     end
     return Toggle
 end
+--// Dropdown \\--
 function Tab:AddDropdown(Configs)
 			local DName = Configs[1] or Configs.Name or Configs.Title or "Dropdown"
 			local DDesc = Configs.Desc or Configs.Description or ""
@@ -1841,6 +1871,7 @@ function Tab:AddDropdown(Configs)
 			end
 			return Dropdown
 		end
+ --// Silder \\--
  function Tab:AddSlider(Configs)
     local SName = Configs[1] or Configs.Name or Configs.Title or "Slider!"
     local SDesc = Configs.Desc or Configs.Description or ""
@@ -2009,6 +2040,7 @@ function Tab:AddDropdown(Configs)
     function Slider:Destroy() Button:Destroy() end
     return Slider
 end
+--// Textbox \\--
 function Tab:AddTextBox(Configs)
     local TName = Configs[1] or Configs.Name or Configs.Title or "Text Box"
     local TDesc = Configs.Desc or Configs.Description or ""
@@ -2077,7 +2109,6 @@ function Tab:AddTextBox(Configs)
         Funcs:FireCallback(Callback, Text)
     end
     
-    -- Efeitos Visuais ao Focar/Desfocar (Brilho do Lápis e da Borda)
     TextBoxInput.Focused:Connect(function()
         CreateTween({Pencil, "ImageTransparency", 0, 0.2})
         CreateTween({Pencil, "ImageColor3", Theme["Color Theme"], 0.2})
@@ -2091,12 +2122,10 @@ function Tab:AddTextBox(Configs)
         FireInput()
     end)
     
-    -- Dispara o callback inicial se existir um Default válido
     if TDefault ~= "" then
         task.spawn(FireInput)
     end
     
-    -- Funções Públicas da TextBox
     function TextBox:Visible(...) Funcs:ToggleVisible(Button, ...) end
     function TextBox:Destroy() Button:Destroy() end
     function TextBox:Callback(...) Funcs:InsertCallback(Callback, ...) end
@@ -2115,6 +2144,7 @@ function Tab:AddTextBox(Configs)
     
     return TextBox
 end
+--// Discord Invite \\--
 function Tab:AddDiscordInvite(Configs)
     local Title = Configs[1] or Configs.Name or Configs.Title or "Discord Server"
     local Desc = Configs.Desc or Configs.Description or "Join our community for updates and support!"
