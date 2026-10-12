@@ -715,24 +715,6 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "SubTitle"
     }), "DarkText")
     
-    local TopBarDivider = InsertTheme(Create("Frame", Components, {
-        Size = UDim2.new(1, 0, 0, 1),
-        Position = UDim2.new(0, 0, 0, 30),
-        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
-        BackgroundTransparency = 0.4,
-        BorderSizePixel = 0,
-        Name = "TopBarDivider"
-    }), "Stroke")
-
-    local TabDivider = InsertTheme(Create("Frame", Components, {
-        Size = UDim2.new(0, 1, 1, -30),
-        Position = UDim2.new(0, TabSizeX, 0, 30),
-        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
-        BackgroundTransparency = 0.4,
-        BorderSizePixel = 0,
-        Name = "TabDivider"
-    }), "Stroke")
-
     local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
@@ -802,8 +784,6 @@ function NutriexLibrary:MakeWindow(Configs)
         
         MainScroll.Size = UDim2.new(0, NewTabWidth, 1, -TopBar.Size.Y.Offset)
         Containers.Size = UDim2.new(1, -NewTabWidth, 1, -TopBar.Size.Y.Offset)
-        TabDivider.Position = UDim2.new(0, NewTabWidth, 0, 30)
-        TabDivider.Size = UDim2.new(0, 1, 1, -30)
         MainFrame.Size = ControlSize1.Position
     end
     
@@ -900,16 +880,12 @@ function NutriexLibrary:MakeWindow(Configs)
             CreateTween({MainFrame, "Size", SaveSize, 0.22, true})
             ControlSize1.Visible = true
             ControlSize2.Visible = true
-            TopBarDivider.Visible = true
-            TabDivider.Visible = true
             Minimized = false
         else
             MinimizeButton.Image = "rbxassetid://10734924532"
             SaveSize = MainFrame.Size
             ControlSize1.Visible = false
             ControlSize2.Visible = false
-            TopBarDivider.Visible = false
-            TabDivider.Visible = false
             CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, TopBar.Size.Y.Offset), 0.22, true})
             Minimized = true
         end
@@ -972,8 +948,7 @@ function NutriexLibrary:MakeWindow(Configs)
         if type(Val2) == "string" then
             SubTitle.Text = Val2
         end
-    end
-end
+    end        
 --// Dialog \\--
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
