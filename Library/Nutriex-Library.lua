@@ -33,15 +33,15 @@ local NutriexLibrary = {
 	Themes = {
 		Darker = {
     ["Color Hub 1"] = ColorSequence.new({
-        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(15, 15, 15)),
-        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 0, 0)),
-        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(15, 15, 15))
+        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(12, 12, 12)),
+        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(8, 8, 8)),
+        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 12, 12))
     }),
-    ["Color Hub 2"] = Color3.fromRGB(18, 18, 18),
-    ["Color Stroke"] = Color3.fromRGB(45, 45, 45), 
+    ["Color Hub 2"] = Color3.fromRGB(15, 15, 15),
+    ["Color Stroke"] = Color3.fromRGB(38, 38, 38), 
     ["Color Theme"] = Color3.fromRGB(255, 255, 255),
-    ["Color Text"] = Color3.fromRGB(245, 245, 245),
-    ["Color Dark Text"] = Color3.fromRGB(120, 120, 120)
+    ["Color Text"] = Color3.fromRGB(250, 250, 250),
+    ["Color Dark Text"] = Color3.fromRGB(140, 140, 140)
 },
 	},
 	Info = {
@@ -60,25 +60,20 @@ Options = {},
 Flags = {},
 Tabs = {},
 Icons = (function()
-    local success, result = pcall(function()
+ local success, result = pcall(function()
         return HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Cyber-X9/Nutriex-Hub/refs/heads/main/Library/icons.json"))
     end)
     
     if success and type(result) == "table" then
         return result
-    else
-        return {
-            ["x"] = "rbxassetid://10747384394",
-            ["search"] = "rbxassetid://10734943674",
-            ["settings"] = "rbxassetid://10734950309"
-        }
     end
+    return {}
   end)()
 }
 --// Code Logic \\--
 local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-local Base64 = {}
-function Base64.Encode(data)
+local NutriexSec = {}
+function NutriexSec.Encode(data)
     return ((data:gsub('.', function(x) 
         local r, b = '', x:byte()
         for i = 8, 1, -1 do r = r .. (b % 2^i - b % 2^(i-1) > 0 and '1' or '0') end
@@ -90,16 +85,15 @@ function Base64.Encode(data)
         return b:sub(c+1, c+1)
     end) .. ({ '', '==', '=' })[#data%3 + 1])
 end
-function Base64.Random(length)
+function NutriexSec.Random(length)
     length = length or 16
     local bytes = {}
     for i = 1, length do
         bytes[i] = string.char(math.random(0, 255))
     end
     local rawString = table.concat(bytes)
-    return Base64.Encode(rawString):sub(1, length) 
-end
-
+    return NutriexSec.Encode(rawString):sub(1, length) 
+end	
 local ViewportSize = workspace.CurrentCamera.ViewportSize
 local UIScale = ViewportSize.Y / 450
 
@@ -266,7 +260,6 @@ local Connections, Connection = {}, NutriexLibrary.Connection do
 	
 	NewConnectionList({"FlagsChanged", "ThemeChanged", "FileSaved", "ThemeChanging", "OptionAdded"})
 end
-
 local GetFlag, SetFlag, CheckFlag do
 	CheckFlag = function(Name)
 		return type(Name) == "string" and Flags[Name] ~= nil
@@ -282,7 +275,7 @@ local GetFlag, SetFlag, CheckFlag do
 			Connection:FireConnection("FlagsChanged", Flag, Value)
 		end
 	end
-	
+
 	local db
 	Connection.FlagsChanged:Connect(function(Flag, Value)
 		local ScriptFile = Settings.ScriptFile
@@ -304,10 +297,11 @@ local GetFlag, SetFlag, CheckFlag do
 		end
 	end)
 end
-local randomGuiName = "" .. Base64.Random(12)
+
+local GuiName = "" .. NutriexSec.Random(10)
 
 local ScreenGui = Create("ScreenGui", CoreGui, {
-	Name = randomGuiName,
+	Name = GuiName,
 }, {
 	Create("UIScale", {
 		Scale = UIScale,
@@ -715,6 +709,24 @@ function NutriexLibrary:MakeWindow(Configs)
         Name = "SubTitle"
     }), "DarkText")
     
+    local TopBarDivider = InsertTheme(Create("Frame", Components, {
+        Size = UDim2.new(1, 0, 0, 1),
+        Position = UDim2.new(0, 0, 0, 30),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        Name = "TopBarDivider"
+    }), "Stroke")
+
+    local TabDivider = InsertTheme(Create("Frame", Components, {
+        Size = UDim2.new(0, 1, 1, -30),
+        Position = UDim2.new(0, TabSizeX, 0, 30),
+        BackgroundColor3 = Theme["Color Stroke"] or Color3.fromRGB(35, 35, 35),
+        BackgroundTransparency = 0.4,
+        BorderSizePixel = 0,
+        Name = "TabDivider"
+    }), "Stroke")
+
     local MainScroll = InsertTheme(Create("ScrollingFrame", Components, {
         Size = UDim2.new(0, TabSizeX, 1, -TopBar.Size.Y.Offset),
         Position = UDim2.new(0, 0, 1, 0),
@@ -784,6 +796,8 @@ function NutriexLibrary:MakeWindow(Configs)
         
         MainScroll.Size = UDim2.new(0, NewTabWidth, 1, -TopBar.Size.Y.Offset)
         Containers.Size = UDim2.new(1, -NewTabWidth, 1, -TopBar.Size.Y.Offset)
+        TabDivider.Position = UDim2.new(0, NewTabWidth, 0, 30)
+        TabDivider.Size = UDim2.new(0, 1, 1, -30)
         MainFrame.Size = ControlSize1.Position
     end
     
@@ -880,12 +894,16 @@ function NutriexLibrary:MakeWindow(Configs)
             CreateTween({MainFrame, "Size", SaveSize, 0.22, true})
             ControlSize1.Visible = true
             ControlSize2.Visible = true
+            TopBarDivider.Visible = true
+            TabDivider.Visible = true
             Minimized = false
         else
             MinimizeButton.Image = "rbxassetid://10734924532"
             SaveSize = MainFrame.Size
             ControlSize1.Visible = false
             ControlSize2.Visible = false
+            TopBarDivider.Visible = false
+            TabDivider.Visible = false
             CreateTween({MainFrame, "Size", UDim2.fromOffset(MainFrame.Size.X.Offset, TopBar.Size.Y.Offset), 0.22, true})
             Minimized = true
         end
@@ -948,7 +966,7 @@ function NutriexLibrary:MakeWindow(Configs)
         if type(Val2) == "string" then
             SubTitle.Text = Val2
         end
-    end        
+    end
 --// Dialog \\--
 function Window:Dialog(Configs)
     if MainFrame:FindFirstChild("Dialog") then return end
