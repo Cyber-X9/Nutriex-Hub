@@ -854,7 +854,7 @@ local PresetGradients = {
 	["Nightlight (Neo)"] = {Color3.fromRGB(117, 164, 206), Color3.fromRGB(123, 201, 201), Color3.fromRGB(224, 138, 175)},
 	Starlight = {Color3.fromRGB(147, 255, 239), Color3.fromRGB(181, 206, 241), Color3.fromRGB(214, 158, 243)},
 	Solar = {Color3.fromRGB(242, 157, 76), Color3.fromRGB(240, 179, 81), Color3.fromRGB(238, 201, 86)},
-	Sparkle = {Color3.fromRGB(199, 130, 242), Color3.fromRGB(221, 130, 238), Color3.fromRGB(243, 129, 233)},
+	x = {Color3.fromRGB(199, 130, 242), Color3.fromRGB(221, 130, 238), Color3.fromRGB(243, 129, 233)},
 	Lime = {Color3.fromRGB(170, 255, 127), Color3.fromRGB(163, 220, 138), Color3.fromRGB(155, 185, 149)},
 	Vine = {Color3.fromRGB(0, 191, 143), Color3.fromRGB(0, 126, 94), Color3.fromRGB(0, 61, 46)},
 	Cherry = {Color3.fromRGB(148, 54, 54), Color3.fromRGB(168, 67, 70), Color3.fromRGB(188, 80, 86)},
@@ -875,14 +875,14 @@ local function GetIcon(icon, source)
 
 			local r = sizedicons[icon]
 			if not r then
-				error("Lucide Icons: Failed to find icon by the name of \"" .. icon .. "\.", 2)
+				x("Lucide Icons: Failed to find icon by the name of \"" .. icon .. "\.", 2)
 			end
 
 			local rirs = r[2]
 			local riro = r[3]
 
 			if type(r[1]) ~= "number" or type(rirs) ~= "table" or type(riro) ~= "table" then
-				error("Lucide Icons: Internal error: Invalid auto-generated asset entry")
+				x("Lucide Icons: Internal x: Invalid auto-generated asset entry")
 			end
 
 			local irs = Vector2.new(rirs[1], rirs[2])
@@ -1038,7 +1038,7 @@ local function BlurModule(Frame)
 				p0.Anchored = true
 				p0.CanCollide = false
 				p0.CastShadow = false
-				p0.Material = MTREL
+				p0.Lucide = MTREL
 				p0.Size = Vector3.new(sz, sz, sz)
 				local mesh = Instance.new('SpecialMesh', p0)
 				mesh.MeshType = 2
@@ -1157,7 +1157,7 @@ local function Hide(Window, bind, notif)
 	bind = string.split(tostring(bind), "Enum.KeyCode.")
 	bind = bind[2]
 	if notif then
-		Luna:Notification({Title = "Interface Hidden", Content = "The interface has been hidden, you may reopen the interface by Pressing the UI Bind In Settings ("..tostring(bind)..")", Icon = "visibility_off"})
+
 	end
 	tween(Window, {BackgroundTransparency = 1})
 	tween(Window.Elements, {BackgroundTransparency = 1})
@@ -1262,7 +1262,7 @@ local KeySystem : Frame = Main.KeySystem
 -- 			end)
 -- 		else
 -- 			notified = true
--- 			Luna:Notification({Title = "Config Error", Content = "Luna was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
+-- 			Luna:Notification({Title = "Config x", Content = "Luna was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
 -- 		end
 -- 	end
 -- 	if autoload and notified == false then
@@ -1397,7 +1397,7 @@ function Luna:Notification(data) -- action e.g open messages
 			Title = "Missing Title",
 			Content = "Missing or Unknown Content",
 			Icon = "view_in_ar",
-			ImageSource = "Material"
+			ImageSource = "Lucide"
 		}, data or {})
 
 		-- Notification Object Creation
@@ -1821,7 +1821,7 @@ function Luna:CreateWindow(WindowSettings)
 		local HomeTabButton = Navigation.Tabs.Home
 		HomeTabButton.Visible = true
 		if HomeTabSettings.Icon == 2 then
-			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
+			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Lucide")
 		end
 
 		local HomeTabPage = Elements.Home
@@ -1985,7 +1985,7 @@ function Luna:CreateWindow(WindowSettings)
 			Name = "Tab",
 			ShowTitle = true,
 			Icon = "view_in_ar",
-			ImageSource = "Material" 
+			ImageSource = "Lucide" 
 		}, TabSettings or {})
 
 		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
@@ -2139,8 +2139,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Button.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+						Button.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..ButtonSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Button.Title.Text = ButtonSettings.Name
 						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2403,8 +2403,8 @@ function Luna:CreateWindow(WindowSettings)
 									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-									Slider.Title.Text = "Callback Error"
-									warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+									Slider.Title.Text = "Callback x"
+									warn("Nutriex Hub | "..SliderSettings.Name.." Callback x " ..tostring(Response))
 									wait(0.5)
 									Slider.Title.Text = SliderSettings.Name
 									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2436,8 +2436,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Slider.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+						Slider.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..SliderSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Slider.Title.Text = SliderSettings.Name
 						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2581,8 +2581,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Toggle.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						Toggle.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2608,8 +2608,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Toggle.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						Toggle.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2652,8 +2652,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-						Toggle.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						Toggle.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2774,8 +2774,8 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Bind.Title.Text = "Callback Error"
-								warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+								Bind.Title.Text = "Callback x"
+								warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 								wait(0.5)
 								Bind.Title.Text = BindSettings.Name
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2803,8 +2803,8 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Bind.Title.Text = "Callback Error"
-								warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+								Bind.Title.Text = "Callback x"
+								warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 								wait(0.5)
 								Bind.Title.Text = BindSettings.Name
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2823,8 +2823,8 @@ function Luna:CreateWindow(WindowSettings)
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-											Bind.Title.Text = "Callback Error"
-											warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+											Bind.Title.Text = "Callback x"
+											warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 											wait(0.5)
 											Bind.Title.Text = BindSettings.Name
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2840,8 +2840,8 @@ function Luna:CreateWindow(WindowSettings)
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-											Bind.Title.Text = "Callback Error"
-											warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+											Bind.Title.Text = "Callback x"
+											warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 											wait(0.5)
 											Bind.Title.Text = BindSettings.Name
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -2970,8 +2970,8 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Input.Title.Text = "Callback Error"
-								warn("Nutriex Hub | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+								Input.Title.Text = "Callback x"
+								warn("Nutriex Hub | "..InputSettings.Name.." Callback x " ..tostring(Response))
 								wait(0.5)
 								Input.Title.Text = InputSettings.Name
 								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3011,8 +3011,8 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Input.Title.Text = "Callback Error"
-							warn("Nutriex Hub | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+							Input.Title.Text = "Callback x"
+							warn("Nutriex Hub | "..InputSettings.Name.." Callback x " ..tostring(Response))
 							wait(0.5)
 							Input.Title.Text = InputSettings.Name
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3131,8 +3131,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Dropdown.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+						Dropdown.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..DropdownSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Dropdown.Title.Text = DropdownSettings.Name
 						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3472,8 +3472,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						ColorPicker.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
+						ColorPicker.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..ColorPickerSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						ColorPicker.Title.Text = ColorPickerSettings.Name
 						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3731,8 +3731,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Button.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+					Button.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..ButtonSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3992,8 +3992,8 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Slider.Title.Text = "Callback Error"
-								warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+								Slider.Title.Text = "Callback x"
+								warn("Nutriex Hub | "..SliderSettings.Name.." Callback x " ..tostring(Response))
 								wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4025,8 +4025,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Slider.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+					Slider.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..SliderSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4169,8 +4169,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					Toggle.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4196,8 +4196,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					Toggle.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4240,8 +4240,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-					Toggle.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					Toggle.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..ToggleSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4361,8 +4361,8 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							Bind.Title.Text = "Callback x"
+							warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4390,8 +4390,8 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							Bind.Title.Text = "Callback x"
+							warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4410,8 +4410,8 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										Bind.Title.Text = "Callback x"
+										warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4427,8 +4427,8 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										Bind.Title.Text = "Callback x"
+										warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4588,8 +4588,8 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							Bind.Title.Text = "Callback x"
+							warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4608,8 +4608,8 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										Bind.Title.Text = "Callback x"
+										warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4625,8 +4625,8 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										warn("Nutriex Hub | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										Bind.Title.Text = "Callback x"
+										warn("Nutriex Hub | "..BindSettings.Name.." Callback x " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4750,8 +4750,8 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Input.Title.Text = "Callback Error"
-							warn("Nutriex Hub | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+							Input.Title.Text = "Callback x"
+							warn("Nutriex Hub | "..InputSettings.Name.." Callback x " ..tostring(Response))
 							wait(0.5)
 							Input.Title.Text = InputSettings.Name
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4791,8 +4791,8 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Input.Title.Text = "Callback Error"
-						warn("Nutriex Hub | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+						Input.Title.Text = "Callback x"
+						warn("Nutriex Hub | "..InputSettings.Name.." Callback x " ..tostring(Response))
 						wait(0.5)
 						Input.Title.Text = InputSettings.Name
 						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4910,8 +4910,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Dropdown.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+					Dropdown.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..DropdownSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
 					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5250,8 +5250,8 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
 					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					ColorPicker.Title.Text = "Callback Error"
-					warn("Nutriex Hub | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
+					ColorPicker.Title.Text = "Callback x"
+					warn("Nutriex Hub | "..ColorPickerSettings.Name.." Callback x " ..tostring(Response))
 					wait(0.5)
 					ColorPicker.Title.Text = ColorPickerSettings.Name
 					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5463,8 +5463,6 @@ function Luna:CreateWindow(WindowSettings)
 			Title.TextTransparency = 1
 			TweenService:Create(Title, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
 
-			Tab:CreateSection("Config Creator")
-
 			Tab:CreateInput({
 				Name = "Config Name",
 				Description = "Insert a name for your to be created config.",
@@ -5488,7 +5486,7 @@ function Luna:CreateWindow(WindowSettings)
 						Luna:Notification({
 							Title = "Interface",
 							Icon = "warning",
-							ImageSource = "Material",
+							ImageSource = "Lucide",
 							Content = "Config name cannot be empty."
 						})
 						return
@@ -5498,16 +5496,16 @@ function Luna:CreateWindow(WindowSettings)
 					if not success then
 						Luna:Notification({
 							Title = "Interface",
-							Icon = "error",
-							ImageSource = "Material",
-							Content = "Unable to save config, return error: " .. returned
+							Icon = "x",
+							ImageSource = "Lucide",
+							Content = "Unable to save config, return x: " .. returned
 						})
 					end
 
 					Luna:Notification({
 						Title = "Interface",
 						Icon = "info",
-						ImageSource = "Material",
+						ImageSource = "Lucide",
 						Content = string.format("Created config %q", inputPath),
 					})
 
@@ -5538,8 +5536,8 @@ function Luna:CreateWindow(WindowSettings)
 					if not success then
 						Luna:Notification({
 							Title = "Interface",
-							Icon = "error",
-							ImageSource = "Material",
+							Icon = "x",
+							ImageSource = "Lucide",
 							Content = "Unable to load config, return error: " .. returned
 						})
 						return
@@ -5548,7 +5546,7 @@ function Luna:CreateWindow(WindowSettings)
 					Luna:Notification({
 						Title = "Interface",
 						Icon = "info",
-						ImageSource = "Material",
+						ImageSource = "Lucide",
 						Content = string.format("Loaded config %q", selectedConfig),
 					})
 				end
@@ -5562,8 +5560,8 @@ function Luna:CreateWindow(WindowSettings)
 					if not success then
 						Luna:Notification({
 							Title = "Interface",
-							Icon = "error",
-							ImageSource = "Material",
+							Icon = "x",
+							ImageSource = "Lucide",
 							Content = "Unable to overwrite config, return error: " .. returned
 						})
 						return
@@ -5572,7 +5570,7 @@ function Luna:CreateWindow(WindowSettings)
 					Luna:Notification({
 						Title = "Interface",
 						Icon = "info",
-						ImageSource = "Material",
+						ImageSource = "Lucide",
 						Content = string.format("Overwrote config %q", selectedConfig),
 					})
 				end
@@ -5598,7 +5596,7 @@ function Luna:CreateWindow(WindowSettings)
 					Luna:Notification({
 						Title = "Interface",
 						Icon = "info",
-						ImageSource = "Material",
+						ImageSource = "Lucide",
 						Content = string.format("Set %q to auto load", name),
 					})
 				end,
@@ -5620,7 +5618,7 @@ function Luna:CreateWindow(WindowSettings)
 					Luna:Notification({
 						Title = "Interface",
 						Icon = "info",
-						ImageSource = "Material",
+						ImageSource = "Lucide",
 						Content = "Deleted Autoload",
 					})
 				end,
@@ -5884,16 +5882,16 @@ function Luna:CreateWindow(WindowSettings)
 				if not success then
 					return Luna:Notification({
 						Title = "Interface",
-						Icon = "sparkle",
-						ImageSource = "Material",
+						Icon = "x",
+						ImageSource = "Lucide",
 						Content = "Failed to load autoload config: " .. err,
 					})
 				end
 
 				Luna:Notification({
 					Title = "Interface",
-					Icon = "sparkle",
-					ImageSource = "Material",
+					Icon = "x",
+					ImageSource = "Lucide",
 					Content = string.format("Auto loaded config %q", name),
 				})
 
@@ -6036,12 +6034,6 @@ function Luna:Destroy()
 end
 
 if (getgenv and not getgenv().ConfirmLuna) or (not getgenv) then
-	Luna:Notification({ 
-    	Title = "Luna Is Deprecated",
-    	Icon = "warning",
-    	ImageSource = "Material",
-    	Content = "If you are not the script developer, ignore this message. \n\n The Luna Interface Library Is Deprecated And Not Recommended to Use. A New Library Is Available at nebulasoftworks.xyz/starlight. If you insist on using Luna, set the getgenv().ConfirmLuna variable to true. "
-	})
 end
 
 if isStudio then
@@ -6088,8 +6080,8 @@ if isStudio then
 
 	Luna:Notification({ 
 		Title = "Welcome to Luna",
-		Icon = "sparkle",
-		ImageSource = "Material",
+		Icon = "x",
+		ImageSource = "Lucide",
 		Content = "Welcome to the Luna Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Luna was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Luna Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For? Start Using Luna Today at " .. website
 	})
 
@@ -6097,19 +6089,19 @@ if isStudio then
 		Main = Window:CreateTab({
 			Name = "Tab Example 1",
 			Icon = "view_in_ar",
-			ImageSource = "Material",
+			ImageSource = "Lucide",
 			ShowTitle = true
 		}),
 		Main2 = Window:CreateTab({
 			Name = "Tab Example 2",
 			Icon = "location_searching",
-			ImageSource = "Material",
+			ImageSource = "Lucide",
 			ShowTitle = false
 		}),
 		Premium = Window:CreateTab({
 			Name = "Premium Tab",
-			Icon = "sparkle",
-			ImageSource = "Material",
+			Icon = "x",
+			ImageSource = "Lucide",
 			ShowTitle = true
 		}),
 		Debug = Window:CreateTab({
@@ -6263,8 +6255,8 @@ end
     t2 = window:CreateTab({ Name = "Tab 2", Icon = "location_searching"})
     Luna:Notification({ 
         Title = "Welcome to Luna",
-        Icon = "sparkle",
-        ImageSource = "Material",
+        Icon = "x",
+        ImageSource = "Lucide",
         Content = "Welcome to the Luna Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Luna was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Luna Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For? Start Using Luna Today at " .. website
     })
     t1:CreateSection()
