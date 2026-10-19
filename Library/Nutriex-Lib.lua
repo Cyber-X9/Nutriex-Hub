@@ -1,4 +1,4 @@
-local Release = "Prerelease Beta 6.1"
+local Release = ""
 
 local Luna = { 
 	Folder = "Luna", 
