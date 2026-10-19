@@ -1605,10 +1605,6 @@ function tween(object, goal, callback, tweenin)
 	tween:Play()
 end
 
-local function BlurModule(Frame)
-    return
-end
-
 local function unpackt(array : table)
 	local val = ""
 	local i = 0
@@ -1798,42 +1794,42 @@ local KeySystem : Frame = Main.KeySystem
 -- 	end
 -- end
 
+local UserInputService = game:GetService("UserInputService")
+
 local function Draggable(Bar, Window)
-    pcall(function()
-        local Dragging = false
-        local DragInput, MousePos, WindowPos
+    local Dragging = false
+    local DragInput, MousePos, WindowPos
 
-        Bar.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                Dragging = true
-                MousePos = Input.Position
-                WindowPos = Window.AbsolutePosition
+    Bar.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = true
+            MousePos = Input.Position
+            WindowPos = Window.AbsolutePosition
 
-                Input.Changed:Connect(function()
-                    if Input.UserInputState == Enum.UserInputState.End then
-                        Dragging = false
-                    end
-                end)
-            end
-        end)
+            Input.Changed:Connect(function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
 
-        Bar.InputChanged:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-                DragInput = Input
-            end
-        end)
+    Bar.InputChanged:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+            DragInput = Input
+        end
+    end)
 
-        UserInputService.InputChanged:Connect(function(Input)
-            if Input == DragInput and Dragging then
-                local Delta = Input.Position - MousePos
-                Window.Position = UDim2.new(
-                    WindowPos.X.Scale, 
-                    WindowPos.X.Offset + Delta.X, 
-                    WindowPos.Y.Scale, 
-                    WindowPos.Y.Offset + Delta.Y
-                )
-            end
-        end)
+    UserInputService.InputChanged:Connect(function(Input)
+        if Input == DragInput and Dragging then
+            local Delta = Input.Position - MousePos
+            Window.Position = UDim2.new(
+                WindowPos.X.Scale, 
+                WindowPos.X.Offset + Delta.X, 
+                WindowPos.Y.Scale, 
+                WindowPos.Y.Offset + Delta.Y
+            )
+        end
     end)
 end
 
