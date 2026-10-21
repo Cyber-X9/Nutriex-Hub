@@ -1733,7 +1733,7 @@ local KeySystem : Frame = Main.KeySystem
 -- 			end)
 -- 		else
 -- 			notified = true
--- 			Nutriex:Notification({Title = "Config Error", Content = "Nutriex was unable to load or find '"..FlagName.. "'' in the current script.", Icon = "flag"})
+-- 			Nutriex:Notification({Title = "Config Error", Content = "Nutriex was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
 -- 		end
 -- 	end
 -- 	if autoload and notified == false then
@@ -1794,72 +1794,43 @@ local KeySystem : Frame = Main.KeySystem
 -- 	end
 -- end
 
-local function Draggable(Bar, Window, enableTaptic, tapticOffset)
-	pcall(function()
-		local Dragging, DragInput, MousePos, FramePos
+local UserInputService = game:GetService("UserInputService")
 
-		local function connectFunctions()
-			if dragBar and enableTaptic then
-				dragBar.MouseEnter:Connect(function()
-					if not Dragging then
-						TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0.5, Size = UDim2.new(0, 120, 0, 4)}):Play()
-					end
-				end)
+local function Draggable(Bar, Window)
+    local Dragging = false
+    local DragInput, MousePos, WindowPos
 
-				dragBar.MouseLeave:Connect(function()
-					if not Dragging then
-						TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0.7, Size = UDim2.new(0, 100, 0, 4)}):Play()
-					end
-				end)
-			end
-		end
+    Bar.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+            Dragging = true
+            MousePos = Input.Position
+            WindowPos = Window.AbsolutePosition
 
-		connectFunctions()
+            Input.Changed:Connect(function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
 
-		Bar.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Window.Position
+    Bar.InputChanged:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+            DragInput = Input
+        end
+    end)
 
-				if enableTaptic then
-					TweenService:Create(dragBarCosmetic, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 110, 0, 4), BackgroundTransparency = 0}):Play()
-				end
-
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-						connectFunctions()
-
-						if enableTaptic then
-							TweenService:Create(dragBarCosmetic, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 4), BackgroundTransparency = 0.7}):Play()
-						end
-					end
-				end)
-			end
-		end)
-
-		Bar.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = Input
-			end
-		end)
-
-		UserInputService.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-
-				local newMainPosition = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-				TweenService:Create(Window, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = newMainPosition}):Play()
-
-				if dragBar then
-					local newDragBarPosition = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y + 240)
-					dragBar.Position = newDragBarPosition
-				end
-			end
-		end)
-
-	end)
+    UserInputService.InputChanged:Connect(function(Input)
+        if Input == DragInput and Dragging then
+            local Delta = Input.Position - MousePos
+            Window.Position = UDim2.new(
+                WindowPos.X.Scale, 
+                WindowPos.X.Offset + Delta.X, 
+                WindowPos.Y.Scale, 
+                WindowPos.Y.Offset + Delta.Y
+            )
+        end
+    end)
 end
 
 function Nutriex:Notification(data) -- action e.g open messages
@@ -2778,368 +2749,379 @@ function Nutriex:CreateWindow(WindowSettings)
 
 			-- Slider
 			function Section:CreateSlider(SliderSettings, Flag)
-    TabPage.Position = UDim2.new(0, 0, 0, 28)
-    local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
+				TabPage.Position = UDim2.new(0,0,0,28)
+				local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-    SliderSettings = Kwargify({
-        Name = "Slider",
-        Range = {0, 200},
-        Increment = 1,
-        CurrentValue = 100,
-        Callback = function(Value) end,
-    }, SliderSettings or {})
+				SliderSettings = Kwargify({
+					Name = "Slider",
+					Range = {0, 200},
+					Increment = 1,
+					CurrentValue = 100,
+					Callback = function(Value)
 
-    local SLDragging = false
-    local Slider = Elements.Template.Slider:Clone()
-    Slider.Name = SliderSettings.Name .. " - Slider"
-    Slider.Title.Text = SliderSettings.Name
-    Slider.Visible = true
-    Slider.Parent = TabPage
+					end,
+				}, SliderSettings or {})
 
-    Slider.BackgroundTransparency = 1
-    Slider.UIStroke.Transparency = 1
-    Slider.Title.TextTransparency = 1
+				local SLDragging = false
+				local Slider = Elements.Template.Slider:Clone()
+				Slider.Name = SliderSettings.Name .. " - Slider"
+				Slider.Title.Text = SliderSettings.Name
+				Slider.Visible = true
+				Slider.Parent = TabPage
 
-    -- Animação de entrada suave
-    TweenService:Create(Slider, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-    TweenService:Create(Slider.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-    TweenService:Create(Slider.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()   
+				Slider.BackgroundTransparency = 1
+				Slider.UIStroke.Transparency = 1
+				Slider.Title.TextTransparency = 1
 
-    -- Função interna para atualizar o tamanho visual do progresso perfeitamente
-    local function updateVisualProgress(val, immediate)
-        local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
-        local percent = math.clamp((val - min) / (max - min), 0, 1)
-        local targetSize = UDim2.new(percent, 0, 1, 0)
-        
-        if immediate then
-            Slider.Main.Progress.Size = targetSize
-        else
-            TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Size = targetSize}):Play()
-        end
-    end
+				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+				TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+				TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
 
-    Slider.Value.Text = tostring(SliderSettings.CurrentValue)
-    SliderV.CurrentValue = Slider.Value.Text
-    updateVisualProgress(SliderSettings.CurrentValue, true)
+				Slider.Main.Progress.Size =	UDim2.new(0, Slider.Main.AbsoluteSize.X * ((SliderSettings.CurrentValue + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (SliderSettings.CurrentValue / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)
 
-    local successInit, errInit = pcall(function()
-        SliderSettings.Callback(SliderSettings.CurrentValue)
-    end)
-    if not successInit then
-        warn("Nutriex Hub | " .. SliderSettings.Name .. " Init Callback Error: " .. tostring(errInit))
-    end
+				Slider.Value.Text = tostring(SliderSettings.CurrentValue)
+				SliderV.CurrentValue = Slider.Value.Text
 
-    Slider["MouseEnter"]:Connect(function()
-        TweenService:Create(Slider.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(87, 84, 104)}):Play()
-    end)
+				SliderSettings.Callback(SliderSettings.CurrentValue)
 
-    Slider["MouseLeave"]:Connect(function()
-        TweenService:Create(Slider.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(64, 61, 76)}):Play()
-    end)
+				Slider["MouseEnter"]:Connect(function()
+					tween(Slider.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
+				end)
 
-    Slider.Interact.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-            SLDragging = true 
-        end 
-    end)
+				Slider["MouseLeave"]:Connect(function()
+					tween(Slider.UIStroke, {Color = Color3.fromRGB(64,61,76)})
+				end)
 
-    Slider.Interact.InputEnded:Connect(function(Input) 
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-            SLDragging = false 
-        end 
-    end)
+				Slider.Interact.InputBegan:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
+						SLDragging = true 
+					end 
+				end)
 
-    Slider.Interact.MouseButton1Down:Connect(function()
-        local barAbsPos = Slider.Main.AbsolutePosition.X
-        local barAbsSize = Slider.Main.AbsoluteSize.X
+				Slider.Interact.InputEnded:Connect(function(Input) 
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
+						SLDragging = false 
+					end 
+				end)
 
-        local Loop; Loop = RunService.Stepped:Connect(function()
-            if SLDragging then
-                local mouseX = UserInputService:GetMouseLocation().X
-                local relativeX = math.clamp(mouseX - barAbsPos, 0, barAbsSize)
-                local percent = relativeX / barAbsSize
+				Slider.Interact.MouseButton1Down:Connect(function()
+					local Current = Slider.Main.Progress.AbsolutePosition.X + Slider.Main.Progress.AbsoluteSize.X
+					local Start = Current
+					local Location
+					local Loop; Loop = RunService.Stepped:Connect(function()
+						if SLDragging then
+							Location = UserInputService:GetMouseLocation().X
+							Current = Current + 0.025 * (Location - Start)
 
-                local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
-                local rawValue = min + percent * (max - min)
-                local inc = SliderSettings.Increment
+							if Location < Slider.Main.AbsolutePosition.X then
+								Location = Slider.Main.AbsolutePosition.X
+							elseif Location > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
+								Location = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
+							end
 
-                local NewValue = math.floor(rawValue / inc + 0.5) * inc
-                NewValue = math.clamp(NewValue, min, max)
+							if Current < Slider.Main.AbsolutePosition.X + 5 then
+								Current = Slider.Main.AbsolutePosition.X + 5
+							elseif Current > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
+								Current = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
+							end
 
-                updateVisualProgress(NewValue, false)
-                Slider.Value.Text = tostring(NewValue)
+							if Current <= Location and (Location - Start) < 0 then
+								Start = Location
+							elseif Current >= Location and (Location - Start) > 0 then
+								Start = Location
+							end
+							Slider.Main.Progress.Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X, 1, 0)
+							local NewValue = SliderSettings.Range[1] + (Location - Slider.Main.AbsolutePosition.X) / Slider.Main.AbsoluteSize.X * (SliderSettings.Range[2] - SliderSettings.Range[1])
 
-                if SliderSettings.CurrentValue ~= NewValue then
-                    local Success, Response = pcall(function()
-                        SliderSettings.Callback(NewValue)
-                    end)
-                    if not Success then
-                        TweenService:Create(Slider, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-                        TweenService:Create(Slider.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-                        Slider.Title.Text = "Callback Error"
-                        warn("Nutriex Hub | " .. SliderSettings.Name .. " Callback Error: " .. tostring(Response))
-                        task.wait(0.5)
-                        Slider.Title.Text = SliderSettings.Name
-                        TweenService:Create(Slider, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-                        TweenService:Create(Slider.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-                    end
+							NewValue = math.floor(NewValue / SliderSettings.Increment + 0.5) * (SliderSettings.Increment * 10000000) / 10000000
 
-                    SliderSettings.CurrentValue = NewValue
-                    SliderV.CurrentValue = NewValue
-                end
-            else
-                Loop:Disconnect()
-            end
-        end)
-    end)
+							Slider.Value.Text = tostring(NewValue)
 
-    local function Set(NewVal, skipCallback)
-        NewVal = tonumber(NewVal) or SliderSettings.CurrentValue
-        local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
-        NewVal = math.clamp(NewVal, min, max)
+							if SliderSettings.CurrentValue ~= NewValue then
+								local Success, Response = pcall(function()
+									SliderSettings.Callback(NewValue)
+								end)
+								if not Success then
+									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+									Slider.Title.Text = "Callback Error"
+									warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+									wait(0.5)
+									Slider.Title.Text = SliderSettings.Name
+									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+								end
 
-        updateVisualProgress(NewVal, false)
-        if not skipCallback then 
-            Slider.Value.Text = tostring(NewVal) 
-        end
+								SliderSettings.CurrentValue = NewValue
+								SliderV.CurrentValue = SliderSettings.CurrentValue
+								-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
+							end
+						else
+							TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In, 0, false), {Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X > 5 and Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)}):Play()
+							Loop:Disconnect()
+						end
+					end)
+				end)
 
-        local Success, Response = pcall(function()
-            SliderSettings.Callback(NewVal)
-        end)
-        if not Success then
-            warn("Nutriex Hub | " .. SliderSettings.Name .. " Set Error: " .. tostring(Response))
-        end
+				local function Set(NewVal, bleh)
 
-        SliderSettings.CurrentValue = NewVal
-        SliderV.CurrentValue = NewVal
-    end
+					NewVal = NewVal or SliderSettings.CurrentValue
 
-    function SliderV:UpdateValue(Value)
-        Set(tonumber(Value))
-    end 
+					TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {Size = UDim2.new(0, Slider.Main.AbsoluteSize.X * ((NewVal + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (NewVal / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)}):Play()
+					if not bleh then Slider.Value.Text = tostring(NewVal) end
+					local Success, Response = pcall(function()
+						SliderSettings.Callback(NewVal)
+					end)
+					if not Success then
+						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+						Slider.Title.Text = "Callback Error"
+						warn("Nutriex Hub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+						wait(0.5)
+						Slider.Title.Text = SliderSettings.Name
+						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(30, 33, 40)}):Play()
+						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+					end
 
-    Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
-        local text = Slider.Value.Text
-        if not tonumber(text) and text ~= "." then
-            Slider.Value.Text = text:match("[0-9.]*") or ""
-        end
-        local num = tonumber(Slider.Value.Text)
-        if num then
-            if SliderSettings.Range[2] < num then 
-                Slider.Value.Text = tostring(SliderSettings.Range[2]) 
-            end
-            Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
-            Set(num, true)
-        end
-    end)
+					SliderSettings.CurrentValue = NewVal
+					SliderV.CurrentValue = SliderSettings.CurrentValue
+					-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
 
-    function SliderV:Set(NewSliderSettings)
-        SliderSettings = Kwargify({
-            Name = SliderSettings.Name,
-            Range = SliderSettings.Range,
-            Increment = SliderSettings.Increment,
-            CurrentValue = SliderSettings.CurrentValue,
-            Callback = SliderSettings.Callback
-        }, NewSliderSettings or {})
+				end
 
-        SliderV.Settings = SliderSettings
-        Slider.Name = SliderSettings.Name .. " - Slider"
-        Slider.Title.Text = SliderSettings.Name
+				function SliderV:UpdateValue(Value)
+					Set(tonumber(Value))
+				end 
 
-        Set(SliderSettings.CurrentValue)
-    end
+				Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
+					local text = Slider.Value.Text
+					if not tonumber(text) and text ~= "." then
+						Slider.Value.Text = text:match("[0-9.]*") or ""
+					end
+					if SliderSettings.Range[2] < (tonumber(Slider.Value.Text) or 0) then Slider.Value.Text = SliderSettings.Range[2] end
+					Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
+					Set(tonumber(Slider.Value.Text), true)
+				end)
 
-    function SliderV:Destroy()
-        Slider.Visible = false
-        Slider:Destroy()
-    end
+				function SliderV:Set(NewSliderSettings)
+					NewSliderSettings = Kwargify({
+						Name = SliderSettings.Name,
+						Range = SliderSettings.Range,
+						Increment = SliderSettings.Increment,
+						CurrentValue = SliderSettings.CurrentValue,
+						Callback = SliderSettings.Callback
+					}, NewSliderSettings or {})
 
-    if Flag then
-        Nutriex.Options[Flag] = SliderV
-    end
+					SliderSettings = NewSliderSettings
+					SliderV.Settings = NewSliderSettings
 
-    return SliderV
-end
+					Slider.Name = SliderSettings.Name .. " - Slider"
+					Slider.Title.Text = SliderSettings.Name
+
+					Set()
+
+					-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
+				end
+
+				function SliderV:Destroy()
+					Slider.Visible = false
+					Slider:Destroy()
+				end
+
+				if Flag then
+					Nutriex.Options[Flag] = SliderV
+				end
+
+				NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+					Slider.Main.color.Color = Nutriex.ThemeGradient
+					Slider.Main.UIStroke.color.Color = Nutriex.ThemeGradient
+				end)
+
+				return SliderV
+
+			end
 
 			-- Toggle
-	function Section:CreateToggle(ToggleSettings, Flag)    
-    TabPage.Position = UDim2.new(0, 0, 0, 28)
-    local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
+			function Section:CreateToggle(ToggleSettings, Flag)    
+				TabPage.Position = UDim2.new(0,0,0,28)
+				local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-    ToggleSettings = Kwargify({
-        Name = "Toggle",
-        Description = nil,
-        CurrentValue = false,
-        Callback = function(Value)
-        end,
-    }, ToggleSettings or {})
+				ToggleSettings = Kwargify({
+					Name = "Toggle",
+					Description = nil,
+					CurrentValue = false,
+					Callback = function(Value)
+					end,
+				}, ToggleSettings or {})
 
-    local Toggle
 
-    if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-        Toggle = Elements.Template.ToggleDesc:Clone()
-    else
-        Toggle = Elements.Template.Toggle:Clone()
-    end
+				local Toggle
 
-    Toggle.Visible = true
-    Toggle.Parent = TabPage
+				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
+					Toggle = Elements.Template.ToggleDesc:Clone()
+				else
+					Toggle = Elements.Template.Toggle:Clone()
+				end
 
-    Toggle.Name = ToggleSettings.Name .. " - Toggle"
-    Toggle.Title.Text = ToggleSettings.Name
-    if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-        Toggle.Desc.Text = ToggleSettings.Description
-    end
+				Toggle.Visible = true
+				Toggle.Parent = TabPage
 
-    Toggle.UIStroke.Transparency = 1
-    Toggle.Title.TextTransparency = 1
-    if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-        Toggle.Desc.TextTransparency = 1
-    end
+				Toggle.Name = ToggleSettings.Name .. " - Toggle"
+				Toggle.Title.Text = ToggleSettings.Name
+				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
+					Toggle.Desc.Text = ToggleSettings.Description
+				end
 
-    TweenService:Create(Toggle, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-    if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-        TweenService:Create(Toggle.Desc, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-    end
-    TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-    TweenService:Create(Toggle.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()    
+				Toggle.UIStroke.Transparency = 1
+				Toggle.Title.TextTransparency = 1
+				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
+					Toggle.Desc.TextTransparency = 1
+				end
 
-    local function Set(bool)
-        if bool then
-            if Toggle.toggle:FindFirstChild("color") then
-                Toggle.toggle.color.Enabled = true
-            end
-            TweenService:Create(Toggle.toggle, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {BackgroundTransparency = 0}):Play()
+				TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
+					TweenService:Create(Toggle.Desc, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
+				end
+				TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+				TweenService:Create(Toggle.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
 
-            if Toggle.toggle:FindFirstChild("UIStroke") then
-                if Toggle.toggle.UIStroke:FindFirstChild("color") then
-                    Toggle.toggle.UIStroke.color.Enabled = true
-                end
-                TweenService:Create(Toggle.toggle.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(255, 255, 255)}):Play()
-            end
+				local function Set(bool)
+					if bool then
+						Toggle.toggle.color.Enabled = true
+						tween(Toggle.toggle, {BackgroundTransparency = 0})
 
-            TweenService:Create(Toggle.toggle.val, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255), 
-                Position = UDim2.new(1, -23, 0.5, 0), 
-                BackgroundTransparency = 0.45
-            }):Play()
-        else
-            if Toggle.toggle:FindFirstChild("color") then
-                Toggle.toggle.color.Enabled = false
-            end
-            if Toggle.toggle:FindFirstChild("UIStroke") then
-                if Toggle.toggle.UIStroke:FindFirstChild("color") then
-                    Toggle.toggle.UIStroke.color.Enabled = false
-                end
-                TweenService:Create(Toggle.toggle.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(97, 97, 97)}):Play()
-            end
+						Toggle.toggle.UIStroke.color.Enabled = true
+						tween(Toggle.toggle.UIStroke, {Color = Color3.new(255,255,255)})
 
-            TweenService:Create(Toggle.toggle, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {BackgroundTransparency = 1}):Play()
+						tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(255,255,255), Position = UDim2.new(1,-23,0.5,0), BackgroundTransparency = 0.45})
+					else
+						Toggle.toggle.color.Enabled = false
+						Toggle.toggle.UIStroke.color.Enabled = false
 
-            TweenService:Create(Toggle.toggle.val, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-                BackgroundColor3 = Color3.fromRGB(97, 97, 97), 
-                Position = UDim2.new(0, 5, 0.5, 0), 
-                BackgroundTransparency = 0
-            }):Play()
-        end
+						Toggle.toggle.UIStroke.Color = Color3.fromRGB(97,97,97)
 
-        ToggleV.CurrentValue = bool
-    end
+						tween(Toggle.toggle, {BackgroundTransparency = 1})
 
-    Toggle.Interact.MouseButton1Click:Connect(function()
-        ToggleSettings.CurrentValue = not ToggleSettings.CurrentValue
-        Set(ToggleSettings.CurrentValue)
+						tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(97,97,97), Position = UDim2.new(0,5,0.5,0), BackgroundTransparency = 0})
+					end
 
-        local Success, Response = pcall(function()
-            ToggleSettings.Callback(ToggleSettings.CurrentValue)
-        end)
-        if not Success then
-            TweenService:Create(Toggle, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-            TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-            Toggle.Title.Text = "Callback Error"
-            warn("Nutriex Hub | " .. ToggleSettings.Name .. " Callback Error " .. tostring(Response))
-            task.wait(0.5)
-            Toggle.Title.Text = ToggleSettings.Name
-            TweenService:Create(Toggle, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-            TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-        end
-    end)
+					ToggleV.CurrentValue = bool
+				end
 
-    Toggle["MouseEnter"]:Connect(function()
-        TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(87, 84, 104)}):Play()
-    end)
+				Toggle.Interact.MouseButton1Click:Connect(function()
+					ToggleSettings.CurrentValue = not ToggleSettings.CurrentValue
+					Set(ToggleSettings.CurrentValue)
 
-    Toggle["MouseLeave"]:Connect(function()
-        TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Color = Color3.fromRGB(64, 61, 76)}):Play()
-    end)
+					local Success, Response = pcall(function()
+						ToggleSettings.Callback(ToggleSettings.CurrentValue)
+					end)
+					if not Success then
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+						Toggle.Title.Text = "Callback Error"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						wait(0.5)
+						Toggle.Title.Text = ToggleSettings.Name
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+					end
+				end)
 
-    if ToggleSettings.CurrentValue then
-        Set(ToggleSettings.CurrentValue)
-        local Success, Response = pcall(function()
-            ToggleSettings.Callback(ToggleSettings.CurrentValue)
-        end)
-        if not Success then
-            warn("Nutriex Hub | " .. ToggleSettings.Name .. " Init Callback Error " .. tostring(Response))
-        end
-    else
-        Set(false)
-    end
+				Toggle["MouseEnter"]:Connect(function()
+					tween(Toggle.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
+				end)
 
-    function ToggleV:UpdateState(State)
-        ToggleSettings.CurrentValue = State
-        Set(ToggleSettings.CurrentValue)
-    end
+				Toggle["MouseLeave"]:Connect(function()
+					tween(Toggle.UIStroke, {Color = Color3.fromRGB(64,61,76)})
+				end)
 
-    function ToggleV:Set(NewToggleSettings)
-        NewToggleSettings = Kwargify({
-            Name = ToggleSettings.Name,
-            Description = ToggleSettings.Description,
-            CurrentValue = ToggleSettings.CurrentValue,
-            Callback = ToggleSettings.Callback
-        }, NewToggleSettings or {})
+				if ToggleSettings.CurrentValue then
+					Set(ToggleSettings.CurrentValue)
+					local Success, Response = pcall(function()
+						ToggleSettings.Callback(ToggleSettings.CurrentValue)
+					end)
+					if not Success then
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+						Toggle.Title.Text = "Callback Error"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						wait(0.5)
+						Toggle.Title.Text = ToggleSettings.Name
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+					end
+				end
 
-        ToggleV.Settings = NewToggleSettings
-        ToggleSettings = NewToggleSettings
+				function ToggleV:UpdateState(State)
+					ToggleSettings.CurrentValue = State
+					Set(ToggleSettings.CurrentValue)
+				end
 
-        Toggle.Name = ToggleSettings.Name .. " - Toggle"
-        Toggle.Title.Text = ToggleSettings.Name
-        if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" and Toggle.Desc ~= nil then
-            Toggle.Desc.Text = ToggleSettings.Description
-        end
+				function ToggleV:Set(NewToggleSettings)
 
-        Set(ToggleSettings.CurrentValue)
-        ToggleV.CurrentValue = ToggleSettings.CurrentValue
+					NewToggleSettings = Kwargify({
+						Name = ToggleSettings.Name,
+						Description = ToggleSettings.Description,
+						CurrentValue = ToggleSettings.CurrentValue,
+						Callback = ToggleSettings.Callback
+					}, NewToggleSettings or {})
 
-        local Success, Response = pcall(function()
-            ToggleSettings.Callback(ToggleSettings.CurrentValue)
-        end)
-        if not Success then
-            warn("Nutriex Hub | " .. ToggleSettings.Name .. " Set Callback Error " .. tostring(Response))
-        end
-    end
+					ToggleV.Settings = NewToggleSettings
+					ToggleSettings = NewToggleSettings
 
-    function ToggleV:Destroy()
-        Toggle.Visible = false
-        Toggle:Destroy()
-    end
+					Toggle.Name = ToggleSettings.Name .. " - Toggle"
+					Toggle.Title.Text = ToggleSettings.Name
+					if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" and Toggle.Desc ~= nil then
+						Toggle.Desc.Text = ToggleSettings.Description
+					end
 
-    local successTheme, themeConn = pcall(function()
-        return NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-            if Toggle.toggle:FindFirstChild("color") then
-                Toggle.toggle.color.Color = Nutriex.ThemeGradient
-            end
-            if Toggle.toggle:FindFirstChild("UIStroke") and Toggle.toggle.UIStroke:FindFirstChild("color") then
-                Toggle.toggle.UIStroke.color.Color = Nutriex.ThemeGradient
-            end
-        end)
-    end)
+					Set(ToggleSettings.CurrentValue)
 
-    if Flag then
-        Nutriex.Options[Flag] = ToggleV
-    end
+					ToggleV.CurrentValue = ToggleSettings.CurrentValue
 
-    return ToggleV
-end
+					local Success, Response = pcall(function()
+						ToggleSettings.Callback(ToggleSettings.CurrentValue)
+					end)
+					if not Success then
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
+						Toggle.Title.Text = "Callback Error"
+						warn("Nutriex Hub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						wait(0.5)
+						Toggle.Title.Text = ToggleSettings.Name
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+					end
+				end
+
+				function ToggleV:Destroy()
+					Toggle.Visible = false
+					Toggle:Destroy()
+				end
+
+				NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+					Toggle.toggle.color.Color = Nutriex.ThemeGradient
+					Toggle.toggle.UIStroke.color.Color = Nutriex.ThemeGradient
+				end)
+
+				if Flag then
+					Nutriex.Options[Flag] = ToggleV
+				end
+
+				return ToggleV
+
+			end
+
 			-- Bind
 			function Section:CreateBind(BindSettings, Flag)
 				TabPage.Position = UDim2.new(0,0,0,28)
