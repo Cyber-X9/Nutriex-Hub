@@ -1,11 +1,3 @@
-local Release = ""
-
-local Nutriex = { 
-	Folder = "Nutriex", 
-	Options = {}, 
-	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
-}
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -22,6 +14,12 @@ local website = "github.com/Nebula-Softworks"
 if RunService:IsStudio() then
 	isStudio = true
 end
+
+local Nutriex = { 
+	Folder = "NutriexLibrary", 
+	Options = {}, 
+	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
+}
 
 local IconModule = {
 	Lucide = nil,
@@ -1621,6 +1619,82 @@ local function unpackt(array : table)
 	return val
 end
 
+local function Draggable(Bar, Window, enableTaptic, dragBar, dragBarCosmetic)
+    pcall(function()
+        local Dragging, DragInput, MousePos, FramePos
+        local connection
+
+        local function updateCosmetic(size, transparency)
+            if enableTaptic and dragBarCosmetic then
+                TweenService:Create(dragBarCosmetic, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                    Size = size,
+                    BackgroundTransparency = transparency
+                }):Play()
+            end
+        end
+
+        if dragBar and enableTaptic then
+            dragBar.MouseEnter:Connect(function()
+                if not Dragging then
+                    updateCosmetic(UDim2.new(0, 120, 0, 4), 0.5)
+                end
+            end)
+
+            dragBar.MouseLeave:Connect(function()
+                if not Dragging then
+                    updateCosmetic(UDim2.new(0, 100, 0, 4), 0.7)
+                end
+            end)
+        end
+
+        Bar.InputBegan:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                Dragging = true
+                MousePos = Input.Position
+                FramePos = Window.Position
+
+                updateCosmetic(UDim2.new(0, 110, 0, 4), 0)
+
+                local inputChangedConn
+                inputChangedConn = Input.Changed:Connect(function()
+                    if Input.UserInputState == Enum.UserInputState.End then
+                        Dragging = false
+                        updateCosmetic(UDim2.new(0, 100, 0, 4), 0.7)
+                        
+                        if inputChangedConn then
+                            inputChangedConn:Disconnect()
+                            inputChangedConn = nil
+                        end
+                        if connection then
+                            connection:Disconnect()
+                            connection = nil
+                        end
+                    end
+                end)
+            end
+        end)
+
+        Bar.InputChanged:Connect(function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+                DragInput = Input
+            end
+        end)
+
+        connection = UserInputService.InputChanged:Connect(function(Input)
+            if Input == DragInput and Dragging then
+                local Delta = Input.Position - MousePos
+                local newMainPosition = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
+                
+                TweenService:Create(Window, TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = newMainPosition}):Play()
+
+                if dragBar then
+                    dragBar.Position = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y + 240)
+                end
+            end
+        end)
+    end)
+end
+
 -- Interface Management
 local NutriexLibrary = isStudio and script.Parent:WaitForChild("Nutriex UI") or game:GetObjects("rbxassetid://86467455075715")[1]
 
@@ -1794,44 +1868,6 @@ local KeySystem : Frame = Main.KeySystem
 -- 	end
 -- end
 
-local UserInputService = game:GetService("UserInputService")
-
-local function Draggable(Bar, Window)
-    local Dragging = false
-    local DragInput, MousePos, WindowPos
-
-    Bar.InputBegan:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-            Dragging = true
-            MousePos = Input.Position
-            WindowPos = Window.AbsolutePosition
-
-            Input.Changed:Connect(function()
-                if Input.UserInputState == Enum.UserInputState.End then
-                    Dragging = false
-                end
-            end)
-        end
-    end)
-
-    Bar.InputChanged:Connect(function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-            DragInput = Input
-        end
-    end)
-
-    UserInputService.InputChanged:Connect(function(Input)
-        if Input == DragInput and Dragging then
-            local Delta = Input.Position - MousePos
-            Window.Position = UDim2.new(
-                WindowPos.X.Scale, 
-                WindowPos.X.Offset + Delta.X, 
-                WindowPos.Y.Scale, 
-                WindowPos.Y.Offset + Delta.Y
-            )
-        end
-    end)
-end
 
 function Nutriex:Notification(data) -- action e.g open messages
 	task.spawn(function()
@@ -2033,7 +2069,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 	LoadingFrame.Frame.Frame.Title.Text = WindowSettings.LoadingTitle
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
-	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Nutriex Interface Suite" and Release or "Nutriex UI"
+	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "By CyberX"
 
 	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
