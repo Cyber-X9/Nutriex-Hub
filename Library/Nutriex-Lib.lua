@@ -2334,11 +2334,11 @@ function Nutriex:CreateWindow(WindowSettings)
 
 		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " Welcome to ".. WindowSettings.Name
+		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
 		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Debugging Mode" break end
+			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Nutriex Interface Suite - Debugging Mode" break end
 			if v == identifyexecutor() then
 				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
 				break
@@ -2447,6 +2447,9 @@ function Nutriex:CreateWindow(WindowSettings)
 				checkFriends()
 			end
 		end)()
+
+		-- Stolen From Sirius Stuff ends here
+
 	end
 
 	function Window:CreateTab(TabSettings)
@@ -2463,7 +2466,7 @@ function Nutriex:CreateWindow(WindowSettings)
 		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
 
 		TabButton.Name = TabSettings.Name
-		TabButton.TexbbetLabel.Text = TabSettings.Name
+		TabButton.TextLabel.Text = TabSettings.Name
 		TabButton.Parent = Navigation.Tabs
 		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
 
