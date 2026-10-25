@@ -3546,7 +3546,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 			-- Dropdown
 	function Section:CreateDropdown(DropdownSettings, Flag)
-    TabPage.Position = UDim2.new(0, 0, 0, 28)
+    TabPage.Position = UDim2.new(0,0,0,28)
     local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings }
 
     DropdownSettings = Kwargify({
@@ -3556,8 +3556,7 @@ function Nutriex:CreateWindow(WindowSettings)
         CurrentOption = {"Option 1"},
         MultipleOptions = false,
         SpecialType = nil,
-        Callback = function(Options)
-        end,
+        Callback = function(Options) end,
     }, DropdownSettings or {})
 
     DropdownV.CurrentOption = DropdownSettings.CurrentOption
@@ -3567,103 +3566,57 @@ function Nutriex:CreateWindow(WindowSettings)
         descriptionbool = true
     end
     
-    local closedsize, openedsize
-    if descriptionbool then
-        closedsize = 48
-        openedsize = 170
-    else
-        closedsize = 38
-        openedsize = 160
-    end
+    local closedsize, openedsize = descriptionbool and 48 or 38, descriptionbool and 170 or 160
     local opened = false
 
     local Dropdown
-    if descriptionbool then 
-        Dropdown = Elements.Template.DropdownDesc:Clone() 
-    else 
-        Dropdown = Elements.Template.Dropdown:Clone() 
-    end
+    pcall(function()
+        if descriptionbool and Elements.Template:FindFirstChild("DropdownDesc") then 
+            Dropdown = Elements.Template.DropdownDesc:Clone() 
+        else 
+            Dropdown = Elements.Template.Dropdown:Clone() 
+        end
+    end)
+    
+    if not Dropdown then return DropdownV end
 
     Dropdown.Name = DropdownSettings.Name
-    Dropdown.Title.Text = DropdownSettings.Name
-    if descriptionbool and Dropdown:FindFirstChild("Desc") then 
-        Dropdown.Desc.Text = DropdownSettings.Description 
-    end
+    if Dropdown:FindFirstChild("Title") then Dropdown.Title.Text = DropdownSettings.Name end
+    if descriptionbool and Dropdown:FindFirstChild("Desc") then Dropdown.Desc.Text = DropdownSettings.Description end
 
     Dropdown.Parent = TabPage
     Dropdown.Visible = true
 
     local function Toggle()
         opened = not opened
-        if opened then
-            tween(Dropdown.icon, {Rotation = 180})
-            tween(Dropdown, {Size = UDim2.new(1, -25, 0, openedsize)})
-        else
-            tween(Dropdown.icon, {Rotation = 0})
-            tween(Dropdown, {Size = UDim2.new(1, -25, 0, closedsize)})
+        if Dropdown:FindFirstChild("icon") then
+            tween(Dropdown.icon, {Rotation = opened and 180 or 0})
         end
+        tween(Dropdown, {Size = UDim2.new(1, -25, 0, opened and openedsize or closedsize)})
     end
 
     local function SafeCallback(param, c2)
         local Success, Response = pcall(function()
             DropdownSettings.Callback(param)
         end)
-        if not Success then
-            TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-            TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-            if Dropdown:FindFirstChild("UIStroke") then
-                TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-            end
+        if not Success and Dropdown:FindFirstChild("Title") then
             Dropdown.Title.Text = "Callback Error"
-            warn("Nutriex Hub | " .. tostring(DropdownSettings.Name) .. " Callback Error " .. tostring(Response))
             task.delay(0.5, function()
-                if Dropdown and Dropdown.Title then
+                if Dropdown and Dropdown:FindFirstChild("Title") then
                     Dropdown.Title.Text = DropdownSettings.Name
-                    TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-                    TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-                    if Dropdown:FindFirstChild("UIStroke") then
-                        TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-                    end
                 end
             end)
         end
-        if Success and c2 then
-            c2()
-        end
+        if Success and c2 then c2() end
     end
 
-    -- Filtro de pesquisa no Dropdown
-    if Dropdown:FindFirstChild("Selected") and Dropdown:FindFirstChild("List") then
-        Dropdown.Selected:GetPropertyChangedSignal("Text"):Connect(function()
-            local text = Dropdown.Selected.Text:lower()
-            for _, Item in ipairs(Dropdown.List:GetChildren()) do
-                if Item:IsA("TextLabel") and Item.Name ~= "Template" then
-                    Item.Visible = text == "" or string.find(Item.Name:lower(), text, 1, true) ~= nil
-                end
-            end
-        end)
-    end
+    local listContainer = Dropdown:FindFirstChild("List") or Dropdown:FindFirstChild("Container") or Dropdown
 
     local function Clear()
-        if not Dropdown:FindFirstChild("List") then return end
-        for _, option in ipairs(Dropdown.List:GetChildren()) do
+        for _, option in ipairs(listContainer:GetChildren()) do
             if option.ClassName == "TextLabel" and option.Name ~= "Template" then
                 option:Destroy()
             end
-        end
-    end
-
-    local function ActivateColorSingle(name)
-        if not Dropdown:FindFirstChild("List") then return end
-        for _, Option in pairs(Dropdown.List:GetChildren()) do
-            if Option.ClassName == "TextLabel" and Option.Name ~= "Template" then
-                tween(Option, {BackgroundTransparency = 0.98})
-            end
-        end
-
-        Toggle()
-        if Dropdown.List:FindFirstChild(name) then
-            tween(Dropdown.List[name], {BackgroundTransparency = 0.95, TextColor3 = Color3.fromRGB(240, 240, 240)})
         end
     end
 
@@ -3677,17 +3630,15 @@ function Nutriex:CreateWindow(WindowSettings)
 
     local function Refresh()
         Clear()
-        if not Dropdown:FindFirstChild("List") or not Dropdown.List:FindFirstChild("Template") then return end
+        local template = listContainer:FindFirstChild("Template")
+        if not template then return end
         
         for _, v in ipairs(DropdownSettings.Options) do
-            local Option = Dropdown.List.Template:Clone()
-            local optionhover = false
+            local Option = template:Clone()
             Option.Text = tostring(v)
-            local optName = tostring(v)
-            if optName == "Template" then optName = "Template (Name)" end
-            Option.Name = optName
+            Option.Name = tostring(v)
             
-            local interactBtn = Option:FindFirstChild("Interact")
+            local interactBtn = Option:FindFirstChild("Interact") or Option
             if interactBtn then
                 interactBtn.MouseButton1Click:Connect(function()
                     local bleh
@@ -3695,62 +3646,35 @@ function Nutriex:CreateWindow(WindowSettings)
                         if table.find(DropdownSettings.CurrentOption, v) then
                             RemoveTable(DropdownSettings.CurrentOption, v)
                             DropdownV.CurrentOption = DropdownSettings.CurrentOption
-                            if not optionhover then
-                                tween(Option, {TextColor3 = Color3.fromRGB(200, 200, 200)})
-                            end
                             tween(Option, {BackgroundTransparency = 0.98})
                         else
                             table.insert(DropdownSettings.CurrentOption, v)
                             DropdownV.CurrentOption = DropdownSettings.CurrentOption
-                            tween(Option, {TextColor3 = Color3.fromRGB(240, 240, 240), BackgroundTransparency = 0.95})
+                            tween(Option, {BackgroundTransparency = 0.95})
                         end
                         bleh = DropdownSettings.CurrentOption
                     else
                         DropdownSettings.CurrentOption = {v}
                         bleh = v
                         DropdownV.CurrentOption = bleh
-                        ActivateColorSingle(optName)
+                        Toggle()
                     end
 
                     SafeCallback(bleh, function()
-                        if not Dropdown:FindFirstChild("Selected") then return end
-                        if DropdownSettings.MultipleOptions then
-                            if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-                                if #DropdownSettings.CurrentOption == 1 then
-                                    Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1])
-                                elseif #DropdownSettings.CurrentOption == 0 then
-                                    Dropdown.Selected.PlaceholderText = "None"
-                                else
-                                    Dropdown.Selected.PlaceholderText = SafeUnpack(DropdownSettings.CurrentOption)
-                                end
+                        local selectedBox = Dropdown:FindFirstChild("Selected")
+                        if selectedBox then
+                            if DropdownSettings.MultipleOptions then
+                                selectedBox.PlaceholderText = #DropdownSettings.CurrentOption > 0 and SafeUnpack(DropdownSettings.CurrentOption) or "None"
                             else
-                                DropdownSettings.CurrentOption = {}
-                                Dropdown.Selected.PlaceholderText = "None"
+                                selectedBox.PlaceholderText = tostring(DropdownSettings.CurrentOption[1] or "None")
                             end
-                        else
-                            Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1] or "None")
+                            selectedBox.Text = ""
                         end
-                        Dropdown.Selected.Text = ""
                     end)
                 end)
             end
-            
             Option.Visible = true
-            Option.Parent = Dropdown.List
-            
-            Option.MouseEnter:Connect(function()
-                optionhover = true
-                if Option.BackgroundTransparency ~= 0.95 then
-                    tween(Option, {TextColor3 = Color3.fromRGB(240, 240, 240)})
-                end
-            end)
-            
-            Option.MouseLeave:Connect(function()
-                optionhover = false
-                if Option.BackgroundTransparency ~= 0.95 then
-                    tween(Option, {TextColor3 = Color3.fromRGB(200, 200, 200)})
-                end
-            end)
+            Option.Parent = listContainer
         end
     end
 
@@ -3761,175 +3685,35 @@ function Nutriex:CreateWindow(WindowSettings)
         end
     end
 
-    if Dropdown:FindFirstChild("Interact") then
-        Dropdown.Interact.MouseButton1Click:Connect(function()
-            Toggle()
-        end)
-    end
-
-    if Dropdown:FindFirstChild("UIStroke") then
-        Dropdown["MouseEnter"]:Connect(function()
-            tween(Dropdown.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-        end)
-
-        Dropdown["MouseLeave"]:Connect(function()
-            tween(Dropdown.UIStroke, {Color = Color3.fromRGB(64, 61, 76)})
-        end)
-    end
+    local mainInteract = Dropdown:FindFirstChild("Interact") or Dropdown
+    mainInteract.MouseButton1Click:Connect(function()
+        Toggle()
+    end)
 
     if DropdownSettings.SpecialType == "Player" then
         PlayerTableRefresh()
         if #DropdownSettings.Options > 0 then
             DropdownSettings.CurrentOption = {DropdownSettings.Options[1]}
         end
-
         Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
         Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
     end
 
     Refresh()
 
-    if DropdownSettings.CurrentOption then
-        if type(DropdownSettings.CurrentOption) == "string" then
-            DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-        end
-        if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-            DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-        end
-    else
-        DropdownSettings.CurrentOption = {}
-    end
-
-    local bleh, ind = nil, 0
-    for _, _ in pairs(DropdownSettings.CurrentOption) do
-        ind = ind + 1
-    end
-    if ind == 1 then 
-        bleh = DropdownSettings.CurrentOption[1] 
-    else 
-        bleh = DropdownSettings.CurrentOption 
-    end
-    
-    SafeCallback(bleh)
-
-    pcall(function()
-        if type(bleh) == "string" then 
-            if Dropdown.List:FindFirstChild(bleh) then
-                tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240, 240, 240), BackgroundTransparency = 0.95})
-            end
-        elseif type(bleh) == "table" then
-            for _, v in pairs(bleh) do
-                if Dropdown.List:FindFirstChild(tostring(v)) then
-                    tween(Dropdown.List[tostring(v)], {TextColor3 = Color3.fromRGB(240, 240, 240), BackgroundTransparency = 0.95})
-                end
+    function DropdownV:Set(NewOptions)
+        if type(NewOptions) == "table" then
+            DropdownSettings.Options = NewOptions
+            if DropdownSettings.SpecialType ~= "Player" and #NewOptions > 0 then
+                DropdownSettings.CurrentOption = {NewOptions[1]}
             end
         end
-    end)
-
-    if Dropdown:FindFirstChild("Selected") then
-        if DropdownSettings.MultipleOptions then
-            if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-                if #DropdownSettings.CurrentOption == 1 then
-                    Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1])
-                elseif #DropdownSettings.CurrentOption == 0 then
-                    Dropdown.Selected.PlaceholderText = "None"
-                else
-                    Dropdown.Selected.PlaceholderText = SafeUnpack(DropdownSettings.CurrentOption)
-                end
-            else
-                DropdownSettings.CurrentOption = {}
-                Dropdown.Selected.PlaceholderText = "None"
-            end
-            for _, name in pairs(DropdownSettings.CurrentOption) do
-                if Dropdown.List:FindFirstChild(tostring(name)) then
-                    tween(Dropdown.List[tostring(name)], {TextColor3 = Color3.fromRGB(227, 227, 227), BackgroundTransparency = 0.95})
-                end
-            end
-        else
-            Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1] or "None")
-        end
-        Dropdown.Selected.Text = ""
-    end
-
-    function DropdownV:Set(NewDropdownSettings)
-        NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
-
-        DropdownV.Settings = NewDropdownSettings
-        DropdownSettings = NewDropdownSettings
-
-        Dropdown.Name = DropdownSettings.Name
-        Dropdown.Title.Text = DropdownSettings.Name
-        if DropdownSettings.Description ~= nil and DropdownSettings.Description ~= "" and Dropdown:FindFirstChild("Desc") then
-            Dropdown.Desc.Text = DropdownSettings.Description
-        end
-
-        if DropdownSettings.SpecialType == "Player" then
-            PlayerTableRefresh()
-            if #DropdownSettings.Options > 0 then
-                DropdownSettings.CurrentOption = {DropdownSettings.Options[1]}
-            end                    
-        end
-
         Refresh()
-
-        if DropdownSettings.CurrentOption then
-            if type(DropdownSettings.CurrentOption) == "string" then
-                DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-            end
-            if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-                DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-            end
-        else
-            DropdownSettings.CurrentOption = {}
-        end
-
-        local blehSet, indSet = nil, 0
-        for _, _ in pairs(DropdownSettings.CurrentOption) do
-            indSet = indSet + 1
-        end
-        if indSet == 1 then 
-            blehSet = DropdownSettings.CurrentOption[1] 
-        else 
-            blehSet = DropdownSettings.CurrentOption 
-        end
         
-        SafeCallback(blehSet)
-        
-        for _, Option in pairs(Dropdown.List:GetChildren()) do
-            if Option.ClassName == "TextLabel" then
-                tween(Option, {TextColor3 = Color3.fromRGB(200, 200, 200), BackgroundTransparency = 0.98})
-            end
-        end
-        
-        pcall(function()
-            if type(blehSet) == "string" and Dropdown.List:FindFirstChild(blehSet) then
-                tween(Dropdown.List[blehSet], {TextColor3 = Color3.fromRGB(240, 240, 240), BackgroundTransparency = 0.95})
-            end
-        end)
-
-        if Dropdown:FindFirstChild("Selected") then
-            if DropdownSettings.MultipleOptions then
-                if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-                    if #DropdownSettings.CurrentOption == 1 then
-                        Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1])
-                    elseif #DropdownSettings.CurrentOption == 0 then
-                        Dropdown.Selected.PlaceholderText = "None"
-                    else
-                        Dropdown.Selected.PlaceholderText = SafeUnpack(DropdownSettings.CurrentOption)
-                    end
-                else
-                    DropdownSettings.CurrentOption = {}
-                    Dropdown.Selected.PlaceholderText = "None"
-                end
-                for _, name in pairs(DropdownSettings.CurrentOption) do
-                    if Dropdown.List:FindFirstChild(tostring(name)) then
-                        tween(Dropdown.List[tostring(name)], {TextColor3 = Color3.fromRGB(227, 227, 227), BackgroundTransparency = 0.95})
-                    end
-                end
-            else
-                Dropdown.Selected.PlaceholderText = tostring(DropdownSettings.CurrentOption[1] or "None")
-            end
-            Dropdown.Selected.Text = ""
+        local selectedBox = Dropdown:FindFirstChild("Selected")
+        if selectedBox then
+            selectedBox.PlaceholderText = tostring(DropdownSettings.CurrentOption[1] or "None")
+            selectedBox.Text = ""
         end
     end
 
