@@ -1,5 +1,3 @@
-local Release = ""
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -16,6 +14,12 @@ local website = "github.com/Nebula-Softworks"
 if RunService:IsStudio() then
 	isStudio = true
 end
+
+local Nutriex = { 
+	Folder = "NutriexLibrary", 
+	Options = {}, 
+	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
+}
 
 local IconModule = {
 	Lucide = nil,
