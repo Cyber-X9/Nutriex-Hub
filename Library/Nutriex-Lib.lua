@@ -16,7 +16,7 @@ if RunService:IsStudio() then
 end
 
 local Nutriex = { 
-	Folder = "NutriexLibrary", 
+	Folder = "Nutriex-Library", 
 	Options = {}, 
 	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
 }
@@ -1580,7 +1580,7 @@ local function RemoveTable(tablre, value)
 	end
 end
 
-local function Kwargify(defaults, passed)
+local function NutriexParse(defaults, passed)
 	for i, v in pairs(defaults) do
 		if passed[i] == nil then
 			passed[i] = v
@@ -1619,7 +1619,7 @@ local function unpackt(array : table)
 	return val
 end
 
-local function Draggable(Bar, Window, enableTaptic, dragBar, dragBarCosmetic)
+local function Drag(Bar, Window, enableTaptic, dragBar, dragBarCosmetic)
     pcall(function()
         local Dragging, DragInput, MousePos, FramePos
         local connection
@@ -1807,7 +1807,7 @@ local KeySystem : Frame = Main.KeySystem
 -- 			end)
 -- 		else
 -- 			notified = true
--- 			Nutriex:Notification({Title = "Config Error", Content = "Nutriex was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
+-- 			Nutriex:Notification({Title = "Config Error", Content = "Nutriex was unable to load or find '"..FlagName.. "'' in the current script.", Icon = "flag"})
 -- 		end
 -- 	end
 -- 	if autoload and notified == false then
@@ -1870,7 +1870,7 @@ local KeySystem : Frame = Main.KeySystem
 
 function Nutriex:Notification(data) -- action e.g open messages
 	task.spawn(function()
-		data = Kwargify({
+		data = NutriexParse({
 			Title = "Missing Title",
 			Content = "Missing or Unknown Content",
 			Icon = "view_in_ar",
@@ -2011,7 +2011,7 @@ end
 
 function Nutriex:CreateWindow(WindowSettings)
 
-	WindowSettings = Kwargify({
+	WindowSettings = NutriexParse({
 		Name = "Nutriex UI Example Window",
 		Subtitle = "",
 		LogoID = "6031097225",
@@ -2025,12 +2025,12 @@ function Nutriex:CreateWindow(WindowSettings)
 		KeySettings = {}
 	}, WindowSettings or {})
 
-	WindowSettings.ConfigSettings = Kwargify({
+	WindowSettings.ConfigSettings = NutriexParse({
 		RootFolder = nil,
 		ConfigFolder = "Big Hub"
 	}, WindowSettings.ConfigSettings or {})
 
-	WindowSettings.KeySettings = Kwargify({
+	WindowSettings.KeySettings = NutriexParse({
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
@@ -2040,7 +2040,7 @@ function Nutriex:CreateWindow(WindowSettings)
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
-	WindowSettings.KeySettings.SecondAction = Kwargify({
+	WindowSettings.KeySettings.SecondAction = NutriexParse({
 		Enabled = false,
 		Type = "Discord", -- Link/Discord
 		Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
@@ -2113,9 +2113,9 @@ function Nutriex:CreateWindow(WindowSettings)
 	if WindowSettings.KeySystem then
 		local KeySettings = WindowSettings.KeySettings
 		
-		Draggable(Dragger, Main)
-		Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-		if dragBar then Draggable(dragInteract, Main, true, 255) end
+		Drag(Dragger, Main)
+		Drag(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
+		if dragBar then Drag(dragInteract, Main, true, 255) end
 
 		if not WindowSettings.KeySettings then
 			Passthrough = true
@@ -2274,9 +2274,9 @@ function Nutriex:CreateWindow(WindowSettings)
 	wait(0.4)
 	LoadingFrame.Visible = false
 
-	Draggable(Dragger, Main)
-	Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-	if dragBar then Draggable(dragInteract, Main, true, 255) end
+	Drag(Dragger, Main)
+	Drag(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
+	if dragBar then Drag(dragInteract, Main, true, 255) end
 
 	Elements.Template.LayoutOrder = 1000000000
 	Elements.Template.Visible = false
@@ -2287,7 +2287,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 	function Window:CreateHomeTab(HomeTabSettings)
 
-		HomeTabSettings = Kwargify({
+		HomeTabSettings = NutriexParse({
 			Icon = 1,
 			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
 			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
@@ -2334,11 +2334,11 @@ function Nutriex:CreateWindow(WindowSettings)
 
 		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
+		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " Welcome to ".. WindowSettings.Name
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
 		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Nutriex Interface Suite - Debugging Mode" break end
+			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Debugging Mode" break end
 			if v == identifyexecutor() then
 				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
 				break
@@ -2347,9 +2347,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				break
 			end
 		end
-
-		-- Stolen From Sirius Stuff Begins Here
-
+    
 		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
 			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite)) -- Hunter if you see this I added copy also was too lazy to send u msg
 			if request then
@@ -2434,8 +2432,8 @@ function Nutriex:CreateWindow(WindowSettings)
 
 
 				-- Players
-				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." playing"
-				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." players can join this server"
+				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." Playing"
+				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." Players can join this server"
 
 				-- Ping
 				HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and tostring(math.round((Players.LocalPlayer:GetNetworkPing() * 2 ) / 0.01)) .."ms" or tostring(math.floor(getPing()) .."ms")
@@ -2449,16 +2447,13 @@ function Nutriex:CreateWindow(WindowSettings)
 				checkFriends()
 			end
 		end)()
-
-		-- Stolen From Sirius Stuff ends here
-
 	end
 
 	function Window:CreateTab(TabSettings)
 
 		local Tab = {}
 
-		TabSettings = Kwargify({
+		TabSettings = NutriexParse({
 			Name = "Tab",
 			ShowTitle = true,
 			Icon = "view_in_ar",
@@ -2468,7 +2463,7 @@ function Nutriex:CreateWindow(WindowSettings)
 		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
 
 		TabButton.Name = TabSettings.Name
-		TabButton.TextLabel.Text = TabSettings.Name
+		TabButton.TexbbetLabel.Text = TabSettings.Name
 		TabButton.Parent = Navigation.Tabs
 		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
 
@@ -2568,7 +2563,7 @@ function Nutriex:CreateWindow(WindowSettings)
 			function Section:CreateButton(ButtonSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ButtonSettings = Kwargify({
+				ButtonSettings = NutriexParse({
 					Name = "Button",
 					Description = nil,
 					Callback = function()
@@ -2645,7 +2640,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				end)
 
 				function ButtonV:Set(ButtonSettings2)
-					ButtonSettings2 = Kwargify({
+					ButtonSettings2 = NutriexParse({
 						Name = ButtonSettings.Name,
 						Description = ButtonSettings.Description,
 						Callback = ButtonSettings.Callback
@@ -2675,7 +2670,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 				local LabelV = {}
 
-				LabelSettings = Kwargify({
+				LabelSettings = NutriexParse({
 					Text = "Label",
 					Style = 1
 				}, LabelSettings or {}) 
@@ -2725,7 +2720,7 @@ function Nutriex:CreateWindow(WindowSettings)
 			function Section:CreateParagraph(ParagraphSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ParagraphSettings = Kwargify({
+				ParagraphSettings = NutriexParse({
 					Title = "Paragraph",
 					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 				}, ParagraphSettings or {})
@@ -2758,7 +2753,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 				function ParagraphV:Set(NewParagraphSettings)
 
-					NewParagraphSettings = Kwargify({
+					NewParagraphSettings = NutriexParse({
 						Title = ParagraphSettings.Title,
 						Text = ParagraphSettings.Text
 					}, NewParagraphSettings or {})
@@ -2787,7 +2782,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-				SliderSettings = Kwargify({
+				SliderSettings = NutriexParse({
 					Name = "Slider",
 					Range = {0, 200},
 					Increment = 1,
@@ -2943,7 +2938,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				end)
 
 				function SliderV:Set(NewSliderSettings)
-					NewSliderSettings = Kwargify({
+					NewSliderSettings = NutriexParse({
 						Name = SliderSettings.Name,
 						Range = SliderSettings.Range,
 						Increment = SliderSettings.Increment,
@@ -2985,7 +2980,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-				ToggleSettings = Kwargify({
+				ToggleSettings = NutriexParse({
 					Name = "Toggle",
 					Description = nil,
 					CurrentValue = false,
@@ -3102,7 +3097,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 				function ToggleV:Set(NewToggleSettings)
 
-					NewToggleSettings = Kwargify({
+					NewToggleSettings = NutriexParse({
 						Name = ToggleSettings.Name,
 						Description = ToggleSettings.Description,
 						CurrentValue = ToggleSettings.CurrentValue,
@@ -3162,7 +3157,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-				BindSettings = Kwargify({
+				BindSettings = NutriexParse({
 					Name = "Bind",
 					Description = nil,
 					CurrentBind = "Q",
@@ -3338,7 +3333,7 @@ function Nutriex:CreateWindow(WindowSettings)
 
 				function BindV:Set(NewBindSettings)
 
-					NewBindSettings = Kwargify({
+					NewBindSettings = NutriexParse({
 						Name = BindSettings.Name,
 						Description = BindSettings.Description,
 						CurrentBind =  BindSettings.CurrentBind,
@@ -3382,7 +3377,7 @@ function Nutriex:CreateWindow(WindowSettings)
     TabPage.Position = UDim2.new(0, 0, 0, 28)
     local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-    InputSettings = Kwargify({
+    InputSettings = NutriexParse({
         Name = "Dynamic Input",
         Description = nil,
         CurrentValue = "",
@@ -3557,7 +3552,7 @@ function Nutriex:CreateWindow(WindowSettings)
     end)
 
     function InputV:Set(NewInputSettings)
-        NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
+        NewInputSettings = NutriexParse(InputSettings, NewInputSettings or {})
         InputV.Settings = NewInputSettings
         InputSettings = NewInputSettings
 
@@ -3588,7 +3583,7 @@ end
     TabPage.Position = UDim2.new(0,0,0,28)
     local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings }
 
-    DropdownSettings = Kwargify({
+    DropdownSettings = NutriexParse({
         Name = "Dropdown",
         Description = nil,
         Options = {"Option 1", "Option 2"},
@@ -3773,7 +3768,7 @@ end
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-				ColorPickerSettings = Kwargify({
+				ColorPickerSettings = NutriexParse({
 					Name = "Color Picker",
 					Color = Color3.fromRGB(255,255,255),
 					Callback = function(Value)
@@ -3983,7 +3978,7 @@ end
 
 				function ColorPickerV:Set(NewColorPickerSettings)
 
-					NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
+					NewColorPickerSettings = NutriexParse(ColorPickerSettings, NewColorPickerSettings or {})
 
 					ColorPickerV.Settings = NewColorPickerSettings
 					ColorPickerSettings = NewColorPickerSettings
@@ -4031,7 +4026,7 @@ end
 		-- Button
 		function Tab:CreateButton(ButtonSettings)
 
-			ButtonSettings = Kwargify({
+			ButtonSettings = NutriexParse({
 				Name = "Button",
 				Description = nil,
 				Callback = function()
@@ -4108,7 +4103,7 @@ end
 			end)
 
 			function ButtonV:Set(ButtonSettings2)
-				ButtonSettings2 = Kwargify({
+				ButtonSettings2 = NutriexParse({
 					Name = ButtonSettings.Name,
 					Description = ButtonSettings.Description,
 					Callback = ButtonSettings.Callback
@@ -4137,7 +4132,7 @@ end
 
 			local LabelV = {}
 
-			LabelSettings = Kwargify({
+			LabelSettings = NutriexParse({
 				Text = "Label",
 				Style = 1
 			}, LabelSettings or {}) 
@@ -4186,7 +4181,7 @@ end
 		-- Paragraph
 		function Tab:CreateParagraph(ParagraphSettings)
 
-			ParagraphSettings = Kwargify({
+			ParagraphSettings = NutriexParse({
 				Title = "Paragraph",
 				Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 			}, ParagraphSettings or {})
@@ -4219,7 +4214,7 @@ end
 
 			function ParagraphV:Set(NewParagraphSettings)
 
-				NewParagraphSettings = Kwargify({
+				NewParagraphSettings = NutriexParse({
 					Title = ParagraphSettings.Title,
 					Text = ParagraphSettings.Text
 				}, NewParagraphSettings or {})
@@ -4247,7 +4242,7 @@ end
 		function Tab:CreateSlider(SliderSettings, Flag)
 			local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-			SliderSettings = Kwargify({
+			SliderSettings = NutriexParse({
 				Name = "Slider",
 				Range = {0, 200},
 				Increment = 1,
@@ -4403,7 +4398,7 @@ end
 			end)
 
 			function SliderV:Set(NewSliderSettings)
-				NewSliderSettings = Kwargify({
+				NewSliderSettings = NutriexParse({
 					Name = SliderSettings.Name,
 					Range = SliderSettings.Range,
 					Increment = SliderSettings.Increment,
@@ -4444,7 +4439,7 @@ end
 		function Tab:CreateToggle(ToggleSettings, Flag)    
 			local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-			ToggleSettings = Kwargify({
+			ToggleSettings = NutriexParse({
 				Name = "Toggle",
 				Description = nil,
 				CurrentValue = false,
@@ -4561,7 +4556,7 @@ end
 
 			function ToggleV:Set(NewToggleSettings)
 
-				NewToggleSettings = Kwargify({
+				NewToggleSettings = NutriexParse({
 					Name = ToggleSettings.Name,
 					Description = ToggleSettings.Description,
 					CurrentValue = ToggleSettings.CurrentValue,
@@ -4620,7 +4615,7 @@ end
 		function Tab:CreateBind(BindSettings, Flag)
 			local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-			BindSettings = Kwargify({
+			BindSettings = NutriexParse({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -4796,7 +4791,7 @@ end
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = Kwargify({
+				NewBindSettings = NutriexParse({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -4837,7 +4832,7 @@ end
 
 		function Tab:CreateKeybind(BindSettings)
 
-			BindSettings = Kwargify({
+			BindSettings = NutriexParse({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -4994,7 +4989,7 @@ end
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = Kwargify({
+				NewBindSettings = NutriexParse({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -5033,7 +5028,7 @@ end
 		function Tab:CreateInput(InputSettings, Flag)
 			local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-			InputSettings = Kwargify({
+			InputSettings = NutriexParse({
 				Name = "Dynamic Input",
 				Description = nil,
 				CurrentValue = "",
@@ -5162,7 +5157,7 @@ end
 
 			function InputV:Set(NewInputSettings)
 
-				NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
+				NewInputSettings = NutriexParse(InputSettings, NewInputSettings or {})
 
 				InputV.Settings = NewInputSettings
 				InputSettings = NewInputSettings
@@ -5199,7 +5194,7 @@ end
 		function Tab:CreateDropdown(DropdownSettings, Flag)
 			local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
 
-			DropdownSettings = Kwargify({
+			DropdownSettings = NutriexParse({
 				Name = "Dropdown",
 				Description = nil,
 				Options = {"Option 1", "Option 2"},
@@ -5458,7 +5453,7 @@ end
 			Dropdown.Selected.Text = ""
 
 			function DropdownV:Set(NewDropdownSettings)
-				NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
+				NewDropdownSettings = NutriexParse(DropdownSettings, NewDropdownSettings or {})
 
 				DropdownV.Settings = NewDropdownSettings
 				DropdownSettings = NewDropdownSettings
@@ -5551,7 +5546,7 @@ end
 		function Tab:CreateColorPicker(ColorPickerSettings, Flag) -- by Rayfield/Throit
 			local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-			ColorPickerSettings = Kwargify({
+			ColorPickerSettings = NutriexParse({
 				Name = "Color Picker",
 				Color = Color3.fromRGB(255,255,255),
 				Callback = function(Value)
@@ -5761,7 +5756,7 @@ end
 
 			function ColorPickerV:Set(NewColorPickerSettings)
 
-				NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
+				NewColorPickerSettings = NutriexParse(ColorPickerSettings, NewColorPickerSettings or {})
 
 				ColorPickerV.Settings = NewColorPickerSettings
 				ColorPickerSettings = NewColorPickerSettings
@@ -6425,13 +6420,6 @@ if isStudio then
 		}
 	})
 
-	Nutriex:Notification({ 
-		Title = "Welcome to Nutriex",
-		Icon = "sparkle",
-		ImageSource = "Material",
-		Content = "Welcome to the Nutriex Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Nutriex was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Nutriex Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For? Start Using Nutriex Today at " .. website
-	})
-
 	local Tabs = {
 		Main = Window:CreateTab({
 			Name = "Tab Example 1",
@@ -6600,12 +6588,6 @@ end
     window = Nutriex:CreateWindow({LoadingEnabled = false})
     t1 = window:CreateTab()
     t2 = window:CreateTab({ Name = "Tab 2", Icon = "location_searching"})
-    Nutriex:Notification({ 
-        Title = "Welcome to Nutriex",
-        Icon = "sparkle",
-        ImageSource = "Material",
-        Content = "Welcome to the Nutriex Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Nutriex was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Nutriex Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For? Start Using Nutriex Today at " .. website
-    })
     t1:CreateSection()
     local btn = t1:CreateButton({Callback = "", Description = "This Is A Description"})
     local l = t1:CreateLabel({ Style = 2})
