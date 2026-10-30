@@ -38,10 +38,16 @@ if RunService:IsStudio() then
 	isStudio = true
 end
 
+local Luna = { 
+	Folder = "Luna", 
+	Options = {}, 
+	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
+}
+
 local IconModule = {
 	Lucide = nil,
 	Material = {
-		["perm_media"] = "http://www.roblox.com/asset/?id=6031215982";
+		["perm_media"] = "http://www.roblox.com/asset;/?id=6031215982";
 		["sticky_note_2"] = "http://www.roblox.com/asset/?id=6031265972";
 		["gavel"] = "http://www.roblox.com/asset/?id=6023565902";
 		["table_view"] = "http://www.roblox.com/asset/?id=6031233835";
@@ -1597,7 +1603,7 @@ local function RemoveTable(tablre, value)
 	end
 end
 
-local function SetParse(defaults, passed)
+local function Kwargify(defaults, passed)
 	for i, v in pairs(defaults) do
 		if passed[i] == nil then
 			passed[i] = v
@@ -1620,7 +1626,6 @@ function tween(object, goal, callback, tweenin)
 	tween:Play()
 end
 
-
 local function unpackt(array : table)
 
 	local val = ""
@@ -1639,7 +1644,7 @@ local function unpackt(array : table)
 end
 
 -- Interface Management
-local NutriexLibrary = isStudio and script.Parent:WaitForChild("Luna UI") or game:GetObjects("rbxassetid://86467455075715")[1]
+local NutriexLibrary = isStudio and script.Parent:WaitForChild("NutriexLibrary") or game:GetObjects("rbxassetid://86467455075715")[1]
 
 local SizeBleh = nil
 
@@ -1884,7 +1889,7 @@ end
 
 function Luna:Notification(data) -- action e.g open messages
 	task.spawn(function()
-		data = SetParse({
+		data = Kwargify({
 			Title = "Missing Title",
 			Content = "Missing or Unknown Content",
 			Icon = "view_in_ar",
@@ -1897,13 +1902,11 @@ function Luna:Notification(data) -- action e.g open messages
 		newNotification.Parent = Notifications
 		newNotification.LayoutOrder = #Notifications:GetChildren()
 		newNotification.Visible = false
-
-   	-- Set Data
-    newNotification.Title.Text = data.Title
-    newNotification.Description.Text = data.Content 
-
-    local iconAsset = GetIcon(data.Icon, data.ImageSource)
-    newNotification.Icon.Image = iconAsset ~= "" and iconAsset or "rbxassetid://0"
+		
+		-- Set Data
+		newNotification.Title.Text = data.Title
+		newNotification.Description.Text = data.Content 
+		newNotification.Icon.Image = GetIcon(data.Icon, data.ImageSource)
 
 		-- Set initial transparency values
 		newNotification.BackgroundTransparency = 1
@@ -2025,8 +2028,8 @@ end
 
 function Luna:CreateWindow(WindowSettings)
 
-	WindowSettings = SetParse({
-		Name = "Luna UI Example Window",
+	WindowSettings = Kwargify({
+		Name = "NutriexLibrary Example Window",
 		Subtitle = "",
 		LogoID = "6031097225",
 		LoadingEnabled = true,
@@ -2039,12 +2042,12 @@ function Luna:CreateWindow(WindowSettings)
 		KeySettings = {}
 	}, WindowSettings or {})
 
-	WindowSettings.ConfigSettings = SetParse({
+	WindowSettings.ConfigSettings = Kwargify({
 		RootFolder = nil,
 		ConfigFolder = "Big Hub"
 	}, WindowSettings.ConfigSettings or {})
 
-	WindowSettings.KeySettings = SetParse({
+	WindowSettings.KeySettings = Kwargify({
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
@@ -2054,7 +2057,7 @@ function Luna:CreateWindow(WindowSettings)
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
-	WindowSettings.KeySettings.SecondAction = SetParse({
+	WindowSettings.KeySettings.SecondAction = Kwargify({
 		Enabled = false,
 		Type = "Discord", -- Link/Discord
 		Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
@@ -2082,7 +2085,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	LoadingFrame.Frame.Frame.Title.Text = WindowSettings.LoadingTitle
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
-	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Luna Interface Suite" and Release or "Luna UI"
+	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Luna Interface Suite" and Release or "NutriexLibrary"
 
 	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
@@ -2123,6 +2126,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	NutriexLibrary.Enabled = true
 
+	
 	if WindowSettings.KeySystem then
 		local KeySettings = WindowSettings.KeySettings
 		
@@ -2300,7 +2304,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	function Window:CreateHomeTab(HomeTabSettings)
 
-		HomeTabSettings = SetParse({
+		HomeTabSettings = Kwargify({
 			Icon = 1,
 			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
 			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
@@ -2471,7 +2475,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		local Tab = {}
 
-		TabSettings = SetParse({
+		TabSettings = Kwargify({
 			Name = "Tab",
 			ShowTitle = true,
 			Icon = "view_in_ar",
@@ -2581,7 +2585,7 @@ function Luna:CreateWindow(WindowSettings)
 			function Section:CreateButton(ButtonSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ButtonSettings = SetParse({
+				ButtonSettings = Kwargify({
 					Name = "Button",
 					Description = nil,
 					Callback = function()
@@ -2658,7 +2662,7 @@ function Luna:CreateWindow(WindowSettings)
 				end)
 
 				function ButtonV:Set(ButtonSettings2)
-					ButtonSettings2 = SetParse({
+					ButtonSettings2 = Kwargify({
 						Name = ButtonSettings.Name,
 						Description = ButtonSettings.Description,
 						Callback = ButtonSettings.Callback
@@ -2688,7 +2692,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				local LabelV = {}
 
-				LabelSettings = SetParse({
+				LabelSettings = Kwargify({
 					Text = "Label",
 					Style = 1
 				}, LabelSettings or {}) 
@@ -2738,7 +2742,7 @@ function Luna:CreateWindow(WindowSettings)
 			function Section:CreateParagraph(ParagraphSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ParagraphSettings = SetParse({
+				ParagraphSettings = Kwargify({
 					Title = "Paragraph",
 					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 				}, ParagraphSettings or {})
@@ -2771,7 +2775,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ParagraphV:Set(NewParagraphSettings)
 
-					NewParagraphSettings = SetParse({
+					NewParagraphSettings = Kwargify({
 						Title = ParagraphSettings.Title,
 						Text = ParagraphSettings.Text
 					}, NewParagraphSettings or {})
@@ -2800,7 +2804,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-				SliderSettings = SetParse({
+				SliderSettings = Kwargify({
 					Name = "Slider",
 					Range = {0, 200},
 					Increment = 1,
@@ -2956,7 +2960,7 @@ function Luna:CreateWindow(WindowSettings)
 				end)
 
 				function SliderV:Set(NewSliderSettings)
-					NewSliderSettings = SetParse({
+					NewSliderSettings = Kwargify({
 						Name = SliderSettings.Name,
 						Range = SliderSettings.Range,
 						Increment = SliderSettings.Increment,
@@ -2998,7 +3002,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-				ToggleSettings = SetParse({
+				ToggleSettings = Kwargify({
 					Name = "Toggle",
 					Description = nil,
 					CurrentValue = false,
@@ -3115,7 +3119,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ToggleV:Set(NewToggleSettings)
 
-					NewToggleSettings = SetParse({
+					NewToggleSettings = Kwargify({
 						Name = ToggleSettings.Name,
 						Description = ToggleSettings.Description,
 						CurrentValue = ToggleSettings.CurrentValue,
@@ -3175,7 +3179,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-				BindSettings = SetParse({
+				BindSettings = Kwargify({
 					Name = "Bind",
 					Description = nil,
 					CurrentBind = "Q",
@@ -3351,7 +3355,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function BindV:Set(NewBindSettings)
 
-					NewBindSettings = SetParse({
+					NewBindSettings = Kwargify({
 						Name = BindSettings.Name,
 						Description = BindSettings.Description,
 						CurrentBind =  BindSettings.CurrentBind,
@@ -3395,7 +3399,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-				InputSettings = SetParse({
+				InputSettings = Kwargify({
 					Name = "Dynamic Input",
 					Description = nil,
 					CurrentValue = "",
@@ -3524,7 +3528,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function InputV:Set(NewInputSettings)
 
-					NewInputSettings = SetParse(InputSettings, NewInputSettings or {})
+					NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
 
 					InputV.Settings = NewInputSettings
 					InputSettings = NewInputSettings
@@ -3562,7 +3566,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
 
-				DropdownSettings = SetParse({
+				DropdownSettings = Kwargify({
 					Name = "Dropdown",
 					Description = nil,
 					Options = {"Option 1", "Option 2"},
@@ -3821,7 +3825,7 @@ function Luna:CreateWindow(WindowSettings)
 				Dropdown.Selected.Text = ""
 
 				function DropdownV:Set(NewDropdownSettings)
-					NewDropdownSettings = SetParse(DropdownSettings, NewDropdownSettings or {})
+					NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
 
 					DropdownV.Settings = NewDropdownSettings
 					DropdownSettings = NewDropdownSettings
@@ -3915,7 +3919,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-				ColorPickerSettings = SetParse({
+				ColorPickerSettings = Kwargify({
 					Name = "Color Picker",
 					Color = Color3.fromRGB(255,255,255),
 					Callback = function(Value)
@@ -4125,7 +4129,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ColorPickerV:Set(NewColorPickerSettings)
 
-					NewColorPickerSettings = SetParse(ColorPickerSettings, NewColorPickerSettings or {})
+					NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
 
 					ColorPickerV.Settings = NewColorPickerSettings
 					ColorPickerSettings = NewColorPickerSettings
@@ -4173,7 +4177,7 @@ function Luna:CreateWindow(WindowSettings)
 		-- Button
 		function Tab:CreateButton(ButtonSettings)
 
-			ButtonSettings = SetParse({
+			ButtonSettings = Kwargify({
 				Name = "Button",
 				Description = nil,
 				Callback = function()
@@ -4250,7 +4254,7 @@ function Luna:CreateWindow(WindowSettings)
 			end)
 
 			function ButtonV:Set(ButtonSettings2)
-				ButtonSettings2 = SetParse({
+				ButtonSettings2 = Kwargify({
 					Name = ButtonSettings.Name,
 					Description = ButtonSettings.Description,
 					Callback = ButtonSettings.Callback
@@ -4279,7 +4283,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			local LabelV = {}
 
-			LabelSettings = SetParse({
+			LabelSettings = Kwargify({
 				Text = "Label",
 				Style = 1
 			}, LabelSettings or {}) 
@@ -4328,7 +4332,7 @@ function Luna:CreateWindow(WindowSettings)
 		-- Paragraph
 		function Tab:CreateParagraph(ParagraphSettings)
 
-			ParagraphSettings = SetParse({
+			ParagraphSettings = Kwargify({
 				Title = "Paragraph",
 				Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 			}, ParagraphSettings or {})
@@ -4361,7 +4365,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ParagraphV:Set(NewParagraphSettings)
 
-				NewParagraphSettings = SetParse({
+				NewParagraphSettings = Kwargify({
 					Title = ParagraphSettings.Title,
 					Text = ParagraphSettings.Text
 				}, NewParagraphSettings or {})
@@ -4389,7 +4393,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateSlider(SliderSettings, Flag)
 			local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-			SliderSettings = SetParse({
+			SliderSettings = Kwargify({
 				Name = "Slider",
 				Range = {0, 200},
 				Increment = 1,
@@ -4545,7 +4549,7 @@ function Luna:CreateWindow(WindowSettings)
 			end)
 
 			function SliderV:Set(NewSliderSettings)
-				NewSliderSettings = SetParse({
+				NewSliderSettings = Kwargify({
 					Name = SliderSettings.Name,
 					Range = SliderSettings.Range,
 					Increment = SliderSettings.Increment,
@@ -4586,7 +4590,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateToggle(ToggleSettings, Flag)    
 			local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-			ToggleSettings = SetParse({
+			ToggleSettings = Kwargify({
 				Name = "Toggle",
 				Description = nil,
 				CurrentValue = false,
@@ -4703,7 +4707,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ToggleV:Set(NewToggleSettings)
 
-				NewToggleSettings = SetParse({
+				NewToggleSettings = Kwargify({
 					Name = ToggleSettings.Name,
 					Description = ToggleSettings.Description,
 					CurrentValue = ToggleSettings.CurrentValue,
@@ -4762,7 +4766,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateBind(BindSettings, Flag)
 			local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-			BindSettings = SetParse({
+			BindSettings = Kwargify({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -4938,7 +4942,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = SetParse({
+				NewBindSettings = Kwargify({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -4979,7 +4983,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		function Tab:CreateKeybind(BindSettings)
 
-			BindSettings = SetParse({
+			BindSettings = Kwargify({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -5136,7 +5140,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = SetParse({
+				NewBindSettings = Kwargify({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -5175,7 +5179,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateInput(InputSettings, Flag)
 			local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-			InputSettings = SetParse({
+			InputSettings = Kwargify({
 				Name = "Dynamic Input",
 				Description = nil,
 				CurrentValue = "",
@@ -5304,7 +5308,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function InputV:Set(NewInputSettings)
 
-				NewInputSettings = SetParse(InputSettings, NewInputSettings or {})
+				NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
 
 				InputV.Settings = NewInputSettings
 				InputSettings = NewInputSettings
@@ -5341,7 +5345,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateDropdown(DropdownSettings, Flag)
 			local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
 
-			DropdownSettings = SetParse({
+			DropdownSettings = Kwargify({
 				Name = "Dropdown",
 				Description = nil,
 				Options = {"Option 1", "Option 2"},
@@ -5600,7 +5604,7 @@ function Luna:CreateWindow(WindowSettings)
 			Dropdown.Selected.Text = ""
 
 			function DropdownV:Set(NewDropdownSettings)
-				NewDropdownSettings = SetParse(DropdownSettings, NewDropdownSettings or {})
+				NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
 
 				DropdownV.Settings = NewDropdownSettings
 				DropdownSettings = NewDropdownSettings
@@ -5693,7 +5697,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateColorPicker(ColorPickerSettings, Flag) -- by Rayfield/Throit
 			local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-			ColorPickerSettings = SetParse({
+			ColorPickerSettings = Kwargify({
 				Name = "Color Picker",
 				Color = Color3.fromRGB(255,255,255),
 				Callback = function(Value)
@@ -5903,7 +5907,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ColorPickerV:Set(NewColorPickerSettings)
 
-				NewColorPickerSettings = SetParse(ColorPickerSettings, NewColorPickerSettings or {})
+				NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
 
 				ColorPickerV.Settings = NewColorPickerSettings
 				ColorPickerSettings = NewColorPickerSettings
