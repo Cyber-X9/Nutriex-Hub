@@ -1597,7 +1597,7 @@ local function RemoveTable(tablre, value)
 	end
 end
 
-local function Kwargify(defaults, passed)
+local function SetParse(defaults, passed)
 	for i, v in pairs(defaults) do
 		if passed[i] == nil then
 			passed[i] = v
@@ -2025,7 +2025,7 @@ end
 
 function Luna:CreateWindow(WindowSettings)
 
-	WindowSettings = Kwargify({
+	WindowSettings = SetParse({
 		Name = "Luna UI Example Window",
 		Subtitle = "",
 		LogoID = "6031097225",
@@ -2039,12 +2039,12 @@ function Luna:CreateWindow(WindowSettings)
 		KeySettings = {}
 	}, WindowSettings or {})
 
-	WindowSettings.ConfigSettings = Kwargify({
+	WindowSettings.ConfigSettings = SetParse({
 		RootFolder = nil,
 		ConfigFolder = "Big Hub"
 	}, WindowSettings.ConfigSettings or {})
 
-	WindowSettings.KeySettings = Kwargify({
+	WindowSettings.KeySettings = SetParse({
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
@@ -2054,7 +2054,7 @@ function Luna:CreateWindow(WindowSettings)
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
-	WindowSettings.KeySettings.SecondAction = Kwargify({
+	WindowSettings.KeySettings.SecondAction = SetParse({
 		Enabled = false,
 		Type = "Discord", -- Link/Discord
 		Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
@@ -2300,7 +2300,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	function Window:CreateHomeTab(HomeTabSettings)
 
-		HomeTabSettings = Kwargify({
+		HomeTabSettings = SetParse({
 			Icon = 1,
 			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
 			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
@@ -2471,7 +2471,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		local Tab = {}
 
-		TabSettings = Kwargify({
+		TabSettings = SetParse({
 			Name = "Tab",
 			ShowTitle = true,
 			Icon = "view_in_ar",
@@ -2581,7 +2581,7 @@ function Luna:CreateWindow(WindowSettings)
 			function Section:CreateButton(ButtonSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ButtonSettings = Kwargify({
+				ButtonSettings = SetParse({
 					Name = "Button",
 					Description = nil,
 					Callback = function()
@@ -2658,7 +2658,7 @@ function Luna:CreateWindow(WindowSettings)
 				end)
 
 				function ButtonV:Set(ButtonSettings2)
-					ButtonSettings2 = Kwargify({
+					ButtonSettings2 = SetParse({
 						Name = ButtonSettings.Name,
 						Description = ButtonSettings.Description,
 						Callback = ButtonSettings.Callback
@@ -2688,7 +2688,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				local LabelV = {}
 
-				LabelSettings = Kwargify({
+				LabelSettings = SetParse({
 					Text = "Label",
 					Style = 1
 				}, LabelSettings or {}) 
@@ -2738,7 +2738,7 @@ function Luna:CreateWindow(WindowSettings)
 			function Section:CreateParagraph(ParagraphSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 
-				ParagraphSettings = Kwargify({
+				ParagraphSettings = SetParse({
 					Title = "Paragraph",
 					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 				}, ParagraphSettings or {})
@@ -2771,7 +2771,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ParagraphV:Set(NewParagraphSettings)
 
-					NewParagraphSettings = Kwargify({
+					NewParagraphSettings = SetParse({
 						Title = ParagraphSettings.Title,
 						Text = ParagraphSettings.Text
 					}, NewParagraphSettings or {})
@@ -2800,7 +2800,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-				SliderSettings = Kwargify({
+				SliderSettings = SetParse({
 					Name = "Slider",
 					Range = {0, 200},
 					Increment = 1,
@@ -2956,7 +2956,7 @@ function Luna:CreateWindow(WindowSettings)
 				end)
 
 				function SliderV:Set(NewSliderSettings)
-					NewSliderSettings = Kwargify({
+					NewSliderSettings = SetParse({
 						Name = SliderSettings.Name,
 						Range = SliderSettings.Range,
 						Increment = SliderSettings.Increment,
@@ -2998,7 +2998,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-				ToggleSettings = Kwargify({
+				ToggleSettings = SetParse({
 					Name = "Toggle",
 					Description = nil,
 					CurrentValue = false,
@@ -3115,7 +3115,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ToggleV:Set(NewToggleSettings)
 
-					NewToggleSettings = Kwargify({
+					NewToggleSettings = SetParse({
 						Name = ToggleSettings.Name,
 						Description = ToggleSettings.Description,
 						CurrentValue = ToggleSettings.CurrentValue,
@@ -3175,7 +3175,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-				BindSettings = Kwargify({
+				BindSettings = SetParse({
 					Name = "Bind",
 					Description = nil,
 					CurrentBind = "Q",
@@ -3351,7 +3351,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function BindV:Set(NewBindSettings)
 
-					NewBindSettings = Kwargify({
+					NewBindSettings = SetParse({
 						Name = BindSettings.Name,
 						Description = BindSettings.Description,
 						CurrentBind =  BindSettings.CurrentBind,
@@ -3395,7 +3395,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-				InputSettings = Kwargify({
+				InputSettings = SetParse({
 					Name = "Dynamic Input",
 					Description = nil,
 					CurrentValue = "",
@@ -3524,7 +3524,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function InputV:Set(NewInputSettings)
 
-					NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
+					NewInputSettings = SetParse(InputSettings, NewInputSettings or {})
 
 					InputV.Settings = NewInputSettings
 					InputSettings = NewInputSettings
@@ -3562,7 +3562,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
 
-				DropdownSettings = Kwargify({
+				DropdownSettings = SetParse({
 					Name = "Dropdown",
 					Description = nil,
 					Options = {"Option 1", "Option 2"},
@@ -3821,7 +3821,7 @@ function Luna:CreateWindow(WindowSettings)
 				Dropdown.Selected.Text = ""
 
 				function DropdownV:Set(NewDropdownSettings)
-					NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
+					NewDropdownSettings = SetParse(DropdownSettings, NewDropdownSettings or {})
 
 					DropdownV.Settings = NewDropdownSettings
 					DropdownSettings = NewDropdownSettings
@@ -3915,7 +3915,7 @@ function Luna:CreateWindow(WindowSettings)
 				TabPage.Position = UDim2.new(0,0,0,28)
 				local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-				ColorPickerSettings = Kwargify({
+				ColorPickerSettings = SetParse({
 					Name = "Color Picker",
 					Color = Color3.fromRGB(255,255,255),
 					Callback = function(Value)
@@ -4125,7 +4125,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				function ColorPickerV:Set(NewColorPickerSettings)
 
-					NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
+					NewColorPickerSettings = SetParse(ColorPickerSettings, NewColorPickerSettings or {})
 
 					ColorPickerV.Settings = NewColorPickerSettings
 					ColorPickerSettings = NewColorPickerSettings
@@ -4173,7 +4173,7 @@ function Luna:CreateWindow(WindowSettings)
 		-- Button
 		function Tab:CreateButton(ButtonSettings)
 
-			ButtonSettings = Kwargify({
+			ButtonSettings = SetParse({
 				Name = "Button",
 				Description = nil,
 				Callback = function()
@@ -4250,7 +4250,7 @@ function Luna:CreateWindow(WindowSettings)
 			end)
 
 			function ButtonV:Set(ButtonSettings2)
-				ButtonSettings2 = Kwargify({
+				ButtonSettings2 = SetParse({
 					Name = ButtonSettings.Name,
 					Description = ButtonSettings.Description,
 					Callback = ButtonSettings.Callback
@@ -4279,7 +4279,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			local LabelV = {}
 
-			LabelSettings = Kwargify({
+			LabelSettings = SetParse({
 				Text = "Label",
 				Style = 1
 			}, LabelSettings or {}) 
@@ -4328,7 +4328,7 @@ function Luna:CreateWindow(WindowSettings)
 		-- Paragraph
 		function Tab:CreateParagraph(ParagraphSettings)
 
-			ParagraphSettings = Kwargify({
+			ParagraphSettings = SetParse({
 				Title = "Paragraph",
 				Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
 			}, ParagraphSettings or {})
@@ -4361,7 +4361,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ParagraphV:Set(NewParagraphSettings)
 
-				NewParagraphSettings = Kwargify({
+				NewParagraphSettings = SetParse({
 					Title = ParagraphSettings.Title,
 					Text = ParagraphSettings.Text
 				}, NewParagraphSettings or {})
@@ -4389,7 +4389,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateSlider(SliderSettings, Flag)
 			local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-			SliderSettings = Kwargify({
+			SliderSettings = SetParse({
 				Name = "Slider",
 				Range = {0, 200},
 				Increment = 1,
@@ -4545,7 +4545,7 @@ function Luna:CreateWindow(WindowSettings)
 			end)
 
 			function SliderV:Set(NewSliderSettings)
-				NewSliderSettings = Kwargify({
+				NewSliderSettings = SetParse({
 					Name = SliderSettings.Name,
 					Range = SliderSettings.Range,
 					Increment = SliderSettings.Increment,
@@ -4586,7 +4586,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateToggle(ToggleSettings, Flag)    
 			local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
 
-			ToggleSettings = Kwargify({
+			ToggleSettings = SetParse({
 				Name = "Toggle",
 				Description = nil,
 				CurrentValue = false,
@@ -4703,7 +4703,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ToggleV:Set(NewToggleSettings)
 
-				NewToggleSettings = Kwargify({
+				NewToggleSettings = SetParse({
 					Name = ToggleSettings.Name,
 					Description = ToggleSettings.Description,
 					CurrentValue = ToggleSettings.CurrentValue,
@@ -4762,7 +4762,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateBind(BindSettings, Flag)
 			local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
 
-			BindSettings = Kwargify({
+			BindSettings = SetParse({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -4938,7 +4938,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = Kwargify({
+				NewBindSettings = SetParse({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -4979,7 +4979,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		function Tab:CreateKeybind(BindSettings)
 
-			BindSettings = Kwargify({
+			BindSettings = SetParse({
 				Name = "Bind",
 				Description = nil,
 				CurrentBind = "Q",
@@ -5136,7 +5136,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function BindV:Set(NewBindSettings)
 
-				NewBindSettings = Kwargify({
+				NewBindSettings = SetParse({
 					Name = BindSettings.Name,
 					Description = BindSettings.Description,
 					CurrentBind =  BindSettings.CurrentBind,
@@ -5175,7 +5175,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateInput(InputSettings, Flag)
 			local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-			InputSettings = Kwargify({
+			InputSettings = SetParse({
 				Name = "Dynamic Input",
 				Description = nil,
 				CurrentValue = "",
@@ -5304,7 +5304,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function InputV:Set(NewInputSettings)
 
-				NewInputSettings = Kwargify(InputSettings, NewInputSettings or {})
+				NewInputSettings = SetParse(InputSettings, NewInputSettings or {})
 
 				InputV.Settings = NewInputSettings
 				InputSettings = NewInputSettings
@@ -5341,7 +5341,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateDropdown(DropdownSettings, Flag)
 			local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
 
-			DropdownSettings = Kwargify({
+			DropdownSettings = SetParse({
 				Name = "Dropdown",
 				Description = nil,
 				Options = {"Option 1", "Option 2"},
@@ -5600,7 +5600,7 @@ function Luna:CreateWindow(WindowSettings)
 			Dropdown.Selected.Text = ""
 
 			function DropdownV:Set(NewDropdownSettings)
-				NewDropdownSettings = Kwargify(DropdownSettings, NewDropdownSettings or {})
+				NewDropdownSettings = SetParse(DropdownSettings, NewDropdownSettings or {})
 
 				DropdownV.Settings = NewDropdownSettings
 				DropdownSettings = NewDropdownSettings
@@ -5693,7 +5693,7 @@ function Luna:CreateWindow(WindowSettings)
 		function Tab:CreateColorPicker(ColorPickerSettings, Flag) -- by Rayfield/Throit
 			local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
 
-			ColorPickerSettings = Kwargify({
+			ColorPickerSettings = SetParse({
 				Name = "Color Picker",
 				Color = Color3.fromRGB(255,255,255),
 				Callback = function(Value)
@@ -5903,7 +5903,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			function ColorPickerV:Set(NewColorPickerSettings)
 
-				NewColorPickerSettings = Kwargify(ColorPickerSettings, NewColorPickerSettings or {})
+				NewColorPickerSettings = SetParse(ColorPickerSettings, NewColorPickerSettings or {})
 
 				ColorPickerV.Settings = NewColorPickerSettings
 				ColorPickerSettings = NewColorPickerSettings
