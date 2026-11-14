@@ -2044,20 +2044,19 @@ function Nutriex:CreateWindow(WindowSettings)
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
-		SaveInRoot = false, -- Enabling will save the key in your RootFolder (YOU MUST HAVE ONE BEFORE ENABLING THIS OPTION)
-		SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-		Key = {""}, -- List of keys that will be accepted by the system, please use a system like Pelican or Luarmor that provide key strings based on your HWID since putting a simple string is very easy to bypass
+		SaveInRoot = false, 
+		SaveKey = true, 
+		Key = {""}, 
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
 	WindowSettings.KeySettings.SecondAction = SetPrase({
 		Enabled = false,
-		Type = "Discord", -- Link/Discord
-		Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
+		Type = "Discord", 
+		Parameter = "" 
 	}, WindowSettings.KeySettings.SecondAction)
 
 	local Passthrough = false
-
 	local Window = { Bind = Enum.KeyCode.K, CurrentTab = nil, State = true, Size = false, Settings = nil }
 
 	Main.Title.Title.Text = WindowSettings.Name
@@ -2068,6 +2067,7 @@ function Nutriex:CreateWindow(WindowSettings)
 	Main.Size = MainSize
 	Main.Size = UDim2.fromOffset(Main.Size.X.Offset - 70, Main.Size.Y.Offset - 55)
 	Main.Parent.ShadowHolder.Size = Main.Size
+	
 	LoadingFrame.Frame.Frame.Title.TextTransparency = 1
 	LoadingFrame.Frame.Frame.Subtitle.TextTransparency = 1
 	LoadingFrame.Version.TextTransparency = 1
@@ -2080,11 +2080,12 @@ function Nutriex:CreateWindow(WindowSettings)
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
 	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Nutriex Interface Suite" and Release or "NutriexLibrary"
 
-	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
-	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
-	Navigation.Player.TextLabel.Text = Players.LocalPlayer.Name
+	local LocalPlayer = Players.LocalPlayer
+	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+	Navigation.Player.Namez.Text = LocalPlayer.DisplayName
+	Navigation.Player.TextLabel.Text = LocalPlayer.Name
 
-	for i,v in pairs(Main.Controls:GetChildren()) do
+	for _, v in ipairs(Main.Controls:GetChildren()) do
 		v.Visible = false
 	end
 
@@ -2096,30 +2097,8 @@ function Nutriex:CreateWindow(WindowSettings)
 	end)
 
 	LoadingFrame.Visible = true
-
-	-- pcall(function()
-	-- 	if not isfolder(ConfigurationFolder) then
-	-- 		makefolder(ConfigurationFolder)
-	-- 	end
-	-- 	if WindowSettings.ConfigSettings.RootFolder then
-	-- 		if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder) then
-	-- 			makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder)
-	-- 			if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder .. WindowSettings.ConfigSettings.ConfigFolder) then
-	-- 				makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder .. WindowSettings.ConfigSettings.ConfigFolder)
-	-- 			end
-	-- 		end
-	-- 	else
-	-- 		if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.ConfigFolder) then
-	-- 			makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.ConfigFolder)
-	-- 		end
-	-- 	end
-
-	-- 	LoadAutoLoad(WindowSettings.ConfigSettings.ConfigFolder, WindowSettings.ConfigSettings.RootFolder)
-	-- end)
-
 	NutriexLibrary.Enabled = true
 
-	
 	if WindowSettings.KeySystem then
 		local KeySettings = WindowSettings.KeySettings
 		
@@ -2127,20 +2106,22 @@ function Nutriex:CreateWindow(WindowSettings)
 		Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
 		if dragBar then Draggable(dragInteract, Main, true, 255) end
 
-		if not WindowSettings.KeySettings then
+		if not KeySettings then
 			Passthrough = true
 			return
 		end
 		
-		WindowSettings.KeySettings.FileName = "key"
+		KeySettings.FileName = "key"
+		if typeof(KeySettings.Key) == "string" then 
+			KeySettings.Key = {KeySettings.Key} 
+		end
 
-		if typeof(WindowSettings.KeySettings.Key) == "string" then WindowSettings.KeySettings.Key = {WindowSettings.KeySettings.Key} end
+		local direc = "Nutriex/Configurations/" .. (KeySettings.SaveInRoot and (WindowSettings.ConfigSettings.RootFolder .. "/") or "") .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
 
-		local direc = WindowSettings.KeySettings.SaveInRoot and "Nutriex/Configurations/" .. WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/" or "Nutriex/Configurations/" ..  WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
-
-		if isfile and isfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex") then
-			for i, Key in ipairs(WindowSettings.KeySettings.Key) do
-				if string.find(readfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex"), Key) then
+		if isfile and isfile(direc .. KeySettings.FileName .. ".Nutriex") then
+			local savedKeyData = readfile(direc .. KeySettings.FileName .. ".Nutriex")
+			for _, Key in ipairs(KeySettings.Key) do
+				if string.find(savedKeyData, Key) then
 					Passthrough = true
 					break
 				end
@@ -2148,42 +2129,37 @@ function Nutriex:CreateWindow(WindowSettings)
 		end
 
 		if not Passthrough then
-
-			local Btn = KeySystem.Action.Copy
-			local typesys = KeySettings.SecondAction.Type
-			
-			if typesys == "Discord" then
-				Btn = KeySystem.Action.Discord
-			end
-
+			local Btn = KeySettings.SecondAction.Type == "Discord" and KeySystem.Action.Discord or KeySystem.Action.Copy
 			local AttemptsRemaining = math.random(2, 5)
 
 			KeySystem.Visible = true
-			KeySystem.Title.Text = WindowSettings.KeySettings.Title
-			KeySystem.Subtitle.Text = WindowSettings.KeySettings.Subtitle
-			KeySystem.textshit.Text = WindowSettings.KeySettings.Note
+			KeySystem.Title.Text = KeySettings.Title
+			KeySystem.Subtitle.Text = KeySettings.Subtitle
+			KeySystem.textshit.Text = KeySettings.Note
 
-			if KeySettings.SecondAction.Enabled == true then
+			if KeySettings.SecondAction.Enabled then
 				Btn.Visible = true
 			end
 			
 			Btn.Interact.MouseButton1Click:Connect(function()
-				if typesys == "Discord" then
-					setclipboard(tostring("https://discord.gg/"..KeySettings.SecondAction.Parameter)) -- Hunter if you see this I added copy also was too lazy to send u msg
+				if KeySettings.SecondAction.Type == "Discord" then
+					setclipboard("https://discord.gg/" .. KeySettings.SecondAction.Parameter)
 					if request then
-						request({
-							Url = 'http://127.0.0.1:6463/rpc?v=1',
-							Method = 'POST',
-							Headers = {
-								['Content-Type'] = 'application/json',
-								Origin = 'https://discord.com'
-							},
-							Body = HttpService:JSONEncode({
-								cmd = 'INVITE_BROWSER',
-								nonce = HttpService:GenerateGUID(false),
-								args = {code = KeySettings.SecondAction.Parameter}
+						pcall(function()
+							request({
+								Url = 'http://127.0.0.1:6463/rpc?v=1',
+								Method = 'POST',
+								Headers = {
+									['Content-Type'] = 'application/json',
+									Origin = 'https://discord.com'
+								},
+								Body = HttpService:JSONEncode({
+									cmd = 'INVITE_BROWSER',
+									nonce = HttpService:GenerateGUID(false),
+									args = {code = KeySettings.SecondAction.Parameter}
+								})
 							})
-						})
+						end)
 					end
 				else
 					setclipboard(tostring(KeySettings.SecondAction.Parameter))
@@ -2192,57 +2168,56 @@ function Nutriex:CreateWindow(WindowSettings)
 
 			KeySystem.Action.Submit.Interact.MouseButton1Click:Connect(function()
 				if #KeySystem.Input.InputBox.Text == 0 then return end
-				local KeyFound = false
-				local FoundKey = ''
-				for _, Key in ipairs(WindowSettings.KeySettings.Key) do
+				local KeyFound, FoundKey = false, ''
+				
+				for _, Key in ipairs(KeySettings.Key) do
 					if KeySystem.Input.InputBox.Text == Key then
 						KeyFound = true
 						FoundKey = Key
 						break
 					end
 				end
+
 				if KeyFound then 
-					for _, instance in pairs(KeySystem:GetDescendants()) do
-						if instance.ClassName ~= "UICorner" and instance.ClassName ~= "UIPadding" then
-							if instance.ClassName ~= "UIStroke" and instance.ClassName ~= "UIListLayout" then
-								tween(instance, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "ImageButton" then
-								tween(instance, {ImageTransparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "TextLabel" then
-								tween(instance, {TextTransparency = 1}, nil,TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "UIStroke" then
-								tween(instance, {Transparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
-							end
+					for _, instance in ipairs(KeySystem:GetDescendants()) do
+						if instance:IsA("GuiObject") and not instance:IsA("UICorner") and not instance:IsA("UIPadding") and not instance:IsA("UIStroke") and not instance:IsA("UIListLayout") then
+							tween(instance, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
+						end
+						if instance:IsA("ImageButton") or instance:IsA("ImageLabel") then
+							tween(instance, {ImageTransparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+						end
+						if instance:IsA("TextLabel") then
+							tween(instance, {TextTransparency = 1}, nil, TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
+						end
+						if instance:IsA("UIStroke") then
+							tween(instance, {Transparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
 						end
 					end
-					tween(KeySystem, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
+					
+					tween(KeySystem, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
 					task.wait(0.51)
 					Passthrough = true
 					KeySystem.Visible = false
-					if WindowSettings.KeySettings.SaveKey then
-						if writefile then
-							writefile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex", FoundKey)
-						end
+					
+					if KeySettings.SaveKey and writefile then
+						pcall(function()
+							writefile(direc .. KeySettings.FileName .. ".Nutriex", FoundKey)
+						end)
 						Nutriex:Notification({Title = "Key System", Content = "The key for this script has been saved successfully.", Icon = "lock_open"})
 					end
 				else
-					if AttemptsRemaining == 0 then
-
-						game.Players.LocalPlayer:Kick("No Attempts Remaining")
+					if AttemptsRemaining <= 0 then
+						LocalPlayer:Kick("No Attempts Remaining")
 						game:Shutdown()
 					end
 					KeySystem.Input.InputBox.Text = "Incorrect Key"
-					AttemptsRemaining = AttemptsRemaining - 1
+					AttemptsRemaining -= 1
 					task.wait(0.4)
 					KeySystem.Input.InputBox.Text = ""
 				end
 			end)
 
 			KeySystem.Close.MouseButton1Click:Connect(function()
-				
 				Nutriex:Destroy()
 			end)
 		end
@@ -2269,7 +2244,7 @@ function Nutriex:CreateWindow(WindowSettings)
 		task.wait(0.05)
 		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
 		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		wait(0.3)
+		task.wait(0.3)
 		TweenService:Create(LoadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
 	end
 
@@ -2281,7 +2256,7 @@ function Nutriex:CreateWindow(WindowSettings)
 	TweenService:Create(Navigation.Player.icon.ImageLabel, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
 	TweenService:Create(Navigation.Player.icon.UIStroke, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Transparency = 0}):Play()
 	TweenService:Create(Main.Line, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
-	wait(0.4)
+	task.wait(0.4)
 	LoadingFrame.Visible = false
 
 	Draggable(Dragger, Main)
@@ -2293,20 +2268,17 @@ function Nutriex:CreateWindow(WindowSettings)
 	Navigation.Tabs["InActive Template"].LayoutOrder = 1000000000
 	Navigation.Tabs["InActive Template"].Visible = false
 
-	local FirstTab = true
-
 	function Window:CreateHomeTab(HomeTabSettings)
-
 		HomeTabSettings = SetPrase({
 			Icon = 1,
-			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
-			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
+			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"},
+			DiscordInvite = "noinvitelink"
 		}, HomeTabSettings or {})
 
 		local HomeTab = {}
-
 		local HomeTabButton = Navigation.Tabs.Home
 		HomeTabButton.Visible = true
+		
 		if HomeTabSettings.Icon == 2 then
 			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
 		end
@@ -2315,113 +2287,110 @@ function Nutriex:CreateWindow(WindowSettings)
 		HomeTabPage.Visible = true
 
 		function HomeTab:Activate()
-			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
+			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)})
 			tween(HomeTabButton, {BackgroundTransparency = 0})
 			tween(HomeTabButton.UIStroke, {Transparency = 0.41})
 
 			Elements.UIPageLayout:JumpTo(HomeTabPage)
-
 			task.wait(0.05)
 
 			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= HomeTabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
+				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= HomeTabButton then
+					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221, 221, 221)})
 					tween(OtherTabButton, {BackgroundTransparency = 1})
 					tween(OtherTabButton.UIStroke, {Transparency = 1})
 				end
-
 			end
 
 			Window.CurrentTab = "Home"
 		end
 
 		HomeTab:Activate()
-		FirstTab = false
 		HomeTabButton.Interact.MouseButton1Click:Connect(function()
 			HomeTab:Activate()
 		end)
 
+		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+		HomeTabPage.player.Text.Text = "Hello, " .. LocalPlayer.DisplayName
+		HomeTabPage.player.user.Text = LocalPlayer.Name .. " - " .. WindowSettings.Name
 
-		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
-
-		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
-		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Nutriex Interface Suite - Debugging Mode" break end
-			if v == identifyexecutor() then
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
-				break
-			else
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Isn't Officialy Supported By This Script."
+		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Unsupported Executor."
+		
+		local executorSupported = false
+		for _, v in ipairs(HomeTabSettings.SupportedExecutors) do
+			if isStudio or v == identifyexecutor() then
+				executorSupported = true
 				break
 			end
 		end
-
-		-- Stolen From Sirius Stuff Begins Here
+		
+		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = isStudio and "Nutriex Interface Suite - Debugging Mode" or 
+			(executorSupported and "Your Executor Supports This Script." or "Your Executor Isn't Officially Supported By This Script.")
 
 		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
-			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite)) -- Hunter if you see this I added copy also was too lazy to send u msg
+			setclipboard("https://discord.gg/" .. HomeTabSettings.DiscordInvite)
 			if request then
-				request({
-					Url = 'http://127.0.0.1:6463/rpc?v=1',
-					Method = 'POST',
-					Headers = {
-						['Content-Type'] = 'application/json',
-						Origin = 'https://discord.com'
-					},
-					Body = HttpService:JSONEncode({
-						cmd = 'INVITE_BROWSER',
-						nonce = HttpService:GenerateGUID(false),
-						args = {code = HomeTabSettings.DiscordInvite}
+				pcall(function()
+					request({
+						Url = 'http://127.0.0.1:6463/rpc?v=1',
+						Method = 'POST',
+						Headers = {
+							['Content-Type'] = 'application/json',
+							Origin = 'https://discord.com'
+						},
+						Body = HttpService:JSONEncode({
+							cmd = 'INVITE_BROWSER',
+							nonce = HttpService:GenerateGUID(false),
+							args = {code = HomeTabSettings.DiscordInvite}
+						})
 					})
-				})
+				end)
 			end
 		end)
 
 		local friendsCooldown = 0
-		local function getPing() return math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700) end
+		local function getPing() 
+			local success, ping = pcall(function()
+				return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+			end)
+			return success and math.clamp(ping, 10, 700) or 50
+		end
 
 		local function checkFriends()
 			if friendsCooldown == 0 then
-
 				friendsCooldown = 25
-
-				local playersFriends = {}
-				local friendsInTotal = 0
-				local onlineFriends = 0 
-				local friendsInGame = 0 
-
-				local list = Players:GetFriendsAsync(Player.UserId)
-				while true do -- loop through all the pages
-					for _, data in list:GetCurrentPage() do
-						friendsInTotal +=1
-						table.insert(playersFriends, Data)
+				local success, list = pcall(function()
+					return Players:GetFriendsAsync(LocalPlayer.UserId)
+				end)
+				
+				if success and list then
+					local playersFriends, onlineFriends, friendsInTotal, friendsInGame = {}, 0, 0, 0
+					
+					while true do
+						for _, data in ipairs(list:GetCurrentPage()) do
+							friendsInTotal += 1
+							table.insert(playersFriends, data)
+						end
+						if list.IsFinished then break else list:AdvanceToNextPageAsync() end
 					end
 
-					if list.IsFinished then
-						-- stop the loop since this is the last page
-						break
-					else 
-						-- go to the next page
-						list:AdvanceToNextPageAsync()
+					pcall(function()
+						for _, _ in ipairs(LocalPlayer:GetFriendsOnline()) do
+							onlineFriends += 1
+						end
+					end)
+
+					for _, v in ipairs(playersFriends) do
+						if Players:FindFirstChild(v.Username) then
+							friendsInGame += 1
+						end
 					end
-				end
-				for i, v in pairs(Player:GetFriendsOnline()) do
-					onlineFriends += 1
-				end
 
-				for i,v in pairs(playersFriends) do
-					if Players:FindFirstChild(v.Username) then
-						friendsInGame = friendsInGame + 1
-					end
+					HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = friendsInTotal .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = math.max(0, friendsInTotal - onlineFriends) .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = onlineFriends .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = friendsInGame .. " friends"
 				end
-
-				HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = tostring(friendsInTotal).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(friendsInTotal - onlineFriends).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = tostring(onlineFriends).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = tostring(friendsInGame).." friends"
-
 			else
 				friendsCooldown -= 1
 			end
@@ -2432,252 +2401,252 @@ function Nutriex:CreateWindow(WindowSettings)
 		end
 
 		local function convertToHMS(Seconds)
-			local Minutes = (Seconds - Seconds%60)/60
-			Seconds = Seconds - Minutes*60
-			local Hours = (Minutes - Minutes%60)/60
-			Minutes = Minutes - Hours*60
-			return format(Hours)..":"..format(Minutes)..":"..format(Seconds)
+			local Minutes = (Seconds - Seconds % 60) / 60
+			Seconds = Seconds - Minutes * 60
+			local Hours = (Minutes - Minutes % 60) / 60
+			Minutes = Minutes - Hours * 60
+			return format(Hours) .. ":" .. format(Minutes) .. ":" .. format(Seconds)
 		end
 
-		coroutine.wrap(function()
-			while task.wait() do
-
-
-				-- Players
-				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." playing"
-				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." players can join this server"
-
-				-- Ping
-				HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and tostring(math.round((Players.LocalPlayer:GetNetworkPing() * 2 ) / 0.01)) .."ms" or tostring(math.floor(getPing()) .."ms")
-
-				-- Time
-				HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(time())
-
-				-- Region
-				HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
+		task.spawn(function()
+			while true do
+				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers() .. " playing"
+				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers .. " players can join this server"
+				HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and math.round((LocalPlayer:GetNetworkPing() * 2) / 0.01) .. "ms" or math.floor(getPing()) .. "ms"
+				HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(os.time())
+				
+				pcall(function()
+					HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(LocalPlayer)
+				end)
 
 				checkFriends()
+				task.wait(1)
 			end
-		end)()
+		end)
+	end
+end
+	function Window:CreateTab(TabSettings)
+	local Tab = {}
 
-		-- Stolen From Sirius Stuff ends here
+	TabSettings = SetPrase({
+		Name = "Tab",
+		ShowTitle = true,
+		Icon = "view_in_ar",
+		ImageSource = "Material" 
+	}, TabSettings or {})
 
+	local TabButton = Navigation.Tabs["InActive Template"]:Clone()
+	TabButton.Name = TabSettings.Name
+	TabButton.TextLabel.Text = TabSettings.Name
+	TabButton.Parent = Navigation.Tabs
+	TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
+	TabButton.Visible = true
+
+	local TabPage = Elements.Template:Clone()
+	TabPage.Name = TabSettings.Name
+	TabPage.Title.Visible = TabSettings.ShowTitle
+	TabPage.Title.Text = TabSettings.Name
+	TabPage.Visible = true
+
+	Tab.Page = TabPage
+
+	if not TabSettings.ShowTitle then
+		TabPage.UIPadding.PaddingTop = UDim.new(0, 10)
 	end
 
-	function Window:CreateTab(TabSettings)
+	TabPage.LayoutOrder = #Elements:GetChildren() - 3
 
-		local Tab = {}
-
-		TabSettings = SetPrase({
-			Name = "Tab",
-			ShowTitle = true,
-			Icon = "view_in_ar",
-			ImageSource = "Material" 
-		}, TabSettings or {})
-
-		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
-
-		TabButton.Name = TabSettings.Name
-		TabButton.TextLabel.Text = TabSettings.Name
-		TabButton.Parent = Navigation.Tabs
-		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
-
-		TabButton.Visible = true
-
-		local TabPage = Elements.Template:Clone()
-		TabPage.Name = TabSettings.Name
-		TabPage.Title.Visible = TabSettings.ShowTitle
-		TabPage.Title.Text = TabSettings.Name
-		TabPage.Visible = true
-
-		Tab.Page = TabPage
-
-		if TabSettings.ShowTitle == false then
-			TabPage.UIPadding.PaddingTop = UDim.new(0,10)
+	for _, TemplateElement in ipairs(TabPage:GetChildren()) do
+		if (TemplateElement:IsA("Frame") or TemplateElement:IsA("TextLabel")) and TemplateElement.Name ~= "Title" then
+			TemplateElement:Destroy()
 		end
+	end
+	TabPage.Parent = Elements
 
-		TabPage.LayoutOrder = #Elements:GetChildren() - 3
+	function Tab:Activate()
+		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)})
+		tween(TabButton, {BackgroundTransparency = 0})
+		tween(TabButton.UIStroke, {Transparency = 0.41})
 
-		for _, TemplateElement in ipairs(TabPage:GetChildren()) do
-			if TemplateElement.ClassName == "Frame" or TemplateElement.ClassName == "TextLabel" and TemplateElement.Name ~= "Title" then
-				TemplateElement:Destroy()
+		Elements.UIPageLayout:JumpTo(TabPage)
+		task.wait(0.05)
+
+		for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
+			if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("Frame") and OtherTabButton ~= TabButton then
+				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221, 221, 221)})
+				tween(OtherTabButton, {BackgroundTransparency = 1})
+				tween(OtherTabButton.UIStroke, {Transparency = 1})
 			end
 		end
-		TabPage.Parent = Elements
 
-		function Tab:Activate()
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(TabButton, {BackgroundTransparency = 0})
-			tween(TabButton.UIStroke, {Transparency = 0.41})
+		Window.CurrentTab = TabSettings.Name
+	end
 
-			Elements.UIPageLayout:JumpTo(TabPage)
+	if FirstTab then
+		Tab:Activate()
+	end
 
-			task.wait(0.05)
+	task.wait(0.01)
 
-			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= TabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
-				end
+	TabButton.Interact.MouseButton1Click:Connect(function()
+		Tab:Activate()
+	end)
 
-			end
+	FirstTab = false
 
-			Window.CurrentTab = TabSettings.Name
+	-- Section
+	function Tab:CreateSection(name)
+		local Section = {}
+		name = name or "Section"
+		Section.Name = name
+
+		local Sectiont = Elements.Template.Section:Clone()
+		Sectiont.Text = name
+		Sectiont.Visible = true
+		Sectiont.Parent = TabPage
+		
+		local SectionFrame = Sectiont.Frame
+
+		Sectiont.TextTransparency = 1
+		tween(Sectiont, {TextTransparency = 0})
+
+		function Section:Set(NewSection)
+			Sectiont.Text = NewSection
 		end
 
-		if FirstTab then
-			Tab:Activate()
+		function Section:Destroy()
+			Sectiont:Destroy()
 		end
 
-		task.wait(0.01)
+		-- Divider
+		function Section:CreateDivider()
+			SectionFrame.Position = UDim2.new(0, 0, 0, 28)
+			local b = Elements.Template.Divider:Clone()
+			b.Parent = SectionFrame
+			b.Size = UDim2.new(1, 0, 0, 18)
+			b.Line.BackgroundTransparency = 1
+			tween(b.Line, {BackgroundTransparency = 0})
+		end
 
-		TabButton.Interact.MouseButton1Click:Connect(function()
-			Tab:Activate()
+		return Section
+	end
+			-- Button
+function Section:CreateButton(ButtonSettings)
+	TabPage.Position = UDim2.new(0, 0, 0, 28)
+
+	ButtonSettings = SetPrase({
+		Name = "Button",
+		Description = nil,
+		Callback = function() end,
+	}, ButtonSettings or {})
+
+	local ButtonV = {
+		Hover = false,
+		Settings = ButtonSettings
+	}
+
+	local Button
+	if ButtonSettings.Description == nil or ButtonSettings.Description == "" then
+		Button = Elements.Template.Button:Clone()
+	else
+		Button = Elements.Template.ButtonDesc:Clone()
+	end
+	
+	Button.Name = ButtonSettings.Name
+	Button.Title.Text = ButtonSettings.Name
+	if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
+		Button.Desc.Text = ButtonSettings.Description
+	end
+	Button.Visible = true
+	Button.Parent = TabPage
+
+	-- Propriedades iniciais para entrada suave
+	Button.UIStroke.Transparency = 1
+	Button.Title.TextTransparency = 1
+	if Button.Desc then
+		Button.Desc.TextTransparency = 1
+	end
+
+	TweenService:Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.4}):Play()
+	TweenService:Create(Button.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
+	TweenService:Create(Button.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+	if Button.Desc then
+		TweenService:Create(Button.Desc, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+	end
+
+	-- Interação de Clique com Animação Tátil (Scale + Stroke Glow)
+	Button.Interact.MouseButton1Click:Connect(function()
+		-- Feedback visual de clique (afunda levemente)
+		tween(Button, {Size = Button.Size - UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
+		tween(Button.UIStroke, {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.1}, TweenInfo.new(0.1))
+
+		local Success, Response = pcall(ButtonSettings.Callback)
+
+		task.delay(0.12, function()
+			tween(Button, {Size = Button.Size + UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.15, Enum.EasingStyle.Back))
 		end)
 
-		FirstTab = false
-
-		-- Section
-		function Tab:CreateSection(name : string)
-
-			local Section = {}
-
-			if name == nil then name = "Section" end
-
-			Section.Name = name
-
-			local Sectiont = Elements.Template.Section:Clone()
-			Sectiont.Text = name
-			Sectiont.Visible = true
-			Sectiont.Parent = TabPage
-			local TabPage = Sectiont.Frame
-
-			Sectiont.TextTransparency = 1
-			tween(Sectiont, {TextTransparency = 0})
-
-			function Section:Set(NewSection)
-				Sectiont.Text = NewSection
-			end
-
-			function Section:Destroy()
-				Sectiont:Destroy()
-			end
-
-			-- Divider
-			function Section:CreateDivider()
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local b = Elements.Template.Divider:Clone()
-				b.Parent = TabPage
-				b.Size = UDim2.new(1,0,0,18)
-				b.Line.BackgroundTransparency = 1
-				tween(b.Line, {BackgroundTransparency = 0})
-			end
-
-			-- Button
-			function Section:CreateButton(ButtonSettings)
-				TabPage.Position = UDim2.new(0,0,0,28)
-
-				ButtonSettings = SetPrase({
-					Name = "Button",
-					Description = nil,
-					Callback = function()
-
-					end,
-				}, ButtonSettings or {})
-
-				local ButtonV = {
-					Hover = false,
-					Settings = ButtonSettings
-				}
-
-
-				local Button
-				if ButtonSettings.Description == nil and ButtonSettings.Description ~= "" then
-					Button = Elements.Template.Button:Clone()
+		if not Success then
+			TweenService:Create(Button, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.1, BackgroundColor3 = Color3.fromRGB(120, 20, 20)}):Play()
+			TweenService:Create(Button.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 0, Color = Color3.fromRGB(255, 50, 50)}):Play()
+			
+			local originalText = Button.Title.Text
+			Button.Title.Text = "Execution Error!"
+			warn("Nutriex Interface Suite | " .. ButtonSettings.Name .. " Callback Error: " .. tostring(Response))
+			
+			task.wait(1.2)
+			
+			Button.Title.Text = originalText
+			TweenService:Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.4, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+			TweenService:Create(Button.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.3, Color = Color3.fromRGB(64, 61, 76)}):Play()
+		else
+			-- Sucesso: Efeito flash elegante na borda
+			task.delay(0.15, function()
+				if ButtonV.Hover then
+					tween(Button.UIStroke, {Color = Color3.fromRGB(110, 105, 135), Transparency = 0.2})
 				else
-					Button = Elements.Template.ButtonDesc:Clone()
+					tween(Button.UIStroke, {Color = Color3.fromRGB(64, 61, 76), Transparency = 0.3})
 				end
-				Button.Name = ButtonSettings.Name
-				Button.Title.Text = ButtonSettings.Name
-				if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-					Button.Desc.Text = ButtonSettings.Description
-				end
-				Button.Visible = true
-				Button.Parent = TabPage
+			end)
+		end
+	end)
 
-				Button.UIStroke.Transparency = 1
-				Button.Title.TextTransparency = 1
-				if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-					Button.Desc.TextTransparency = 1
-				end
+	Button.MouseEnter:Connect(function()
+		ButtonV.Hover = true
+		tween(Button, {BackgroundTransparency = 0.25}, TweenInfo.new(0.2))
+		tween(Button.UIStroke, {Color = Color3.fromRGB(120, 115, 145), Transparency = 0.15}, TweenInfo.new(0.2))
+	end)
 
-				TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-				TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Button.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-				if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-					TweenService:Create(Button.Desc, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-				end
+	Button.MouseLeave:Connect(function()
+		ButtonV.Hover = false
+		tween(Button, {BackgroundTransparency = 0.4}, TweenInfo.new(0.2))
+		tween(Button.UIStroke, {Color = Color3.fromRGB(64, 61, 76), Transparency = 0.3}, TweenInfo.new(0.2))
+	end)
 
-				Button.Interact["MouseButton1Click"]:Connect(function()
-					local Success,Response = pcall(ButtonSettings.Callback)
+	function ButtonV:Set(ButtonSettings2)
+		ButtonSettings2 = SetPrase({
+			Name = ButtonSettings.Name,
+			Description = ButtonSettings.Description,
+			Callback = ButtonSettings.Callback
+		}, ButtonSettings2 or {})
 
-					if not Success then
-						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Button.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Button.Title.Text = ButtonSettings.Name
-						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					else
-						tween(Button.UIStroke, {Color = Color3.fromRGB(136, 131, 163)})
-						wait(0.2)
-						if ButtonV.Hover then
-							tween(Button.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-						else
-							tween(Button.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-						end
-					end
-				end)
+		ButtonSettings = ButtonSettings2
+		ButtonV.Settings = ButtonSettings2
 
-				Button["MouseEnter"]:Connect(function()
-					ButtonV.Hover = true
-					tween(Button.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
+		Button.Name = ButtonSettings.Name
+		Button.Title.Text = ButtonSettings.Name
+		if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" and Button.Desc ~= nil then
+			Button.Desc.Text = ButtonSettings.Description
+		end
+	end
 
-				Button["MouseLeave"]:Connect(function()
-					ButtonV.Hover = false
-					tween(Button.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
+	function ButtonV:Destroy()
+		Button.Visible = false
+		Button:Destroy()
+	end
 
-				function ButtonV:Set(ButtonSettings2)
-					ButtonSettings2 = SetPrase({
-						Name = ButtonSettings.Name,
-						Description = ButtonSettings.Description,
-						Callback = ButtonSettings.Callback
-					}, ButtonSettings2 or {})
-
-					ButtonSettings = ButtonSettings2
-					ButtonV.Settings = ButtonSettings2
-
-					Button.Name = ButtonSettings.Name
-					Button.Title.Text = ButtonSettings.Name
-					if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" and Button.Desc ~= nil then
-						Button.Desc.Text = ButtonSettings.Description
-					end
-				end
-
-				function ButtonV:Destroy()
-					Button.Visible = false
-					Button:Destroy()
-				end
-
-				return ButtonV
-			end
+	return ButtonV
+end
 
 			-- Label
 			function Section:CreateLabel(LabelSettings)
@@ -2793,203 +2762,185 @@ function Nutriex:CreateWindow(WindowSettings)
 			end
 
 			-- Slider
-			function Section:CreateSlider(SliderSettings, Flag)
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
+function Section:CreateSlider(SliderSettings, Flag)
+	TabPage.Position = UDim2.new(0, 0, 0, 28)
+	local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
 
-				SliderSettings = SetPrase({
-					Name = "Slider",
-					Range = {0, 200},
-					Increment = 1,
-					CurrentValue = 100,
-					Callback = function(Value)
+	SliderSettings = SetPrase({
+		Name = "Slider",
+		Range = {0, 200},
+		Increment = 1,
+		CurrentValue = 100,
+		Callback = function(Value) end,
+	}, SliderSettings or {})
 
-					end,
-				}, SliderSettings or {})
+	local SLDragging = false
+	local Slider = Elements.Template.Slider:Clone()
+	Slider.Name = SliderSettings.Name .. " - Slider"
+	Slider.Title.Text = SliderSettings.Name
+	Slider.Visible = true
+	Slider.Parent = TabPage
 
-				local SLDragging = false
-				local Slider = Elements.Template.Slider:Clone()
-				Slider.Name = SliderSettings.Name .. " - Slider"
+	Slider.BackgroundTransparency = 1
+	Slider.UIStroke.Transparency = 1
+	Slider.Title.TextTransparency = 1
+
+	TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+	TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+	TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+
+	-- Função para atualizar visual e valor de forma segura
+	local function UpdateSlider(val, fireCallback)
+		local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
+		val = math.clamp(val, min, max)
+		
+		-- Arredondamento preciso baseado no Incremento
+		local inc = SliderSettings.Increment
+		if inc > 0 then
+			val = math.round((val - min) / inc) * inc + min
+		end
+		
+		-- Evita imprecisão de ponto flutuante
+		val = tonumber(string.format("%.4f", val))
+		if math.abs(val - math.floor(val)) < 0.0001 then
+			val = math.floor(val)
+		end
+
+		SliderSettings.CurrentValue = val
+		SliderV.CurrentValue = val
+		Slider.Value.Text = tostring(val)
+
+		local percent = math.clamp((val - min) / (max - min), 0, 1)
+		local barWidth = Slider.Main.AbsoluteSize.X
+		local newSize = math.max(barWidth * percent, 5)
+		
+		Slider.Main.Progress.Size = UDim2.new(0, newSize, 1, 0)
+
+		if fireCallback then
+			local Success, Response = pcall(function()
+				SliderSettings.Callback(val)
+			end)
+			if not Success then
+				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+				TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+				Slider.Title.Text = "Callback Error"
+				print("Nutriex Interface Suite | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
+				task.wait(0.5)
 				Slider.Title.Text = SliderSettings.Name
-				Slider.Visible = true
-				Slider.Parent = TabPage
-
-				Slider.BackgroundTransparency = 1
-				Slider.UIStroke.Transparency = 1
-				Slider.Title.TextTransparency = 1
-
-				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
 				TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-				Slider.Main.Progress.Size =	UDim2.new(0, Slider.Main.AbsoluteSize.X * ((SliderSettings.CurrentValue + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (SliderSettings.CurrentValue / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)
-
-				Slider.Value.Text = tostring(SliderSettings.CurrentValue)
-				SliderV.CurrentValue = Slider.Value.Text
-
-				SliderSettings.Callback(SliderSettings.CurrentValue)
-
-				Slider["MouseEnter"]:Connect(function()
-					tween(Slider.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Slider["MouseLeave"]:Connect(function()
-					tween(Slider.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-				Slider.Interact.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-						SLDragging = true 
-					end 
-				end)
-
-				Slider.Interact.InputEnded:Connect(function(Input) 
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-						SLDragging = false 
-					end 
-				end)
-
-				Slider.Interact.MouseButton1Down:Connect(function()
-					local Current = Slider.Main.Progress.AbsolutePosition.X + Slider.Main.Progress.AbsoluteSize.X
-					local Start = Current
-					local Location
-					local Loop; Loop = RunService.Stepped:Connect(function()
-						if SLDragging then
-							Location = UserInputService:GetMouseLocation().X
-							Current = Current + 0.025 * (Location - Start)
-
-							if Location < Slider.Main.AbsolutePosition.X then
-								Location = Slider.Main.AbsolutePosition.X
-							elseif Location > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
-								Location = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
-							end
-
-							if Current < Slider.Main.AbsolutePosition.X + 5 then
-								Current = Slider.Main.AbsolutePosition.X + 5
-							elseif Current > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
-								Current = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
-							end
-
-							if Current <= Location and (Location - Start) < 0 then
-								Start = Location
-							elseif Current >= Location and (Location - Start) > 0 then
-								Start = Location
-							end
-							Slider.Main.Progress.Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X, 1, 0)
-							local NewValue = SliderSettings.Range[1] + (Location - Slider.Main.AbsolutePosition.X) / Slider.Main.AbsoluteSize.X * (SliderSettings.Range[2] - SliderSettings.Range[1])
-
-							NewValue = math.floor(NewValue / SliderSettings.Increment + 0.5) * (SliderSettings.Increment * 10000000) / 10000000
-
-							Slider.Value.Text = tostring(NewValue)
-
-							if SliderSettings.CurrentValue ~= NewValue then
-								local Success, Response = pcall(function()
-									SliderSettings.Callback(NewValue)
-								end)
-								if not Success then
-									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-									Slider.Title.Text = "Callback Error"
-									print("Nutriex Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
-									wait(0.5)
-									Slider.Title.Text = SliderSettings.Name
-									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-								end
-
-								SliderSettings.CurrentValue = NewValue
-								SliderV.CurrentValue = SliderSettings.CurrentValue
-								-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-							end
-						else
-							TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In, 0, false), {Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X > 5 and Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)}):Play()
-							Loop:Disconnect()
-						end
-					end)
-				end)
-
-				local function Set(NewVal, bleh)
-
-					NewVal = NewVal or SliderSettings.CurrentValue
-
-					TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {Size = UDim2.new(0, Slider.Main.AbsoluteSize.X * ((NewVal + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (NewVal / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)}):Play()
-					if not bleh then Slider.Value.Text = tostring(NewVal) end
-					local Success, Response = pcall(function()
-						SliderSettings.Callback(NewVal)
-					end)
-					if not Success then
-						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Slider.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Slider.Title.Text = SliderSettings.Name
-						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(30, 33, 40)}):Play()
-						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-
-					SliderSettings.CurrentValue = NewVal
-					SliderV.CurrentValue = SliderSettings.CurrentValue
-					-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-
-				end
-
-				function SliderV:UpdateValue(Value)
-					Set(tonumber(Value))
-				end 
-
-				Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
-					local text = Slider.Value.Text
-					if not tonumber(text) and text ~= "." then
-						Slider.Value.Text = text:match("[0-9.]*") or ""
-					end
-					if SliderSettings.Range[2] < (tonumber(Slider.Value.Text) or 0) then Slider.Value.Text = SliderSettings.Range[2] end
-					Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
-					Set(tonumber(Slider.Value.Text), true)
-				end)
-
-				function SliderV:Set(NewSliderSettings)
-					NewSliderSettings = SetPrase({
-						Name = SliderSettings.Name,
-						Range = SliderSettings.Range,
-						Increment = SliderSettings.Increment,
-						CurrentValue = SliderSettings.CurrentValue,
-						Callback = SliderSettings.Callback
-					}, NewSliderSettings or {})
-
-					SliderSettings = NewSliderSettings
-					SliderV.Settings = NewSliderSettings
-
-					Slider.Name = SliderSettings.Name .. " - Slider"
-					Slider.Title.Text = SliderSettings.Name
-
-					Set()
-
-					-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-				end
-
-				function SliderV:Destroy()
-					Slider.Visible = false
-					Slider:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = SliderV
-				end
-
-				NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-					Slider.Main.color.Color = Nutriex.ThemeGradient
-					Slider.Main.UIStroke.color.Color = Nutriex.ThemeGradient
-				end)
-
-				return SliderV
-
 			end
+		end
+	end
 
+	-- Inicializa valor padrão
+	UpdateSlider(SliderSettings.CurrentValue, true)
+
+	Slider["MouseEnter"]:Connect(function()
+		tween(Slider.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
+	end)
+
+	Slider["MouseLeave"]:Connect(function()
+		tween(Slider.UIStroke, {Color = Color3.fromRGB(64, 61, 76)})
+	end)
+
+	-- Lógica de arrasto otimizada e fluida (Mouse & Touch)
+	local function UpdateInput(input)
+		local mainBar = Slider.Main
+		local absPos = mainBar.AbsolutePosition.X
+		local absSize = mainBar.AbsoluteSize.X
+		
+		if absSize <= 0 then return end
+
+		local inputX = input.Position.X
+		local relativeX = math.clamp((inputX - absPos) / absSize, 0, 1)
+		
+		local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
+		local newVal = min + (relativeX * (max - min))
+		
+		UpdateSlider(newVal, true)
+	end
+
+	Slider.Interact.InputBegan:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+			SLDragging = true
+			UpdateInput(Input)
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(Input)
+		if SLDragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
+			UpdateInput(Input)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(Input)
+		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+			SLDragging = false
+		end
+	end)
+
+	local function Set(NewVal, bleh)
+		NewVal = NewVal or SliderSettings.CurrentValue
+		UpdateSlider(NewVal, not bleh)
+	end
+
+	function SliderV:UpdateValue(Value)
+		Set(tonumber(Value))
+	end 
+
+	Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
+		local text = Slider.Value.Text
+		if not tonumber(text) and text ~= "." then
+			Slider.Value.Text = text:match("[0-9.]*") or ""
+		end
+		local num = tonumber(Slider.Value.Text)
+		if num then
+			if SliderSettings.Range[2] < num then 
+				Slider.Value.Text = tostring(SliderSettings.Range[2]) 
+			end
+			Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
+			Set(num, true)
+		end
+	end)
+
+	function SliderV:Set(NewSliderSettings)
+		NewSliderSettings = SetPrase({
+			Name = SliderSettings.Name,
+			Range = SliderSettings.Range,
+			Increment = SliderSettings.Increment,
+			CurrentValue = SliderSettings.CurrentValue,
+			Callback = SliderSettings.Callback
+		}, NewSliderSettings or {})
+
+delta = NewSliderSettings
+		SliderSettings = NewSliderSettings
+		SliderV.Settings = NewSliderSettings
+
+		Slider.Name = SliderSettings.Name .. " - Slider"
+		Slider.Title.Text = SliderSettings.Name
+
+		Set(SliderSettings.CurrentValue)
+	end
+
+	function SliderV:Destroy()
+		Slider.Visible = false
+		Slider:Destroy()
+	end
+
+	if Flag then
+		Nutriex.Options[Flag] = SliderV
+	end
+
+	pcall(function()
+		NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+			Slider.Main.color.Color = Nutriex.ThemeGradient
+			Slider.Main.UIStroke.color.Color = Nutriex.ThemeGradient
+		end)
+	end)
+
+	return SliderV
+end
 			-- Toggle
 			function Section:CreateToggle(ToggleSettings, Flag)    
 				TabPage.Position = UDim2.new(0,0,0,28)
@@ -3386,174 +3337,181 @@ function Nutriex:CreateWindow(WindowSettings)
 				return BindV
 
 			end
+	-- Dynamic Input
+function Section:CreateInput(InputSettings, Flag)
+	TabPage.Position = UDim2.new(0, 0, 0, 28)
+	local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
 
-			-- Dynamic Input
-			function Section:CreateInput(InputSettings, Flag)
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
+	InputSettings = SetPrase({
+		Name = "Dynamic Input",
+		Description = nil,
+		CurrentValue = "",
+		PlaceholderText = "Input Placeholder",
+		RemoveTextAfterFocusLost = false,
+		Numeric = false,
+		Enter = false,
+		MaxCharacters = nil,
+		Callback = function(Text) end,
+	}, InputSettings or {})
 
-				InputSettings = SetPrase({
-					Name = "Dynamic Input",
-					Description = nil,
-					CurrentValue = "",
-					PlaceholderText = "Input Placeholder",
-					RemoveTextAfterFocusLost = false,
-					Numeric = false,
-					Enter = false,
-					MaxCharacters = nil,
-					Callback = function(Text)
+	InputV.CurrentValue = InputSettings.CurrentValue
 
-					end, -- 52
-				}, InputSettings or {})
+	local descriptionbool = InputSettings.Description ~= nil and InputSettings.Description ~= ""
+	local Input = descriptionbool and Elements.Template.InputDesc:Clone() or Elements.Template.Input:Clone()
 
-				InputV.CurrentValue = InputSettings.CurrentValue
+	Input.Name = InputSettings.Name
+	Input.Title.Text = InputSettings.Name
+	if descriptionbool then Input.Desc.Text = InputSettings.Description end
+	Input.Visible = true
+	Input.Parent = TabPage
 
-				local descriptionbool
-				if InputSettings.Description ~= nil and InputSettings.Description ~= "" then
-					descriptionbool = true
-				end
+	Input.BackgroundTransparency = 1
+	Input.UIStroke.Transparency = 1
+	Input.Title.TextTransparency = 1
+	if descriptionbool then Input.Desc.TextTransparency = 1 end
+	Input.InputFrame.BackgroundTransparency = 1
+	Input.InputFrame.UIStroke.Transparency = 1
+	Input.InputFrame.InputBox.TextTransparency = 1
 
-				local Input 
-				if descriptionbool then
-					Input = Elements.Template.InputDesc:Clone()
-				else
-					Input = Elements.Template.Input:Clone()
-				end
+	-- Atribui valor inicial se houver
+	if InputSettings.CurrentValue ~= "" then
+		Input.InputFrame.InputBox.Text = tostring(InputSettings.CurrentValue)
+	end
+	Input.InputFrame.InputBox.PlaceholderText = InputSettings.PlaceholderText
 
-				Input.Name = InputSettings.Name
-				Input.Title.Text = InputSettings.Name
-				if descriptionbool then Input.Desc.Text = InputSettings.Description end
-				Input.Visible = true
-				Input.Parent = TabPage
+	-- Animação de Entrada Suave
+	TweenService:Create(Input, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
+	TweenService:Create(Input.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+	TweenService:Create(Input.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
+	if descriptionbool then TweenService:Create(Input.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play() end
+	TweenService:Create(Input.InputFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
+	TweenService:Create(Input.InputFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
+	TweenService:Create(Input.InputFrame.InputBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
 
-				Input.BackgroundTransparency = 1
-				Input.UIStroke.Transparency = 1
-				Input.Title.TextTransparency = 1
-				if descriptionbool then Input.Desc.TextTransparency = 1 end
-				Input.InputFrame.BackgroundTransparency = 1
-				Input.InputFrame.UIStroke.Transparency = 1
-				Input.InputFrame.InputBox.TextTransparency = 1
+	-- Ajuste inicial do tamanho da caixa de texto
+	task.defer(function()
+		if Input.InputFrame and Input.InputFrame.InputBox then
+			local textBounds = Input.InputFrame.InputBox.TextBounds.X
+			Input.InputFrame.Size = UDim2.new(0, math.max(textBounds + 52, 80), 0, 30)
+		end
+	end)
 
-				TweenService:Create(Input, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-				TweenService:Create(Input.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Input.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-				if descriptionbool then TweenService:Create(Input.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play() end
-				TweenService:Create(Input.InputFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-				TweenService:Create(Input.InputFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-				TweenService:Create(Input.InputFrame.InputBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
+	-- FIX: Clicar em qualquer parte do componente foca automaticamente na caixa de texto
+	Input.InputBegan:Connect(function(inputObj)
+		if inputObj.UserInputType == Enum.UserInputType.MouseButton1 or inputObj.UserInputType == Enum.UserInputType.Touch then
+			Input.InputFrame.InputBox:CaptureFocus()
+		end
+	end)
 
-				Input.InputFrame.InputBox.PlaceholderText = InputSettings.PlaceholderText
-				Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)
+	-- Feedback visual de foco (Borda brilha quando ativo)
+	Input.InputFrame.InputBox.Focused:Connect(function()
+		tween(Input.UIStroke, {Color = Color3.fromRGB(150, 140, 180), Transparency = 0.1}, TweenInfo.new(0.2))
+		tween(Input.InputFrame.UIStroke, {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.1}, TweenInfo.new(0.2))
+	end)
 
-				Input.InputFrame.InputBox.FocusLost:Connect(function(bleh)
+	Input.InputFrame.InputBox.FocusLost:Connect(function(enterPressed)
+		tween(Input.UIStroke, {Color = Color3.fromRGB(64, 61, 76), Transparency = 0.3}, TweenInfo.new(0.2))
+		tween(Input.InputFrame.UIStroke, {Color = Color3.fromRGB(200, 200, 200), Transparency = 0.3}, TweenInfo.new(0.2))
 
-					if InputSettings.Enter then
-						if bleh then
-							local Success, Response = pcall(function()
-								InputSettings.Callback(Input.InputFrame.InputBox.Text)
-								InputV.CurrentValue = Input.InputFrame.InputBox.Text
-							end)
-							if not Success then
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Input.Title.Text = "Callback Error"
-								print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-								wait(0.5)
-								Input.Title.Text = InputSettings.Name
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-							end
-						end
-					end
-
-					if InputSettings.RemoveTextAfterFocusLost then
-						Input.InputFrame.InputBox.Text = ""
-					end
-
+		if InputSettings.Enter then
+			if enterPressed then
+				local Success, Response = pcall(function()
+					InputSettings.Callback(Input.InputFrame.InputBox.Text)
+					InputV.CurrentValue = Input.InputFrame.InputBox.Text
 				end)
-
-				if InputSettings.Numeric then
-					Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-						local text = Input.InputFrame.InputBox.Text
-						if not tonumber(text) and text ~= "." then
-							Input.InputFrame.InputBox.Text = text:match("[0-9.]*") or ""
-						end
-					end)
-				end
-
-				Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-					if tonumber(InputSettings.MaxCharacters) then
-						if (#Input.InputFrame.InputBox.Text - 1) == InputSettings.MaxCharacters then
-							Input.InputFrame.InputBox.Text = Input.InputFrame.InputBox.Text:sub(1, InputSettings.MaxCharacters)
-						end
-					end
-					TweenService:Create(Input.InputFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)}):Play()
-					if not InputSettings.Enter then
-						local Success, Response = pcall(function()
-							InputSettings.Callback(Input.InputFrame.InputBox.Text)
-						end)
-						if not Success then
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Input.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Input.Title.Text = InputSettings.Name
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-					end
-					InputV.CurrentValue = Input.InputFrame.InputBox.Text				
-				end)
-
-				Input["MouseEnter"]:Connect(function()
-					tween(Input.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Input["MouseLeave"]:Connect(function()
-					tween(Input.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-
-				function InputV:Set(NewInputSettings)
-
-					NewInputSettings = SetPrase(InputSettings, NewInputSettings or {})
-
-					InputV.Settings = NewInputSettings
-					InputSettings = NewInputSettings
-
-					Input.Name = InputSettings.Name
+				if not Success then
+					TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+					TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+					Input.Title.Text = "Callback Error"
+					print("Nutriex Interface Suite | " .. InputSettings.Name .. " Callback Error " .. tostring(Response))
+					task.wait(0.5)
 					Input.Title.Text = InputSettings.Name
-					if InputSettings.Description ~= nil and InputSettings.Description ~= "" and Input.Desc ~= nil then
-						Input.Desc.Text = InputSettings.Description
-					end
-
-					Input.InputFrame.InputBox:CaptureFocus()
-					Input.InputFrame.InputBox.Text = tostring(InputSettings.CurrentValue)
-					Input.InputFrame.InputBox:ReleaseFocus()
-					Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 42)
-
-					InputV.CurrentValue = InputSettings.CurrentValue
+					TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+					TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
 				end
-
-				function InputV:Destroy()
-					Input.Visible = false
-					Input:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = InputV
-				end
-
-
-				return InputV
-
 			end
+		end
 
+		if InputSettings.RemoveTextAfterFocusLost then
+			Input.InputFrame.InputBox.Text = ""
+		end
+	end)
+
+	if InputSettings.Numeric then
+		Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
+			local text = Input.InputFrame.InputBox.Text
+			if not tonumber(text) and text ~= "." then
+				Input.InputFrame.InputBox.Text = text:match("[0-9.]*") or ""
+			end
+		end)
+	end
+
+	Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local currentText = Input.InputFrame.InputBox.Text
+		
+		if tonumber(InputSettings.MaxCharacters) then
+			if #currentText > InputSettings.MaxCharacters then
+				Input.InputFrame.InputBox.Text = currentText:sub(1, InputSettings.MaxCharacters)
+				return
+			end
+		end
+
+		local textWidth = Input.InputFrame.InputBox.TextBounds.X
+		TweenService:Create(Input.InputFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, math.max(textWidth + 52, 80), 0, 30)}):Play()
+		
+		if not InputSettings.Enter then
+			local Success, Response = pcall(function()
+				InputSettings.Callback(currentText)
+			end)
+			if not Success then
+				TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
+				TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
+				Input.Title.Text = "Callback Error"
+				print("Nutriex Interface Suite | " .. InputSettings.Name .. " Callback Error " .. tostring(Response))
+				task.wait(0.5)
+				Input.Title.Text = InputSettings.Name
+				TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
+				TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
+			end
+		end
+		InputV.CurrentValue = currentText				
+	end)
+
+	Input["MouseEnter"]:Connect(function()
+		tween(Input.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
+	end)
+
+	Input["MouseLeave"]:Connect(function()
+		tween(Input.UIStroke, {Color = Color3.fromRGB(64, 61, 76)})
+	end)
+
+	function InputV:Set(NewInputSettings)
+		NewInputSettings = SetPrase(InputSettings, NewInputSettings or {})
+
+		InputV.Settings = NewInputSettings
+		InputSettings = NewInputSettings
+
+		Input.Name = InputSettings.Name
+		Input.Title.Text = InputSettings.Name
+		if descriptionbool and Input.Desc ~= nil then
+			Input.Desc.Text = InputSettings.Description
+		end
+
+		Input.InputFrame.InputBox.Text = tostring(InputSettings.CurrentValue)
+		InputV.CurrentValue = InputSettings.CurrentValue
+	end
+
+	function InputV:Destroy()
+		Input.Visible = false
+		Input:Destroy()
+	end
+
+	if Flag then
+		Nutriex.Options[Flag] = InputV
+	end
+
+	return InputV
+end
 			-- Dropdown
 			function Section:CreateDropdown(DropdownSettings, Flag)
 				TabPage.Position = UDim2.new(0,0,0,28)
@@ -3565,10 +3523,8 @@ function Nutriex:CreateWindow(WindowSettings)
 					Options = {"Option 1", "Option 2"},
 					CurrentOption = {"Option 1"},
 					MultipleOptions = false,
-					SpecialType = nil, -- currently onl player, might add more soon
+					SpecialType = nil,
 					Callback = function(Options)
-						-- The function that takes place when the selected option is changed
-						-- The variable (Options) is a table of strings for the current selected options or a string if multioptions is false
 					end,
 				}, DropdownSettings or {})
 
@@ -3598,6 +3554,12 @@ function Nutriex:CreateWindow(WindowSettings)
 
 				Dropdown.Parent = TabPage
 				Dropdown.Visible = true
+				
+				-- Torna a caixa de seleção apenas leitura (sem barra de pesquisa)
+				Dropdown.Selected.ClearTextOnFocus = false
+				Dropdown.Selected.Active = false
+				Dropdown.Selected.Selectable = false
+				Dropdown.Selected.Interactable = false
 
 				local function Toggle()
 					opened = not opened
@@ -3631,17 +3593,6 @@ function Nutriex:CreateWindow(WindowSettings)
 					end
 				end
 
-				-- fixed by justhey
-				Dropdown.Selected:GetPropertyChangedSignal("Text"):Connect(function()
-					local text = Dropdown.Selected.Text:lower()
-					for _, Item in ipairs(Dropdown.List:GetChildren()) do
-						if Item:IsA("TextLabel") and Item.Name ~= "Template" then
-							Item.Visible = text == "" or string.find(Item.Name:lower(), text, 1, true) ~= nil
-						end
-					end
-				end)
-
-
 				local function Clear()
 					for _, option in ipairs(Dropdown.List:GetChildren()) do
 						if option.ClassName == "TextLabel" and option.Name ~= "Template" then
@@ -3658,7 +3609,9 @@ function Nutriex:CreateWindow(WindowSettings)
 					end
 
 					Toggle()
-					tween(Dropdown.List[name], {BackgroundTransparency = 0.95, TextColor3 = Color3.fromRGB(240,240,240)})
+					if Dropdown.List:FindFirstChild(name) then
+						tween(Dropdown.List[name], {BackgroundTransparency = 0.95, TextColor3 = Color3.fromRGB(240,240,240)})
+					end
 				end
 
 				local function Refresh()
@@ -3696,21 +3649,20 @@ function Nutriex:CreateWindow(WindowSettings)
 								if DropdownSettings.MultipleOptions then
 									if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
 										if #DropdownSettings.CurrentOption == 1 then
-											Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
+											Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
 										elseif #DropdownSettings.CurrentOption == 0 then
-											Dropdown.Selected.PlaceholderText = "None"
+											Dropdown.Selected.Text = "None"
 										else
-											Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
+											Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
 										end
 									else
 										DropdownSettings.CurrentOption = {}
-										Dropdown.Selected.PlaceholderText = "None"
+										Dropdown.Selected.Text = "None"
 									end
 								end
 								if not DropdownSettings.MultipleOptions then
-									Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
+									Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
 								end
-								Dropdown.Selected.Text = ""
 							end)
 						end)
 						Option.Visible = true
@@ -3789,36 +3741,57 @@ function Nutriex:CreateWindow(WindowSettings)
 				if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
 				SafeCallback(bleh)
 				if type(bleh) == "string" then 
-					tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+					if Dropdown.List:FindFirstChild(bleh) then
+						tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+					end
 				else
 					for i,v in pairs(bleh) do
-						tween(Dropdown.List[v], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+						if Dropdown.List:FindFirstChild(v) then
+							tween(Dropdown.List[v], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+						end
 					end
 				end
 
 				if DropdownSettings.MultipleOptions then
 					if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
 						if #DropdownSettings.CurrentOption == 1 then
-							Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
+							Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
 						elseif #DropdownSettings.CurrentOption == 0 then
-							Dropdown.Selected.PlaceholderText = "None"
+							Dropdown.Selected.Text = "None"
 						else
-							Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
+							Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
 						end
 					else
 						DropdownSettings.CurrentOption = {}
-						Dropdown.Selected.PlaceholderText = "None"
+						Dropdown.Selected.Text = "None"
 					end
 					for _, name in pairs(DropdownSettings.CurrentOption) do
-						tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
+						if Dropdown.List:FindFirstChild(name) then
+							tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
+						end
 					end
 				else
-					Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
+					Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
 				end
-				Dropdown.Selected.Text = ""
 
-				function DropdownV:Set(NewDropdownSettings)
-					NewDropdownSettings = SetPrase(DropdownSettings, NewDropdownSettings or {})
+				function DropdownV:Set(NewData)
+					local NewDropdownSettings = {}
+					
+					-- COMPATIBILIDADE INTELIGENTE: Deteta se passaste um Array Puro de Opções ou uma Tabela de Configurações
+					if type(NewData) == "table" then
+						-- Se o primeiro índice for número, assume-se que é um array direto de opções (ex: {"Player1", "Player2"})
+						if typeof(NewData[1]) == "string" or #NewData > 0 and NewData[1] ~= nil and rawget(NewData, 1) ~= nil and type(next(NewData)) == "number" then
+							NewDropdownSettings = SetPrase(DropdownSettings, {
+								Options = NewData,
+								CurrentOption = NewData[1] and {NewData[1]} or {}
+							})
+						else
+							-- Caso contrário, é a tabela completa de configuração (ex: {Options = {...}, CurrentOption = {...}})
+							NewDropdownSettings = SetPrase(DropdownSettings, NewData)
+						end
+					else
+						NewDropdownSettings = DropdownSettings
+					end
 
 					DropdownV.Settings = NewDropdownSettings
 					DropdownSettings = NewDropdownSettings
@@ -3830,15 +3803,11 @@ function Nutriex:CreateWindow(WindowSettings)
 					end
 
 					if DropdownSettings.SpecialType == "Player" then
-
 						for i,v in pairs(DropdownSettings.Options) do
 							table.remove(DropdownSettings.Options, i)
 						end
 						PlayerTableRefresh()
 						DropdownSettings.CurrentOption = DropdownSettings.Options[1]                    
-						Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
-						Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
-
 					end
 
 					Refresh()
@@ -3854,42 +3823,50 @@ function Nutriex:CreateWindow(WindowSettings)
 						DropdownSettings.CurrentOption = {}
 					end
 
-					local bleh, ind = nil,0
+					local bleh, ind = nil, 0
 					for i,v in pairs(DropdownSettings.CurrentOption) do
 						ind = ind + 1
 					end
 					if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
 					SafeCallback(bleh)
+					
 					for _, Option in pairs(Dropdown.List:GetChildren()) do
 						if Option.ClassName == "TextLabel" then
 							tween(Option, {TextColor3 = Color3.fromRGB(200,200,200), BackgroundTransparency = 0.98})
 						end
 					end
-					tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+					
+					if type(bleh) == "string" and Dropdown.List:FindFirstChild(bleh) then
+						tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+					elseif type(bleh) == "table" then
+						for _, v in pairs(bleh) do
+							if Dropdown.List:FindFirstChild(v) then
+								tween(Dropdown.List[v], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
+							end
+						end
+					end
 
 					if DropdownSettings.MultipleOptions then
 						if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
 							if #DropdownSettings.CurrentOption == 1 then
-								Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
+								Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
 							elseif #DropdownSettings.CurrentOption == 0 then
-								Dropdown.Selected.PlaceholderText = "None"
+								Dropdown.Selected.Text = "None"
 							else
-								Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
+								Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
 							end
 						else
 							DropdownSettings.CurrentOption = {}
-							Dropdown.Selected.PlaceholderText = "None"
+							Dropdown.Selected.Text = "None"
 						end
 						for _, name in pairs(DropdownSettings.CurrentOption) do
-							tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
+							if Dropdown.List:FindFirstChild(name) then
+								tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
+							end
 						end
 					else
-						Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
+						Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
 					end
-					Dropdown.Selected.Text = ""
-
-					-- Nutriex.Flags[DropdownSettings.Flag] = DropdownSettings
-
 				end
 
 				function DropdownV:Destroy()
@@ -3901,10 +3878,7 @@ function Nutriex:CreateWindow(WindowSettings)
 					Nutriex.Options[Flag] = DropdownV
 				end
 
-				-- Nutriex.Flags[DropdownSettings.Flag] = DropdownSettings
-
 				return DropdownV
-
 			end
 
 			-- Color Picker
@@ -6735,7 +6709,7 @@ end
 -- THIS IS THE DEBUG DEMO, ONLY USED WHEN TESTING NEW ELEMENTS AND CODE
 --[[if isStudio then
     window = Nutriex:CreateWindow({LoadingEnabled = false})
-    t1 = window:CreateTab()
+   t1 = window:CreateTab()
     t2 = window:CreateTab({ Name = "Tab 2", Icon = "location_searching"})
     Nutriex:Notification({ 
         Title = "Welcome to Nutriex",
