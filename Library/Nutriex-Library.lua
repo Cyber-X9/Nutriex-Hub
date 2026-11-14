@@ -50,7 +50,7 @@ local IconModule = {
 		["sticky_note_2"] = "rbxassetid://6031265972";
 		["gavel"] = "rbxassetid://6023565902";
 		["table_view"] = "rbxassetid://6031233835";
-		["home"] = "rbxassetid://6026568195";
+		["home"] = "rbxassetid://93059210162475";
 		["list"] = "rbxassetid://6026568229";
 		["alarm_add"] = "rbxassetid://6023426898";
 		["speaker_notes"] = "rbxassetid://6031266001";
@@ -1626,7 +1626,6 @@ function tween(object, goal, callback, tweenin)
 end
 
 local function unpackt(array : table)
-
 	local val = ""
 	local i = 0
 	for _,v in pairs(array) do
@@ -1638,7 +1637,6 @@ local function unpackt(array : table)
 			break
 		end
 	end
-
 	return val
 end
 
