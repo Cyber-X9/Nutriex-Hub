@@ -2358,7 +2358,6 @@ function Nutriex:CreateWindow(WindowSettings)
 			end
 		end
 
-		-- Stolen From Sirius Stuff Begins Here
 
 		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
 			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite)) -- Hunter if you see this I added copy also was too lazy to send u msg
@@ -2460,84 +2459,109 @@ function Nutriex:CreateWindow(WindowSettings)
 			end
 		end)()
 
-		-- Stolen From Sirius Stuff ends here
-
 	end
 
 	function Window:CreateTab(TabSettings)
 
-		local Tab = {}
+	local Tab = {}
 
-		TabSettings = SetPrase({
-			Name = "Tab",
-			ShowTitle = true,
-			Icon = "view_in_ar",
-			ImageSource = "Material" 
-		}, TabSettings or {})
+	TabSettings = SetPrase({
+		Name = "Tab",
+		ShowTitle = true,
+		Icon = "view_in_ar",
+		ImageSource = "Material" 
+	}, TabSettings or {})
 
-		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
+	local TabButton = Navigation.Tabs["InActive Template"]:Clone()
 
-		TabButton.Name = TabSettings.Name
-		TabButton.TextLabel.Text = TabSettings.Name
-		TabButton.Parent = Navigation.Tabs
-		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
+	TabButton.Name = TabSettings.Name
+	TabButton.TextLabel.Text = TabSettings.Name
+	TabButton.Parent = Navigation.Tabs
+	TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
+	TabButton.Visible = true
 
-		TabButton.Visible = true
+	local TabPage = Elements.Template:Clone()
+	TabPage.Name = TabSettings.Name
+	TabPage.Title.Visible = TabSettings.ShowTitle
+	TabPage.Title.Text = TabSettings.Name
+	TabPage.Visible = true
 
-		local TabPage = Elements.Template:Clone()
-		TabPage.Name = TabSettings.Name
-		TabPage.Title.Visible = TabSettings.ShowTitle
-		TabPage.Title.Text = TabSettings.Name
-		TabPage.Visible = true
+	Tab.Page = TabPage
 
-		Tab.Page = TabPage
+	if TabSettings.ShowTitle == false then
+		TabPage.UIPadding.PaddingTop = UDim.new(0, 10)
+	end
 
-		if TabSettings.ShowTitle == false then
-			TabPage.UIPadding.PaddingTop = UDim.new(0,10)
+	TabPage.LayoutOrder = #Elements:GetChildren() - 3
+
+	for _, TemplateElement in ipairs(TabPage:GetChildren()) do
+		if (TemplateElement:IsA("Frame") or TemplateElement:IsA("TextLabel")) and TemplateElement.Name ~= "Title" then
+			TemplateElement:Destroy()
 		end
+	end
+	TabPage.Parent = Elements
 
-		TabPage.LayoutOrder = #Elements:GetChildren() - 3
+	local isHovered = false
 
-		for _, TemplateElement in ipairs(TabPage:GetChildren()) do
-			if TemplateElement.ClassName == "Frame" or TemplateElement.ClassName == "TextLabel" and TemplateElement.Name ~= "Title" then
-				TemplateElement:Destroy()
+	function Tab:Activate()
+		-- Animação suave de seleção da aba ativa (Curva exponencial para elegância)
+		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+		tween(TabButton, {BackgroundTransparency = 0}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+
+		-- Transição de página fluida
+		Elements.UIPageLayout:JumpTo(TabPage)
+
+		-- Desativa as outras abas com animações suaves em cascata
+		for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
+			if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= TabButton then
+				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
 			end
 		end
-		TabPage.Parent = Elements
 
-		function Tab:Activate()
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(TabButton, {BackgroundTransparency = 0})
-			tween(TabButton.UIStroke, {Transparency = 0.41})
+		Window.CurrentTab = TabSettings.Name
+	end
 
-			Elements.UIPageLayout:JumpTo(TabPage)
+	if FirstTab then
+		Tab:Activate()
+	end
 
-			task.wait(0.05)
+	task.wait(0.01)
 
-			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= TabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
-				end
-
-			end
-
-			Window.CurrentTab = TabSettings.Name
-		end
-
-		if FirstTab then
-			Tab:Activate()
-		end
-
-		task.wait(0.01)
-
-		TabButton.Interact.MouseButton1Click:Connect(function()
-			Tab:Activate()
+	-- Feedback tátil e clique refinado
+	TabButton.Interact.MouseButton1Click:Connect(function()
+		-- Efeito de "afundar" levemente ao clicar
+		tween(TabButton, {Size = TabButton.Size - UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
+		task.delay(0.1, function()
+			tween(TabButton, {Size = TabButton.Size + UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.15, Enum.EasingStyle.Back))
 		end)
+		
+		Tab:Activate()
+	end)
 
-		FirstTab = false
+	-- Efeitos de Hover nas abas inativas
+	TabButton.MouseEnter:Connect(function()
+		isHovered = true
+		if Window.CurrentTab ~= TabSettings.Name then
+			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.2, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.2))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.2))
+		end
+	end)
 
+	TabButton.MouseLeave:Connect(function()
+		isHovered = false
+		if Window.CurrentTab ~= TabSettings.Name then
+			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.2, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.2))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.2))
+		end
+	end)
+
+	FirstTab = false
+	
 		-- Section
 		function Tab:CreateSection(name : string)
 
