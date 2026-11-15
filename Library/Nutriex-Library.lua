@@ -2501,23 +2501,20 @@ function Nutriex:CreateWindow(WindowSettings)
 	end
 	TabPage.Parent = Elements
 
-	local isHovered = false
-
 	function Tab:Activate()
-		-- Animação suave de seleção da aba ativa (Curva exponencial para elegância)
-		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
-		tween(TabButton, {BackgroundTransparency = 0}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
-		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+		-- Transição suave e sem peso para a aba ativa
+		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+		tween(TabButton, {BackgroundTransparency = 0}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
 
-		-- Transição de página fluida
 		Elements.UIPageLayout:JumpTo(TabPage)
 
-		-- Desativa as outras abas com animações suaves em cascata
+		-- Desativa as outras abas instantaneamente de forma leve
 		for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
 			if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= TabButton then
-				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
-				tween(OtherTabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
-				tween(OtherTabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
 			end
 		end
 
@@ -2530,33 +2527,25 @@ function Nutriex:CreateWindow(WindowSettings)
 
 	task.wait(0.01)
 
-	-- Feedback tátil e clique refinado
+	-- Clique direto e responsivo (sem alterar tamanho para evitar travadas)
 	TabButton.Interact.MouseButton1Click:Connect(function()
-		-- Efeito de "afundar" levemente ao clicar
-		tween(TabButton, {Size = TabButton.Size - UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
-		task.delay(0.1, function()
-			tween(TabButton, {Size = TabButton.Size + UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.15, Enum.EasingStyle.Back))
-		end)
-		
 		Tab:Activate()
 	end)
 
-	-- Efeitos de Hover nas abas inativas
+	-- Efeitos de Hover leves (somente cores e transparências)
 	TabButton.MouseEnter:Connect(function()
-		isHovered = true
 		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.2, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.2))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.2))
+			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.15, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.15))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.15))
 		end
 	end)
 
 	TabButton.MouseLeave:Connect(function()
-		isHovered = false
 		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.2, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.2))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.2))
+			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.15, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.15))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.15))
 		end
 	end)
 
