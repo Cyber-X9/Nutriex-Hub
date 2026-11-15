@@ -1,18 +1,18 @@
-local NutriexLibrary = {
-    Version = "2.1.0",
+local Library = {
+    Version = "1.0.1",
     CustomFonts = {},
     Windows = {},
     Flags = {},
     FlagObjects = {},
     Roots = {},
-    Defaults = { Theme = "NutriexLibrary", Corner = "Soft" },
+    Defaults = { Theme = "Obsidian", Corner = "Soft" },
 }
 
 local genv = (getgenv and getgenv()) or _G
 if genv.__NutriexLibrary then
     pcall(function() genv.__NutriexLibrary:Destroy() end)
 end
-genv.__NutriexLibrary = NutriexLibrary
+genv.__NutriexLibrary = Library
 
 local cloneref = cloneref or function(o) return o end
 local function Service(name) return cloneref(game:GetService(name)) end
@@ -36,203 +36,93 @@ local Semantic = {
 }
 
 local Themes = {
-    NutriexLibrary = {
-        Darker = {
-            Background = RGB(7, 7, 9), 
-            Surface = RGB(12, 12, 15), 
-            Elevated = RGB(18, 18, 22),
-            Hover = RGB(26, 26, 32), 
-            Stroke = RGB(38, 38, 48), 
-            Accent = RGB(200, 165, 110), 
-            Accent2 = RGB(235, 205, 150),
-            OnAccent = RGB(20, 14, 6), 
-            Text = RGB(240, 238, 235), 
-            SubText = RGB(150, 147, 142),
-            Muted = RGB(95, 93, 89),
-        },
-        Midnight = {
-            Background = RGB(11, 11, 15), 
-            Surface = RGB(18, 18, 24), 
-            Elevated = RGB(25, 25, 33),
-            Hover = RGB(33, 33, 43), 
-            Stroke = RGB(46, 46, 62), 
-            Accent = RGB(139, 108, 255), 
-            Accent2 = RGB(70, 170, 255),
-            OnAccent = RGB(255, 255, 255), 
-            Text = RGB(238, 238, 246), 
-            SubText = RGB(148, 148, 168),
-            Muted = RGB(92, 92, 110),
-        },
-        Obsidian = {
-            Background = RGB(12, 12, 13), 
-            Surface = RGB(20, 20, 22), 
-            Elevated = RGB(28, 28, 31),
-            Hover = RGB(37, 37, 41), 
-            Stroke = RGB(52, 52, 58), 
-            Accent = RGB(232, 232, 238), 
-            Accent2 = RGB(130, 130, 146),
-            OnAccent = RGB(14, 14, 16), 
-            Text = RGB(240, 240, 242), 
-            SubText = RGB(152, 152, 160),
-            Muted = RGB(98, 98, 106),
-        },
-        Ocean = {
-            Background = RGB(8, 12, 18), 
-            Surface = RGB(14, 20, 29), 
-            Elevated = RGB(20, 28, 40),
-            Hover = RGB(28, 38, 53), 
-            Stroke = RGB(40, 56, 78), 
-            Accent = RGB(66, 153, 255), 
-            Accent2 = RGB(45, 212, 200),
-            OnAccent = RGB(255, 255, 255), 
-            Text = RGB(232, 240, 250), 
-            SubText = RGB(136, 154, 178),
-            Muted = RGB(84, 100, 122),
-        },
-        Emerald = {
-            Background = RGB(8, 14, 13), 
-            Surface = RGB(13, 22, 20), 
-            Elevated = RGB(19, 31, 28),
-            Hover = RGB(26, 42, 38), 
-            Stroke = RGB(38, 62, 55), 
-            Accent = RGB(45, 212, 150), 
-            Accent2 = RGB(34, 190, 235),
-            OnAccent = RGB(6, 24, 18), 
-            Text = RGB(230, 246, 240), 
-            SubText = RGB(132, 164, 154),
-            Muted = RGB(80, 108, 100),
-        },
-        Rose = {
-            Background = RGB(15, 9, 12), 
-            Surface = RGB(24, 14, 19), 
-            Elevated = RGB(33, 20, 26),
-            Hover = RGB(44, 27, 35), 
-            Stroke = RGB(66, 40, 52), 
-            Accent = RGB(251, 113, 155), 
-            Accent2 = RGB(190, 130, 252),
-            OnAccent = RGB(36, 8, 18), 
-            Text = RGB(250, 234, 240), 
-            SubText = RGB(176, 138, 152),
-            Muted = RGB(116, 86, 98),
-        },
-        Ember = {
-            Background = RGB(14, 11, 8), 
-            Surface = RGB(23, 18, 12), 
-            Elevated = RGB(32, 25, 17),
-            Hover = RGB(43, 34, 23), 
-            Stroke = RGB(64, 50, 34), 
-            Accent = RGB(251, 176, 64), 
-            Accent2 = RGB(250, 98, 78),
-            OnAccent = RGB(30, 18, 4), 
-            Text = RGB(250, 242, 230), 
-            SubText = RGB(172, 156, 134),
-            Muted = RGB(112, 98, 80),
-        },
-        Frost = {
-            Background = RGB(10, 14, 20), 
-            Surface = RGB(17, 23, 32), 
-            Elevated = RGB(24, 32, 44),
-            Hover = RGB(33, 43, 58), 
-            Stroke = RGB(52, 66, 86), 
-            Accent = RGB(150, 205, 255), 
-            Accent2 = RGB(205, 228, 255),
-            OnAccent = RGB(10, 20, 34), 
-            Text = RGB(236, 243, 252), 
-            SubText = RGB(144, 160, 182),
-            Muted = RGB(92, 106, 126),
-        },
-        Noir = {
-            Background = RGB(10, 9, 8), 
-            Surface = RGB(18, 16, 14), 
-            Elevated = RGB(27, 24, 21),
-            Hover = RGB(37, 33, 28), 
-            Stroke = RGB(58, 51, 42), 
-            Accent = RGB(226, 190, 120), 
-            Accent2 = RGB(255, 228, 178),
-            OnAccent = RGB(28, 20, 8), 
-            Text = RGB(246, 240, 230), 
-            SubText = RGB(168, 158, 142),
-            Muted = RGB(106, 98, 86),
-        },
-        Platinum = {
-            Background = RGB(13, 14, 16), 
-            Surface = RGB(21, 23, 26), 
-            Elevated = RGB(30, 32, 36),
-            Hover = RGB(40, 43, 48), 
-            Stroke = RGB(60, 64, 72), 
-            Accent = RGB(196, 206, 224), 
-            Accent2 = RGB(150, 164, 190),
-            OnAccent = RGB(14, 16, 22), 
-            Text = RGB(242, 244, 248), 
-            SubText = RGB(152, 160, 174),
-            Muted = RGB(98, 104, 116),
-        },
-        Aurora = {
-            Background = RGB(9, 11, 17), 
-            Surface = RGB(15, 18, 27), 
-            Elevated = RGB(22, 26, 38),
-            Hover = RGB(30, 35, 50), 
-            Stroke = RGB(46, 54, 76), 
-            Accent = RGB(94, 234, 212), 
-            Accent2 = RGB(167, 139, 250),
-            OnAccent = RGB(6, 22, 24), 
-            Text = RGB(234, 242, 248), 
-            SubText = RGB(142, 156, 176),
-            Muted = RGB(90, 102, 122),
-        },
-        Cyberpunk = {
-            Background = RGB(10, 11, 16), 
-            Surface = RGB(16, 18, 28), 
-            Elevated = RGB(23, 26, 40),
-            Hover = RGB(32, 36, 56), 
-            Stroke = RGB(65, 42, 88), 
-            Accent = RGB(255, 0, 128), 
-            Accent2 = RGB(0, 240, 255),
-            OnAccent = RGB(255, 255, 255), 
-            Text = RGB(240, 244, 248), 
-            SubText = RGB(150, 160, 185),
-            Muted = RGB(95, 100, 125),
-        },
-        Crimson = {
-            Background = RGB(13, 9, 10), 
-            Surface = RGB(22, 14, 16), 
-            Elevated = RGB(31, 20, 23),
-            Hover = RGB(42, 28, 32), 
-            Stroke = RGB(70, 42, 48), 
-            Accent = RGB(255, 65, 65), 
-            Accent2 = RGB(255, 140, 65),
-            OnAccent = RGB(35, 8, 8), 
-            Text = RGB(248, 238, 238), 
-            SubText = RGB(175, 140, 140),
-            Muted = RGB(115, 88, 88),
-        },
-        Sunset = {
-            Background = RGB(14, 10, 14), 
-            Surface = RGB(23, 16, 23), 
-            Elevated = RGB(32, 23, 32),
-            Hover = RGB(44, 32, 44), 
-            Stroke = RGB(68, 46, 68), 
-            Accent = RGB(255, 120, 60), 
-            Accent2 = RGB(220, 90, 255),
-            OnAccent = RGB(30, 10, 30), 
-            Text = RGB(248, 238, 248), 
-            SubText = RGB(170, 140, 170),
-            Muted = RGB(110, 90, 110),
-        },
-        Toxic = {
-            Background = RGB(9, 13, 10), 
-            Surface = RGB(14, 22, 16), 
-            Elevated = RGB(20, 32, 23),
-            Hover = RGB(28, 44, 32), 
-            Stroke = RGB(42, 68, 48), 
-            Accent = RGB(100, 255, 50), 
-            Accent2 = RGB(50, 220, 180),
-            OnAccent = RGB(10, 30, 12), 
-            Text = RGB(235, 248, 238), 
-            SubText = RGB(135, 165, 142),
-            Muted = RGB(85, 110, 90),
-        },
-    }
+    Obsidian = {
+        Background = RGB(12, 12, 13), Surface = RGB(20, 20, 22), Elevated = RGB(28, 28, 31),
+        Hover = RGB(37, 37, 41), Stroke = RGB(52, 52, 58), Accent = RGB(232, 232, 238), Accent2 = RGB(130, 130, 146),
+        OnAccent = RGB(14, 14, 16), Text = RGB(240, 240, 242), SubText = RGB(152, 152, 160),
+        Muted = RGB(98, 98, 106),
+    },
+    Midnight = {
+        Background = RGB(11, 11, 15), 
+        Surface = RGB(18, 18, 24), 
+        Elevated = RGB(25, 25, 33),
+        Hover = RGB(33, 33, 43), 
+        Stroke = RGB(46, 46, 62), Accent = RGB(139, 108, 255), Accent2 = RGB(70, 170, 255),
+        OnAccent = RGB(255, 255, 255), Text = RGB(238, 238, 246), SubText = RGB(148, 148, 168),
+        Muted = RGB(92, 92, 110),
+    },
+    Ocean = {
+        Background = RGB(8, 12, 18), Surface = RGB(14, 20, 29), Elevated = RGB(20, 28, 40),
+        Hover = RGB(28, 38, 53), Stroke = RGB(40, 56, 78), Accent = RGB(66, 153, 255), Accent2 = RGB(45, 212, 200),
+        OnAccent = RGB(255, 255, 255), Text = RGB(232, 240, 250), SubText = RGB(136, 154, 178),
+        Muted = RGB(84, 100, 122),
+    },
+    Emerald = {
+        Background = RGB(8, 14, 13), Surface = RGB(13, 22, 20), Elevated = RGB(19, 31, 28),
+        Hover = RGB(26, 42, 38), Stroke = RGB(38, 62, 55), Accent = RGB(45, 212, 150), Accent2 = RGB(34, 190, 235),
+        OnAccent = RGB(6, 24, 18), Text = RGB(230, 246, 240), SubText = RGB(132, 164, 154),
+        Muted = RGB(80, 108, 100),
+    },
+    Rose = {
+        Background = RGB(15, 9, 12), Surface = RGB(24, 14, 19), Elevated = RGB(33, 20, 26),
+        Hover = RGB(44, 27, 35), Stroke = RGB(66, 40, 52), Accent = RGB(251, 113, 155), Accent2 = RGB(190, 130, 252),
+        OnAccent = RGB(36, 8, 18), Text = RGB(250, 234, 240), SubText = RGB(176, 138, 152),
+        Muted = RGB(116, 86, 98),
+    },
+    Ember = {
+        Background = RGB(14, 11, 8), Surface = RGB(23, 18, 12), Elevated = RGB(32, 25, 17),
+        Hover = RGB(43, 34, 23), Stroke = RGB(64, 50, 34), Accent = RGB(251, 176, 64), Accent2 = RGB(250, 98, 78),
+        OnAccent = RGB(30, 18, 4), Text = RGB(250, 242, 230), SubText = RGB(172, 156, 134),
+        Muted = RGB(112, 98, 80),
+    },
+    Frost = {
+        Background = RGB(10, 14, 20), Surface = RGB(17, 23, 32), Elevated = RGB(24, 32, 44),
+        Hover = RGB(33, 43, 58), Stroke = RGB(52, 66, 86), Accent = RGB(150, 205, 255), Accent2 = RGB(205, 228, 255),
+        OnAccent = RGB(10, 20, 34), Text = RGB(236, 243, 252), SubText = RGB(144, 160, 182),
+        Muted = RGB(92, 106, 126),
+    },
+    Noir = {
+        Background = RGB(10, 9, 8), Surface = RGB(18, 16, 14), Elevated = RGB(27, 24, 21),
+        Hover = RGB(37, 33, 28), Stroke = RGB(58, 51, 42), Accent = RGB(226, 190, 120), Accent2 = RGB(255, 228, 178),
+        OnAccent = RGB(28, 20, 8), Text = RGB(246, 240, 230), SubText = RGB(168, 158, 142),
+        Muted = RGB(106, 98, 86),
+    },
+    Platinum = {
+        Background = RGB(13, 14, 16), Surface = RGB(21, 23, 26), Elevated = RGB(30, 32, 36),
+        Hover = RGB(40, 43, 48), Stroke = RGB(60, 64, 72), Accent = RGB(196, 206, 224), Accent2 = RGB(150, 164, 190),
+        OnAccent = RGB(14, 16, 22), Text = RGB(242, 244, 248), SubText = RGB(152, 160, 174),
+        Muted = RGB(98, 104, 116),
+    },
+    Aurora = {
+        Background = RGB(9, 11, 17), Surface = RGB(15, 18, 27), Elevated = RGB(22, 26, 38),
+        Hover = RGB(30, 35, 50), Stroke = RGB(46, 54, 76), Accent = RGB(94, 234, 212), Accent2 = RGB(167, 139, 250),
+        OnAccent = RGB(6, 22, 24), Text = RGB(234, 242, 248), SubText = RGB(142, 156, 176),
+        Muted = RGB(90, 102, 122),
+    },
+    Cyberpunk = {
+        Background = RGB(10, 11, 16), Surface = RGB(16, 18, 28), Elevated = RGB(23, 26, 40),
+        Hover = RGB(32, 36, 56), Stroke = RGB(65, 42, 88), Accent = RGB(255, 0, 128), Accent2 = RGB(0, 240, 255),
+        OnAccent = RGB(255, 255, 255), Text = RGB(240, 244, 248), SubText = RGB(150, 160, 185),
+        Muted = RGB(95, 100, 125),
+    },
+    Crimson = {
+        Background = RGB(13, 9, 10), Surface = RGB(22, 14, 16), Elevated = RGB(31, 20, 23),
+        Hover = RGB(42, 28, 32), Stroke = RGB(70, 42, 48), Accent = RGB(255, 65, 65), Accent2 = RGB(255, 140, 65),
+        OnAccent = RGB(35, 8, 8), Text = RGB(248, 238, 238), SubText = RGB(175, 140, 140),
+        Muted = RGB(115, 88, 88),
+    },
+    Sunset = {
+        Background = RGB(14, 10, 14), Surface = RGB(23, 16, 23), Elevated = RGB(32, 23, 32),
+        Hover = RGB(44, 32, 44), Stroke = RGB(68, 46, 68), Accent = RGB(255, 120, 60), Accent2 = RGB(220, 90, 255),
+        OnAccent = RGB(30, 10, 30), Text = RGB(248, 238, 248), SubText = RGB(170, 140, 170),
+        Muted = RGB(110, 90, 110),
+    },
+    Toxic = {
+        Background = RGB(9, 13, 10), Surface = RGB(14, 22, 16), Elevated = RGB(20, 32, 23),
+        Hover = RGB(28, 44, 32), Stroke = RGB(42, 68, 48), Accent = RGB(100, 255, 50), Accent2 = RGB(50, 220, 180),
+        OnAccent = RGB(10, 30, 12), Text = RGB(235, 248, 238), SubText = RGB(135, 165, 142),
+        Muted = RGB(85, 110, 90),
+    },
 }
 
 for _, theme in pairs(Themes) do
@@ -246,10 +136,10 @@ local Corners = {
     Square = 0 
 }
 
-NutriexLibrary.Themes = Themes
-NutriexLibrary.Corners = Corners
+Library.Themes = Themes
+Library.Corners = Corners
 
-function NutriexLibrary:AddTheme(name, colors)
+function Library:AddTheme(name, colors)
     colors = colors or {}
     local theme = {}
     for key, value in pairs(Themes.Midnight) do theme[key] = value end
@@ -323,7 +213,7 @@ local function Http(url)
     if ok and type(body) == "string" and body ~= "" then return body end
     return nil, "no executor http function available"
 end
-NutriexLibrary.Http = Http
+Library.Http = Http
 
 local function AssetOf(path)
     local fn = getcustomasset or getsynasset
@@ -376,7 +266,7 @@ function FontSys.Refresh()
     for inst in pairs(FontSys.Tracked) do FontPaint(inst) end
 end
 
-function NutriexLibrary:LoadFont(name, source, bold)
+function Library:LoadFont(name, source, bold)
     name = tostring(name or "Custom")
     if not (writefile and (getcustomasset or getsynasset)) then
         return nil, "this executor has no writefile / getcustomasset"
@@ -415,7 +305,7 @@ function NutriexLibrary:LoadFont(name, source, bold)
     return family
 end
 
-function NutriexLibrary:SetFont(font, opts)
+function Library:SetFont(font, opts)
     opts = opts or {}
     font = font or "Default"
     if font == "Default" then
@@ -434,9 +324,9 @@ function NutriexLibrary:SetFont(font, opts)
     return true
 end
 
-function NutriexLibrary:GetFont() return FontSys.Name or "Default" end
+function Library:GetFont() return FontSys.Name or "Default" end
 
-function NutriexLibrary:GetFonts()
+function Library:GetFonts()
     local list = { "Default" }
     for name in pairs(FontPresets) do list[#list + 1] = name end
     for name in pairs(self.CustomFonts) do list[#list + 1] = name end
@@ -531,7 +421,7 @@ local function Create(class, props, children)
 end
 
 local Motion = { Out = Enum.EasingStyle.Exponential, In = Enum.EasingStyle.Quart, Smooth = Enum.EasingStyle.Sine }
-NutriexLibrary.Motion = Motion
+Library.Motion = Motion
 
 local function Tween(inst, props, time, style, direction)
     direction = direction or Enum.EasingDirection.Out
@@ -579,9 +469,9 @@ local function Fire(label, name, fn, ...)
     reporting = true
     local message = tostring(err):gsub("^[^\n]-:%d+:%s*", "")
     pcall(function()
-        local window = NutriexLibrary.Windows[#NutriexLibrary.Windows]
+        local window = Library.Windows[#Library.Windows]
         local opts = { Title = "Error in " .. tostring(name), Content = message, Type = "Error", Duration = 6 }
-        if window then window:Notify(opts) else NutriexLibrary:Notify(opts) end
+        if window then window:Notify(opts) else Library:Notify(opts) end
     end)
     reporting = false
 end
@@ -624,7 +514,7 @@ function Root.new(opts)
     opts = opts or {}
     local self = setmetatable({}, Root)
 
-    local defaults = NutriexLibrary.Defaults
+    local defaults = Library.Defaults
     self.ThemeName = Themes[opts.Theme] and opts.Theme or (Themes[defaults.Theme] and defaults.Theme or "Midnight")
     self.Theme = Themes[self.ThemeName]
     self.CornerName = Corners[opts.Corner] and opts.Corner or defaults.Corner
@@ -698,7 +588,7 @@ function Root.new(opts)
         end
     end)
 
-    NutriexLibrary.Roots[#NutriexLibrary.Roots + 1] = self
+    Library.Roots[#Library.Roots + 1] = self
     return self
 end
 
@@ -1009,15 +899,15 @@ function Root:Destroy()
     for _, connection in ipairs(self.Connections) do pcall(function() connection:Disconnect() end) end
     self.Connections = {}
     for _, element in ipairs(self.Elements) do
-        if element.Flag and NutriexLibrary.FlagObjects[element.Flag] == element then
-            NutriexLibrary.FlagObjects[element.Flag] = nil
-            NutriexLibrary.Flags[element.Flag] = nil
+        if element.Flag and Library.FlagObjects[element.Flag] == element then
+            Library.FlagObjects[element.Flag] = nil
+            Library.Flags[element.Flag] = nil
         end
         if element._Cleanup then pcall(element._Cleanup, element) end
     end
     if self.Gui then self.Gui:Destroy() end
-    for i, root in ipairs(NutriexLibrary.Roots) do
-        if root == self then table.remove(NutriexLibrary.Roots, i) break end
+    for i, root in ipairs(Library.Roots) do
+        if root == self then table.remove(Library.Roots, i) break end
     end
 end
 
@@ -1025,8 +915,8 @@ local function Register(root, element, flag)
     root.Elements[#root.Elements + 1] = element
     element.Flag = flag
     if flag then
-        NutriexLibrary.FlagObjects[flag] = element
-        NutriexLibrary.Flags[flag] = element:Get()
+        Library.FlagObjects[flag] = element
+        Library.Flags[flag] = element:Get()
     end
 end
 
@@ -1034,9 +924,9 @@ local function Unregister(root, element)
     for i, e in ipairs(root.Elements) do
         if e == element then table.remove(root.Elements, i) break end
     end
-    if element.Flag and NutriexLibrary.FlagObjects[element.Flag] == element then
-        NutriexLibrary.FlagObjects[element.Flag] = nil
-        NutriexLibrary.Flags[element.Flag] = nil
+    if element.Flag and Library.FlagObjects[element.Flag] == element then
+        Library.FlagObjects[element.Flag] = nil
+        Library.Flags[element.Flag] = nil
     end
 end
 
@@ -1453,7 +1343,7 @@ function Dropdown:_Commit(silent)
     self:_UpdateDisplay()
     for _, rec in ipairs(self.Items) do self:_StyleItem(rec) end
     local value = self:Get()
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if self.Flag then Library.Flags[self.Flag] = value end
     if silent then return end
     Fire("callback", self.Name, self.Callback, value)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
@@ -1994,7 +1884,7 @@ function Toggle:Set(value, silent)
     if value == self.Value then return end
     self.Value = value
     self:_Paint()
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if self.Flag then Library.Flags[self.Flag] = value end
     if silent then return end
     Fire("callback", self.Name, self.Callback, value)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
@@ -2173,7 +2063,7 @@ function Slider:Set(value, silent, quick)
     if value == self.Value then return end
     self.Value = value
     self:_Paint(false, quick)
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if self.Flag then Library.Flags[self.Flag] = value end
     if silent then return end
     Fire("callback", self.Name, self.Callback, value)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
@@ -2259,7 +2149,7 @@ function Input:_Commit(text, enter, silent)
     self.Box.Text = text
     if text == self.Value and not enter then return end
     self.Value = text
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = self:Get() end
+    if self.Flag then Library.Flags[self.Flag] = self:Get() end
     if silent then return end
     Fire("callback", self.Name, self.Callback, self:Get(), enter)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, self:Get()) end
@@ -2377,7 +2267,7 @@ function Keybind:Set(key, silent)
     if type(key) == "string" then key = Enum.KeyCode[key] end
     self.Key = key
     self:_Paint()
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = key and key.Name or nil end
+    if self.Flag then Library.Flags[self.Flag] = key and key.Name or nil end
     if silent then return end
     Fire("callback", self.Name, self.Callback, key)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, key) end
@@ -2536,7 +2426,7 @@ function ColorPicker:_SetHSV(h, s, v, silent)
     self.H, self.S, self.V = h, s, v
     self.Value = Color3.fromHSV(h, s, v)
     self:_Paint(false)
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = self.Value end
+    if self.Flag then Library.Flags[self.Flag] = self.Value end
     if silent then return end
     Fire("callback", self.Name, self.Callback, self.Value)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, self.Value) end
@@ -2736,7 +2626,7 @@ function Segmented:Set(value, silent)
             if i == self.Index then return end
             self.Index = i
             self:_Paint()
-            if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+            if self.Flag then Library.Flags[self.Flag] = value end
             if silent then return end
             Fire("callback", self.Name, self.Callback, value)
             for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
@@ -2831,7 +2721,7 @@ function Progress:Set(value, silent)
     if value == self.Value then return end
     self.Value = value
     self:_Paint()
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if self.Flag then Library.Flags[self.Flag] = value end
 end
 
 function Progress:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
@@ -2923,7 +2813,7 @@ function Stepper:Set(value, silent)
     if value == self.Value then return end
     self.Value = value
     self:_Paint()
-    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if self.Flag then Library.Flags[self.Flag] = value end
     if silent then return end
     Fire("callback", self.Name, self.Callback, value)
     for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
@@ -2947,7 +2837,7 @@ function Stepper:SetDisabled(state)
 end
 function Stepper:Destroy() self.Hold = (self.Hold or 0) + 1; Unregister(self.Root, self); self.Row:Destroy() end
 
-NutriexLibrary.ImageCache = {}
+Library.ImageCache = {}
 local ImageWaiting = {}
 
 local function ImageKind(bytes)
@@ -2958,7 +2848,7 @@ local function ImageKind(bytes)
     return nil, "not a PNG or JPG image"
 end
 
-function NutriexLibrary:LoadImage(source, done)
+function Library:LoadImage(source, done)
     local cached = self.ImageCache[tostring(source)]
     if cached then done(cached) return end
     if type(source) == "number" then done("rbxassetid://" .. source) return end
@@ -3333,7 +3223,7 @@ local function ImageTile(root, parent, mult)
         shimmer.Visible = true
         shimmerEntry.On = true
         Tween(image, { ImageTransparency = 1 }, 0.1)
-        NutriexLibrary:LoadImage(source, function(content, reason)
+        Library:LoadImage(source, function(content, reason)
             if token ~= self.Token or not tile.Parent then return end
             shimmerEntry.On = false
             if content then
@@ -3607,8 +3497,8 @@ function Dock.new(seed)
     footer.MouseLeave:Connect(function() Tween(footer, { BackgroundColor3 = root.Theme.Elevated }, 0.2) end)
     footer.Activated:Connect(function()
         local anyHidden = false
-        for _, w in ipairs(NutriexLibrary.Windows) do if not w.Visible then anyHidden = true end end
-        for _, w in ipairs(NutriexLibrary.Windows) do
+        for _, w in ipairs(Library.Windows) do if not w.Visible then anyHidden = true end end
+        for _, w in ipairs(Library.Windows) do
             if anyHidden then w:Show() else w:Hide() end
         end
     end)
@@ -3812,7 +3702,7 @@ end
 
 function Dock:_PaintState()
     local lit = self.Open
-    for _, window in ipairs(NutriexLibrary.Windows) do if window.Visible then lit = true end end
+    for _, window in ipairs(Library.Windows) do if window.Visible then lit = true end end
     local awake = self.Hover or self.Held or self.Open or self.Awake
     Tween(self.Glow, { BackgroundTransparency = lit and 0.1 or (awake and 0.55 or 0.84) }, 0.5)
     Tween(self.Pill, { BackgroundTransparency = awake and 0.12 or 0.42 }, 0.35)
@@ -3846,13 +3736,13 @@ function Dock:SetEdge(edge, along)
 end
 
 function Dock:_Click()
-    local wins = NutriexLibrary.Windows
+    local wins = Library.Windows
     if #wins == 0 then return end
     if #wins == 1 then wins[1]:Toggle() else self:SetOpen(not self.Open) end
 end
 
 function Dock:_Reveal(state)
-    local wins = NutriexLibrary.Windows
+    local wins = Library.Windows
     if #wins == 0 then return end
     if #wins == 1 then
         if state then wins[1]:Show() else wins[1]:Hide() end
@@ -3898,7 +3788,7 @@ function Dock:_MakeRow(window)
 end
 
 function Dock:Update()
-    local wins = NutriexLibrary.Windows
+    local wins = Library.Windows
     local T = self.Root.Theme
     self.Fab.Visible = true
 
@@ -3956,7 +3846,7 @@ end
 
 function Dock:SetOpen(state)
     if state == self.Open then return end
-    if state and #NutriexLibrary.Windows < 2 then return end
+    if state and #Library.Windows < 2 then return end
     self.Open = state
     self.Tick = self.Tick + 1
     local tick = self.Tick
@@ -3980,11 +3870,11 @@ function Dock:SetOpen(state)
     self:_PaintState()
 end
 
-function NutriexLibrary._DockRefresh(seed)
-    local wins = NutriexLibrary.Windows
+function Library._DockRefresh(seed)
+    local wins = Library.Windows
     local want = false
     for _, w in ipairs(wins) do if w.WantsButton then want = true end end
-    local dock = NutriexLibrary.DockObj
+    local dock = Library.DockObj
     if not want or #wins == 0 then
         if dock and dock.Root.Gui.Parent then
             dock.Fab.Visible = false
@@ -3994,7 +3884,7 @@ function NutriexLibrary._DockRefresh(seed)
     end
     if not dock or not dock.Root.Gui.Parent then
         dock = Dock.new(seed or wins[1])
-        NutriexLibrary.DockObj = dock
+        Library.DockObj = dock
     end
     dock:Update()
 end
@@ -4031,11 +3921,11 @@ local Transitions = {
     Slide = { scale = 0.99,  drop = -44, reveal = false, freq = 9,    damp = 0.94 },
     Fade  = { scale = 1,     drop = 0,   reveal = false, freq = 12,   damp = 1 },
 }
-NutriexLibrary.Transitions = Transitions
+Library.Transitions = Transitions
 
-function NutriexLibrary._Arrange(fresh)
+function Library._Arrange(fresh)
     local auto = {}
-    for _, w in ipairs(NutriexLibrary.Windows) do
+    for _, w in ipairs(Library.Windows) do
         if not w.Moved and w.Move and w.Holder then auto[#auto + 1] = w end
     end
     local n = #auto
@@ -4070,7 +3960,7 @@ function NutriexLibrary._Arrange(fresh)
     end
 end
 
-function NutriexLibrary:CreateWindow(opts)
+function Library:CreateWindow(opts)
     opts = opts or {}
     local root = Root.new(opts)
     local M, T = root.Metrics, root.Theme
@@ -4080,7 +3970,7 @@ function NutriexLibrary:CreateWindow(opts)
     self.ToggleKey = opts.ToggleKey or Enum.KeyCode.RightShift
     root.Animating = false
     if opts.Font then
-        local ok, err = NutriexLibrary:SetFont(opts.Font, { Name = opts.FontName, Bold = opts.FontBold })
+        local ok, err = Library:SetFont(opts.Font, { Name = opts.FontName, Bold = opts.FontBold })
         if not ok then warn("[NutriexLibrary] font: " .. tostring(err)) end
     end
 
@@ -4393,19 +4283,19 @@ function NutriexLibrary:CreateWindow(opts)
     if want == nil then want = true end
     if type(want) == "table" then self.SwipeCfg, want = want, true end
     self.WantsButton = want == true
-    NutriexLibrary.Windows[#NutriexLibrary.Windows + 1] = self
+    Library.Windows[#Library.Windows + 1] = self
     root.Gui.Destroying:Connect(function()
-        local list = NutriexLibrary.Windows
+        local list = Library.Windows
         for i = #list, 1, -1 do if list[i] == self then table.remove(list, i) end end
-        pcall(NutriexLibrary._DockRefresh)
-        pcall(NutriexLibrary._Arrange)
+        pcall(Library._DockRefresh)
+        pcall(Library._Arrange)
     end)
-    root.Gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() NutriexLibrary._Arrange() end)
+    root.Gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() Library._Arrange() end)
 
     self:SetReflective(opts.Reflective ~= false, opts.ReflectStrength)
-    NutriexLibrary._Arrange(self)
+    Library._Arrange(self)
     if not opts.Hidden then self:Show() end
-    NutriexLibrary._DockRefresh(self)
+    Library._DockRefresh(self)
     return self
 end
 
@@ -4417,7 +4307,7 @@ function Window:Show()
     sp.g, sp.w, sp.z = 1, style.freq, style.damp
     self.Root.Animating = true
     self.Holder.Visible = true
-    if NutriexLibrary._DockRefresh then pcall(NutriexLibrary._DockRefresh) end
+    if Library._DockRefresh then pcall(Library._DockRefresh) end
 end
 
 function Window:Hide()
@@ -4427,7 +4317,7 @@ function Window:Hide()
 
     local sp = self.Spring
     sp.g, sp.w, sp.z = 0, 15, 1
-    if NutriexLibrary._DockRefresh then pcall(NutriexLibrary._DockRefresh) end
+    if Library._DockRefresh then pcall(Library._DockRefresh) end
 end
 
 function Window:SetTransition(name)
@@ -4470,7 +4360,7 @@ function Window:ResetSize()
     self.Move.gx, self.Move.x = self.Move.gx + dw / 2, self.Move.x + dw / 2
     self.Holder.Position = UDim2.new(0.5, self.Move.x, 0, self.BaseY + self.Move.y + self.Drop.v)
     self.Holder.Size = UDim2.fromOffset(self.Width, self.Holder.Size.Y.Offset)
-    NutriexLibrary._Arrange()
+    Library._Arrange()
 end
 
 function Window:SetResizable(state)
@@ -4478,23 +4368,23 @@ function Window:SetResizable(state)
     self.Grip.Visible = self.Resizable and not self.Collapsed
 end
 
-function Window:SetFont(font, opts) return NutriexLibrary:SetFont(font, opts) end
+function Window:SetFont(font, opts) return Library:SetFont(font, opts) end
 
 function Window:SetToggleKey(key) self.ToggleKey = key end
 function Window:SetTitle(text)
     self.TitleLabel.Text = tostring(text)
-    pcall(NutriexLibrary._DockRefresh)
+    pcall(Library._DockRefresh)
 end
 
 function Window:SetSwipebar(state)
     if type(state) == "table" then
         self.SwipeCfg = state
-        local dock = NutriexLibrary.DockObj
+        local dock = Library.DockObj
         if dock and dock.Root.Gui.Parent and state.Edge then dock:SetEdge(state.Edge, state.Along) end
         state = true
     end
     self.WantsButton = state == true
-    pcall(NutriexLibrary._DockRefresh, self)
+    pcall(Library._DockRefresh, self)
 end
 Window.SetToggleButton = Window.SetSwipebar
 
@@ -4523,11 +4413,11 @@ function Window:SetReflective(state, strength)
 end
 
 function Window:SetTheme(name)
-    if NutriexLibrary.DockObj then NutriexLibrary.DockObj.Root:SetTheme(name) end
+    if Library.DockObj then Library.DockObj.Root:SetTheme(name) end
     return self.Root:SetTheme(name)
 end
 function Window:SetCorner(name)
-    if NutriexLibrary.DockObj then NutriexLibrary.DockObj.Root:SetCorner(name) end
+    if Library.DockObj then Library.DockObj.Root:SetCorner(name) end
     return self.Root:SetCorner(name)
 end
 function Window:Notify(opts) self.Root:Notify(opts) end
@@ -4566,12 +4456,12 @@ function Window:Destroy() self.Root:Destroy() end
 function Window:AddConfigSection(opts)
     opts = opts or {}
     local section = self:AddSection(opts.Title or "Configuration", { Collapsed = opts.Collapsed })
-    local autoload = NutriexLibrary:GetAutoload()
+    local autoload = Library:GetAutoload()
     local input = section:AddInput({ Name = "Name", Placeholder = "config name", Default = autoload or "default" })
     local list
-    local function refresh() list:Refresh(NutriexLibrary:ListConfigs(), true) end
+    local function refresh() list:Refresh(Library:ListConfigs(), true) end
     list = section:AddDropdown({
-        Name = "Saved", Options = NutriexLibrary:ListConfigs(), Placeholder = "Select a config", Search = true,
+        Name = "Saved", Options = Library:ListConfigs(), Placeholder = "Select a config", Search = true,
         Callback = function(value) if value then input:Set(value, true) end end,
     })
     local function report(ok, err, good)
@@ -4580,22 +4470,22 @@ function Window:AddConfigSection(opts)
         })
     end
     section:AddButton({ Name = "Save config", Style = "Accent", Callback = function()
-        local ok, err = NutriexLibrary:SaveConfig(input:Get())
+        local ok, err = Library:SaveConfig(input:Get())
         report(ok, err, "Saved '" .. tostring(input:Get()) .. "'")
         if ok then refresh() end
     end })
     section:AddButton({ Name = "Load config", Callback = function()
-        local ok, err = NutriexLibrary:LoadConfig(input:Get())
+        local ok, err = Library:LoadConfig(input:Get())
         report(ok, err, "Loaded '" .. tostring(input:Get()) .. "'")
     end })
     section:AddButton({ Name = "Delete config", Callback = function()
-        local ok, err = NutriexLibrary:DeleteConfig(input:Get())
+        local ok, err = Library:DeleteConfig(input:Get())
         report(ok, err, "Deleted '" .. tostring(input:Get()) .. "'")
         if ok then refresh() end
     end })
     section:AddButton({ Name = "Refresh list", Callback = refresh })
     section:AddToggle({ Name = "Autoload this config", Default = autoload ~= nil, Callback = function(on)
-        local ok, err = NutriexLibrary:SetAutoload(on and input:Get() or nil)
+        local ok, err = Library:SetAutoload(on and input:Get() or nil)
         if not ok then report(false, err) end
     end })
     return section
@@ -4605,17 +4495,17 @@ function Window:AddInterfaceSection(opts)
     opts = opts or {}
     local section = self:AddSection(opts.Title or "Interface", { Collapsed = opts.Collapsed })
     local themes = {}
-    for name in pairs(NutriexLibrary.Themes) do themes[#themes + 1] = name end
+    for name in pairs(Library.Themes) do themes[#themes + 1] = name end
     table.sort(themes)
     section:AddDropdown({ Name = "Theme", Options = themes, Default = self.Root.ThemeName, Flag = opts.ThemeFlag or "UI_Theme",
-        Callback = function(name) NutriexLibrary:SetTheme(name) end })
+        Callback = function(name) Library:SetTheme(name) end })
     section:AddSegmented({ Name = "Corners", Options = { "Rounded", "Soft", "Sharp", "Square" }, Default = self.Root.CornerName,
-        Flag = opts.CornerFlag or "UI_Corner", Callback = function(name) NutriexLibrary:SetCorner(name) end })
+        Flag = opts.CornerFlag or "UI_Corner", Callback = function(name) Library:SetCorner(name) end })
     section:AddSegmented({ Name = "Transition", Options = { "Drop", "Scale", "Slide", "Fade" }, Default = self.TransitionName,
         Flag = opts.TransitionFlag or "UI_Transition", Callback = function(name) self:SetTransition(name) end })
-    local fontDropdown = section:AddDropdown({ Name = "Font", Options = NutriexLibrary:GetFonts(), Default = NutriexLibrary:GetFont(),
+    local fontDropdown = section:AddDropdown({ Name = "Font", Options = Library:GetFonts(), Default = Library:GetFont(),
         Callback = function(name)
-            local ok, err = NutriexLibrary:SetFont(name)
+            local ok, err = Library:SetFont(name)
             if not ok then self:Notify({ Title = "Font", Content = tostring(err), Type = "Error" }) end
         end })
     local fontUrl = ""
@@ -4623,9 +4513,9 @@ function Window:AddInterfaceSection(opts)
     section:AddButton({ Name = "Apply custom font", Callback = function()
         if fontUrl == "" then return end
         local name = fontUrl:match("([^/\\]+)%.%a+[%?#]?.*$") or "Custom"
-        local ok, err = NutriexLibrary:SetFont(fontUrl, { Name = name })
+        local ok, err = Library:SetFont(fontUrl, { Name = name })
         if ok then
-            fontDropdown:Refresh(NutriexLibrary:GetFonts(), true)
+            fontDropdown:Refresh(Library:GetFonts(), true)
             fontDropdown:Set(name, true)
         end
         self:Notify({ Title = "Font", Content = ok and ("Applied " .. name) or tostring(err), Type = ok and "Success" or "Error" })
@@ -4635,11 +4525,11 @@ function Window:AddInterfaceSection(opts)
     section:AddToggle({ Name = "Swipebar", Default = self.WantsButton, Flag = opts.ButtonFlag or "UI_Swipebar",
         Callback = function(on) self:SetSwipebar(on) end })
     section:AddSegmented({ Name = "Swipebar edge", Options = { "Left", "Right", "Top", "Bottom" },
-        Default = (NutriexLibrary.DockObj and NutriexLibrary.DockObj.Edge) or (self.SwipeCfg and self.SwipeCfg.Edge) or "Bottom",
+        Default = (Library.DockObj and Library.DockObj.Edge) or (self.SwipeCfg and self.SwipeCfg.Edge) or "Bottom",
         Flag = opts.EdgeFlag or "UI_SwipebarEdge",
-        Callback = function(edge) if NutriexLibrary.DockObj then NutriexLibrary.DockObj:SetEdge(edge) end end })
+        Callback = function(edge) if Library.DockObj then Library.DockObj:SetEdge(edge) end end })
     section:AddDivider()
-    section:AddButton({ Name = "Unload UI", Callback = function() NutriexLibrary:Destroy() end })
+    section:AddButton({ Name = "Unload UI", Callback = function() Library:Destroy() end })
     return section
 end
 
@@ -4852,31 +4742,31 @@ function Window:AddSection(title, sopts)
 end
 
 local function StandaloneRoot()
-    if not NutriexLibrary.Standalone or not NutriexLibrary.Standalone.Gui or not NutriexLibrary.Standalone.Gui.Parent then
-        NutriexLibrary.Standalone = Root.new({})
+    if not Library.Standalone or not Library.Standalone.Gui or not Library.Standalone.Gui.Parent then
+        Library.Standalone = Root.new({})
     end
-    return NutriexLibrary.Standalone
+    return Library.Standalone
 end
 
-function NutriexLibrary:CreateDropdown(parent, opts)
+function Library:CreateDropdown(parent, opts)
     return Dropdown.new(StandaloneRoot(), parent, opts, nil)
 end
 
-function NutriexLibrary:Notify(opts) StandaloneRoot():Notify(opts) end
-function NutriexLibrary:Dialog(opts) return StandaloneRoot():Dialog(opts) end
+function Library:Notify(opts) StandaloneRoot():Notify(opts) end
+function Library:Dialog(opts) return StandaloneRoot():Dialog(opts) end
 
-function NutriexLibrary:SetSwipebar(edge, along)
-    local dock = NutriexLibrary.DockObj
+function Library:SetSwipebar(edge, along)
+    local dock = Library.DockObj
     if not (dock and dock.Root.Gui.Parent) then return false end
     return dock:SetEdge(edge, along)
 end
 
-function NutriexLibrary:SetTheme(name)
+function Library:SetTheme(name)
     for _, root in ipairs(self.Roots) do root:SetTheme(name) end
     if self.DockObj and self.DockObj.Root.Gui.Parent then self.DockObj:Update() end
 end
 
-function NutriexLibrary:SetCorner(name)
+function Library:SetCorner(name)
     for _, root in ipairs(self.Roots) do root:SetCorner(name) end
 end
 
@@ -4886,7 +4776,7 @@ local function ConfigName(name)
     return (tostring(name or ""):gsub("[^%w%-_ ]", ""))
 end
 
-function NutriexLibrary:SaveConfig(name)
+function Library:SaveConfig(name)
     name = ConfigName(name)
     if name == "" then return false, "Enter A Config Name" end
     if not (writefile and isfolder and makefolder) then return false, "Executor Has No File Api" end
@@ -4900,7 +4790,7 @@ function NutriexLibrary:SaveConfig(name)
     end)
 end
 
-function NutriexLibrary:LoadConfig(name)
+function Library:LoadConfig(name)
     name = ConfigName(name)
     if not (readfile and isfile) then return false, "executor has no file API" end
     local path = CONFIG_DIR .. "/" .. name .. ".json"
@@ -4916,7 +4806,7 @@ function NutriexLibrary:LoadConfig(name)
     return true
 end
 
-function NutriexLibrary:ListConfigs()
+function Library:ListConfigs()
     local names = {}
     if listfiles and isfolder and isfolder(CONFIG_DIR) then
         local ok, files = pcall(listfiles, CONFIG_DIR)
@@ -4931,7 +4821,7 @@ function NutriexLibrary:ListConfigs()
     return names
 end
 
-function NutriexLibrary:DeleteConfig(name)
+function Library:DeleteConfig(name)
     name = ConfigName(name)
     if not (delfile and isfile) then return false, "executor has no file API" end
     local path = CONFIG_DIR .. "/" .. name .. ".json"
@@ -4939,7 +4829,7 @@ function NutriexLibrary:DeleteConfig(name)
     return pcall(delfile, path)
 end
 
-function NutriexLibrary:SetAutoload(name)
+function Library:SetAutoload(name)
     if not (writefile and isfolder and makefolder) then return false, "executor has no file API" end
     return pcall(function()
         if not isfolder(CONFIG_DIR) then makefolder(CONFIG_DIR) end
@@ -4951,20 +4841,20 @@ function NutriexLibrary:SetAutoload(name)
     end)
 end
 
-function NutriexLibrary:GetAutoload()
+function Library:GetAutoload()
     if not (readfile and isfile) or not isfile(CONFIG_DIR .. "/autoload.txt") then return nil end
     local ok, text = pcall(readfile, CONFIG_DIR .. "/autoload.txt")
     if ok and text and ConfigName(text) ~= "" then return ConfigName(text) end
     return nil
 end
 
-function NutriexLibrary:AutoLoad()
+function Library:AutoLoad()
     local name = self:GetAutoload()
     if name then return self:LoadConfig(name) end
     return false, "no autoload config"
 end
 
-function NutriexLibrary:Destroy()
+function Library:Destroy()
     for i = #self.Roots, 1, -1 do self.Roots[i]:Destroy() end
     self.Roots = {}
     self.Windows = {}
@@ -4973,4 +4863,4 @@ function NutriexLibrary:Destroy()
     if genv.__NutriexLibrary == self then genv.__NutriexLibrary = nil end
 end
 
-return NutriexLibrary
+return Library
