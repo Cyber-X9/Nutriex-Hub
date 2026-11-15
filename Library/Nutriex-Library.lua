@@ -2502,19 +2502,22 @@ function Nutriex:CreateWindow(WindowSettings)
 	TabPage.Parent = Elements
 
 	function Tab:Activate()
-		-- Transição suave e sem peso para a aba ativa
-		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
-		tween(TabButton, {BackgroundTransparency = 0}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
-		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+		-- Transição ultra-rápida (0.15s) e leve para evitar qualquer sensação de delay
+		local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
+		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, tweenInfo)
+		tween(TabButton, {BackgroundTransparency = 0}, tweenInfo)
+		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, tweenInfo)
+
+		-- Troca de página imediata
 		Elements.UIPageLayout:JumpTo(TabPage)
 
-		-- Desativa as outras abas instantaneamente de forma leve
+		-- Atualiza os botões inativos instantaneamente em lote
 		for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
 			if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= TabButton then
-				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
-				tween(OtherTabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
-				tween(OtherTabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.25, Enum.EasingStyle.Exponential))
+				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, tweenInfo)
+				tween(OtherTabButton, {BackgroundTransparency = 1}, tweenInfo)
+				tween(OtherTabButton.UIStroke, {Transparency = 1}, tweenInfo)
 			end
 		end
 
@@ -2527,30 +2530,30 @@ function Nutriex:CreateWindow(WindowSettings)
 
 	task.wait(0.01)
 
-	-- Clique direto e responsivo (sem alterar tamanho para evitar travadas)
+	-- Clique direto sem travamentos
 	TabButton.Interact.MouseButton1Click:Connect(function()
 		Tab:Activate()
 	end)
 
-	-- Efeitos de Hover leves (somente cores e transparências)
+	-- Hover leve e otimizado
 	TabButton.MouseEnter:Connect(function()
 		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.15, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.15))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.15))
+			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.1))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.1))
 		end
 	end)
 
 	TabButton.MouseLeave:Connect(function()
 		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.15, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.15))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.15))
+			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
+			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.1))
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.1))
 		end
 	end)
 
 	FirstTab = false
-	
+
 		-- Section
 		function Tab:CreateSection(name : string)
 
