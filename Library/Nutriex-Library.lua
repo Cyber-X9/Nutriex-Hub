@@ -2044,16 +2044,16 @@ function Nutriex:CreateWindow(WindowSettings)
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
-		SaveInRoot = false, -- Enabling will save the key in your RootFolder (YOU MUST HAVE ONE BEFORE ENABLING THIS OPTION)
-		SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-		Key = {""}, -- List of keys that will be accepted by the system, please use a system like Pelican or Luarmor that provide key strings based on your HWID since putting a simple string is very easy to bypass
+		SaveInRoot = false,
+		SaveKey = true,
+		Key = {""},
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
 	WindowSettings.KeySettings.SecondAction = SetPrase({
 		Enabled = false,
-		Type = "Discord", -- Link/Discord
-		Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
+		Type = "Discord",
+		Parameter = ""
 	}, WindowSettings.KeySettings.SecondAction)
 
 	local Passthrough = false
@@ -2097,29 +2097,8 @@ function Nutriex:CreateWindow(WindowSettings)
 
 	LoadingFrame.Visible = true
 
-	-- pcall(function()
-	-- 	if not isfolder(ConfigurationFolder) then
-	-- 		makefolder(ConfigurationFolder)
-	-- 	end
-	-- 	if WindowSettings.ConfigSettings.RootFolder then
-	-- 		if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder) then
-	-- 			makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder)
-	-- 			if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder .. WindowSettings.ConfigSettings.ConfigFolder) then
-	-- 				makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.RootFolder .. WindowSettings.ConfigSettings.ConfigFolder)
-	-- 			end
-	-- 		end
-	-- 	else
-	-- 		if not isfolder(ConfigurationFolder .. WindowSettings.ConfigSettings.ConfigFolder) then
-	-- 			makefolder(ConfigurationFolder .. WindowSettings.ConfigSettings.ConfigFolder)
-	-- 		end
-	-- 	end
-
-	-- 	LoadAutoLoad(WindowSettings.ConfigSettings.ConfigFolder, WindowSettings.ConfigSettings.RootFolder)
-	-- end)
-
 	NutriexLibrary.Enabled = true
 
-	
 	if WindowSettings.KeySystem then
 		local KeySettings = WindowSettings.KeySettings
 		
@@ -2169,7 +2148,7 @@ function Nutriex:CreateWindow(WindowSettings)
 			
 			Btn.Interact.MouseButton1Click:Connect(function()
 				if typesys == "Discord" then
-					setclipboard(tostring("https://discord.gg/"..KeySettings.SecondAction.Parameter)) -- Hunter if you see this I added copy also was too lazy to send u msg
+					setclipboard(tostring("https://discord.gg/"..KeySettings.SecondAction.Parameter))
 					if request then
 						request({
 							Url = 'http://127.0.0.1:6463/rpc?v=1',
@@ -2205,20 +2184,20 @@ function Nutriex:CreateWindow(WindowSettings)
 					for _, instance in pairs(KeySystem:GetDescendants()) do
 						if instance.ClassName ~= "UICorner" and instance.ClassName ~= "UIPadding" then
 							if instance.ClassName ~= "UIStroke" and instance.ClassName ~= "UIListLayout" then
-								tween(instance, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
+								tween(instance, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "ImageButton" then
-								tween(instance, {ImageTransparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+								tween(instance, {ImageTransparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "TextLabel" then
-								tween(instance, {TextTransparency = 1}, nil,TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
+								tween(instance, {TextTransparency = 1}, nil, TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "UIStroke" then
-								tween(instance, {Transparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+								tween(instance, {Transparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
 							end
 						end
 					end
-					tween(KeySystem, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
+					tween(KeySystem, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
 					task.wait(0.51)
 					Passthrough = true
 					KeySystem.Visible = false
@@ -2230,7 +2209,6 @@ function Nutriex:CreateWindow(WindowSettings)
 					end
 				else
 					if AttemptsRemaining == 0 then
-
 						game.Players.LocalPlayer:Kick("No Attempts Remaining")
 						game:Shutdown()
 					end
@@ -2242,7 +2220,6 @@ function Nutriex:CreateWindow(WindowSettings)
 			end)
 
 			KeySystem.Close.MouseButton1Click:Connect(function()
-				
 				Nutriex:Destroy()
 			end)
 		end
@@ -2299,8 +2276,8 @@ function Nutriex:CreateWindow(WindowSettings)
 
 		HomeTabSettings = SetPrase({
 			Icon = 1,
-			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
-			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
+			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"},
+			DiscordInvite = "noinvitelink"
 		}, HomeTabSettings or {})
 
 		local HomeTab = {}
@@ -2315,32 +2292,37 @@ function Nutriex:CreateWindow(WindowSettings)
 		HomeTabPage.Visible = true
 
 		function HomeTab:Activate()
-			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(HomeTabButton, {BackgroundTransparency = 0})
-			tween(HomeTabButton.UIStroke, {Transparency = 0.41})
+			Window.CurrentTab = "Home"
+
+			-- Transição ultra-rápida e fluida (sem travamentos)
+			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, tweenInfo)
+			tween(HomeTabButton, {BackgroundTransparency = 0}, tweenInfo)
+			tween(HomeTabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, tweenInfo)
 
 			Elements.UIPageLayout:JumpTo(HomeTabPage)
 
-			task.wait(0.05)
-
 			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= HomeTabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
+				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= HomeTabButton then
+					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, tweenInfo)
+					tween(OtherTabButton, {BackgroundTransparency = 1}, tweenInfo)
+					tween(OtherTabButton.UIStroke, {Transparency = 1}, tweenInfo)
 				end
-
 			end
-
-			Window.CurrentTab = "Home"
 		end
 
 		HomeTab:Activate()
 		FirstTab = false
-		HomeTabButton.Interact.MouseButton1Click:Connect(function()
-			HomeTab:Activate()
-		end)
 
+		-- Clique seguro com task.defer para evitar micro-stutters
+		HomeTabButton.Interact.MouseButton1Click:Connect(function()
+			if Window.CurrentTab ~= "Home" then
+				task.defer(function()
+					HomeTab:Activate()
+				end)
+			end
+		end)
 
 		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
@@ -2358,9 +2340,8 @@ function Nutriex:CreateWindow(WindowSettings)
 			end
 		end
 
-
 		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
-			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite)) -- Hunter if you see this I added copy also was too lazy to send u msg
+			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite))
 			if request then
 				request({
 					Url = 'http://127.0.0.1:6463/rpc?v=1',
@@ -2383,7 +2364,6 @@ function Nutriex:CreateWindow(WindowSettings)
 
 		local function checkFriends()
 			if friendsCooldown == 0 then
-
 				friendsCooldown = 25
 
 				local playersFriends = {}
@@ -2391,33 +2371,43 @@ function Nutriex:CreateWindow(WindowSettings)
 				local onlineFriends = 0 
 				local friendsInGame = 0 
 
-				local list = Players:GetFriendsAsync(Player.UserId)
-				while true do -- loop through all the pages
-					for _, data in list:GetCurrentPage() do
-						friendsInTotal +=1
-						table.insert(playersFriends, Data)
+				local success, list = pcall(function()
+					return Players:GetFriendsAsync(Player.UserId)
+				end)
+				
+				if success and list then
+					while true do
+						for _, data in ipairs(list:GetCurrentPage()) do
+							friendsInTotal += 1
+							table.insert(playersFriends, data)
+						end
+
+						if list.IsFinished then
+							break
+						else 
+							list:AdvanceToNextPageAsync()
+						end
+					end
+					
+					local successOnline, onlineList = pcall(function()
+						return Player:GetFriendsOnline()
+					end)
+					
+					if successOnline and onlineList then
+						for i, v in pairs(onlineList) do
+							onlineFriends += 1
+						end
 					end
 
-					if list.IsFinished then
-						-- stop the loop since this is the last page
-						break
-					else 
-						-- go to the next page
-						list:AdvanceToNextPageAsync()
-					end
-				end
-				for i, v in pairs(Player:GetFriendsOnline()) do
-					onlineFriends += 1
-				end
-
-				for i,v in pairs(playersFriends) do
-					if Players:FindFirstChild(v.Username) then
-						friendsInGame = friendsInGame + 1
+					for i,v in pairs(playersFriends) do
+						if Players:FindFirstChild(v.Username) then
+							friendsInGame = friendsInGame + 1
+						end
 					end
 				end
 
 				HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = tostring(friendsInTotal).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(friendsInTotal - onlineFriends).." friends"
+				HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(max(0, friendsInTotal - onlineFriends)).." friends"
 				HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = tostring(onlineFriends).." friends"
 				HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = tostring(friendsInGame).." friends"
 
@@ -2439,9 +2429,7 @@ function Nutriex:CreateWindow(WindowSettings)
 		end
 
 		coroutine.wrap(function()
-			while task.wait() do
-
-
+			while task.wait(1) do
 				-- Players
 				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." playing"
 				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." players can join this server"
@@ -2453,106 +2441,90 @@ function Nutriex:CreateWindow(WindowSettings)
 				HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(time())
 
 				-- Region
-				HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
+				pcall(function()
+					HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
+				end)
 
 				checkFriends()
 			end
 		end)()
-
 	end
+end
 
-	function Window:CreateTab(TabSettings)
 
-	local Tab = {}
+function Window:CreateTab(TabSettings)
 
-	TabSettings = SetPrase({
-		Name = "Tab",
-		ShowTitle = true,
-		Icon = "view_in_ar",
-		ImageSource = "Material" 
-	}, TabSettings or {})
+		local Tab = {}
 
-	local TabButton = Navigation.Tabs["InActive Template"]:Clone()
+		TabSettings = SetPrase({
+			Name = "Tab",
+			ShowTitle = true,
+			Icon = "view_in_ar",
+			ImageSource = "Material" 
+		}, TabSettings or {})
 
-	TabButton.Name = TabSettings.Name
-	TabButton.TextLabel.Text = TabSettings.Name
-	TabButton.Parent = Navigation.Tabs
-	TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
-	TabButton.Visible = true
+		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
 
-	local TabPage = Elements.Template:Clone()
-	TabPage.Name = TabSettings.Name
-	TabPage.Title.Visible = TabSettings.ShowTitle
-	TabPage.Title.Text = TabSettings.Name
-	TabPage.Visible = true
+		TabButton.Name = TabSettings.Name
+		TabButton.TextLabel.Text = TabSettings.Name
+		TabButton.Parent = Navigation.Tabs
+		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
 
-	Tab.Page = TabPage
+		TabButton.Visible = true
 
-	if TabSettings.ShowTitle == false then
-		TabPage.UIPadding.PaddingTop = UDim.new(0, 10)
-	end
+		local TabPage = Elements.Template:Clone()
+		TabPage.Name = TabSettings.Name
+		TabPage.Title.Visible = TabSettings.ShowTitle
+		TabPage.Title.Text = TabSettings.Name
+		TabPage.Visible = true
 
-	TabPage.LayoutOrder = #Elements:GetChildren() - 3
+		Tab.Page = TabPage
 
-	for _, TemplateElement in ipairs(TabPage:GetChildren()) do
-		if (TemplateElement:IsA("Frame") or TemplateElement:IsA("TextLabel")) and TemplateElement.Name ~= "Title" then
-			TemplateElement:Destroy()
+		if TabSettings.ShowTitle == false then
+			TabPage.UIPadding.PaddingTop = UDim.new(0,10)
 		end
-	end
-	TabPage.Parent = Elements
 
-	function Tab:Activate()
-		-- Transição ultra-rápida (0.15s) e leve para evitar qualquer sensação de delay
-		local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TabPage.LayoutOrder = #Elements:GetChildren() - 3
 
-		tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, tweenInfo)
-		tween(TabButton, {BackgroundTransparency = 0}, tweenInfo)
-		tween(TabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, tweenInfo)
-
-		-- Troca de página imediata
-		Elements.UIPageLayout:JumpTo(TabPage)
-
-		-- Atualiza os botões inativos instantaneamente em lote
-		for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-			if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= TabButton then
-				tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, tweenInfo)
-				tween(OtherTabButton, {BackgroundTransparency = 1}, tweenInfo)
-				tween(OtherTabButton.UIStroke, {Transparency = 1}, tweenInfo)
+		for _, TemplateElement in ipairs(TabPage:GetChildren()) do
+			if TemplateElement.ClassName == "Frame" or TemplateElement.ClassName == "TextLabel" and TemplateElement.Name ~= "Title" then
+				TemplateElement:Destroy()
 			end
 		end
+		TabPage.Parent = Elements
 
-		Window.CurrentTab = TabSettings.Name
-	end
+		function Tab:Activate()
+			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
+			tween(TabButton, {BackgroundTransparency = 0})
+			tween(TabButton.UIStroke, {Transparency = 0.41})
 
-	if FirstTab then
-		Tab:Activate()
-	end
+			Elements.UIPageLayout:JumpTo(TabPage)
 
-	task.wait(0.01)
+			task.wait(0.05)
 
-	-- Clique direto sem travamentos
-	TabButton.Interact.MouseButton1Click:Connect(function()
-		Tab:Activate()
-	end)
+			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
+				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= TabButton then
+					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
+					tween(OtherTabButton, {BackgroundTransparency = 1})
+					tween(OtherTabButton.UIStroke, {Transparency = 1})
+				end
 
-	-- Hover leve e otimizado
-	TabButton.MouseEnter:Connect(function()
-		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 0.75}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 0.7, Color = Color3.fromRGB(90, 85, 110)}, TweenInfo.new(0.1))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(220, 215, 235)}, TweenInfo.new(0.1))
+			end
+
+			Window.CurrentTab = TabSettings.Name
 		end
-	end)
 
-	TabButton.MouseLeave:Connect(function()
-		if Window.CurrentTab ~= TabSettings.Name then
-			tween(TabButton, {BackgroundTransparency = 1}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
-			tween(TabButton.UIStroke, {Transparency = 1}, TweenInfo.new(0.1))
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, TweenInfo.new(0.1))
+		if FirstTab then
+			Tab:Activate()
 		end
-	end)
 
-	FirstTab = false
+		task.wait(0.01)
+
+		TabButton.Interact.MouseButton1Click:Connect(function()
+			Tab:Activate()
+		end)
+
+		FirstTab = false
 
 		-- Section
 		function Tab:CreateSection(name : string)
