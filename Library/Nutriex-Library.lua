@@ -1,6733 +1,4976 @@
---[[
-  _  _      _       _           _  _      _     
- | \| |_  _| |_ _ _(_)_____ __ | || |_  _| |__  
- | .` | || |  _| '_| / -_) \ / | __ | || | '_ \ 
- |_|\_|\_,_|\__|_| |_\___/_\_\ |_||_|\_,_|_.__/  
-  -------------------------------------------
- • Nutriex UI library - By CyberX      
- • Version: 2.1.5
- • Nutriex Security Version: 2.0               
-]]
-local Services = setmetatable({}, {
-    __index = function(self, serviceName)
-        local success, service = pcall(function()
-            return game:GetService(serviceName)
-        end)
-        if success and service then
-            rawset(self, serviceName, service)
-            return service
-        end
-        return nil
-    end
-})
-local UserInputService = Services.UserInputService
-local TweenService = Services.TweenService
-local HttpService = Services.HttpService
-local RunService = Services.RunService
-local LocalizationService = Services.LocalizationService
-local Players = Services.Players
-local CoreGui = Services.CoreGui
+local NutriexLibrary = {
+    Version = "2.1.0",
+    CustomFonts = {},
+    Windows = {},
+    Flags = {},
+    FlagObjects = {},
+    Roots = {},
+    Defaults = { Theme = "NutriexLibrary", Corner = "Soft" },
+}
+
+local genv = (getgenv and getgenv()) or _G
+if genv.__NutriexLibrary then
+    pcall(function() genv.__NutriexLibrary:Destroy() end)
+end
+genv.__NutriexLibrary = NutriexLibrary
+
+local cloneref = cloneref or function(o) return o end
+local function Service(name) return cloneref(game:GetService(name)) end
+
+local Players = Service("Players")
+local TweenService = Service("TweenService")
+local UserInputService = Service("UserInputService")
+local RunService = Service("RunService")
+local HttpService = Service("HttpService")
+local CoreGui = Service("CoreGui")
+local TextService = Service("TextService")
 
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
-local isStudio
+local function RGB(r, g, b) return Color3.fromRGB(r, g, b) end
 
-if RunService:IsStudio() then
-	isStudio = true
-end
-
-local Nutriex = { 
-	Folder = "Nutriex-Library", 
-	Options = {}, 
-	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
+local Semantic = {
+    Success = RGB(74, 222, 128),
+    Warning = RGB(251, 191, 36),
+    Danger = RGB(248, 113, 113),
 }
 
-local IconModule = {
-	Lucide = nil,
-	Material = {
-		["perm_media"] = "rbxassetid://6031215982";
-		["sticky_note_2"] = "rbxassetid://6031265972";
-		["gavel"] = "rbxassetid://6023565902";
-		["table_view"] = "rbxassetid://6031233835";
-		["home"] = "rbxassetid://93059210162475";
-		["list"] = "rbxassetid://6026568229";
-		["alarm_add"] = "rbxassetid://6023426898";
-		["speaker_notes"] = "rbxassetid://6031266001";
-		["check_circle_outline"] = "rbxassetid://6023426909";
-		["extension"] = "rbxassetid://6023565892";
-		["pending"] = "rbxassetid://6031084745";
-		["pageview"] = "rbxassetid://6031216007";
-		["group_work"] = "rbxassetid://6023565910";
-		["zoom_in"] = "rbxassetid://6031075573";
-		["aspect_ratio"] = "rbxassetid://6022668895";
-		["code"] = "rbxassetid://6022668955";
-		["3d_rotation"] = "rbxassetid://6022668893";
-		["translate"] = "rbxassetid://6031225812";
-		["star_rate"] = "rbxassetid://6031265978";
-		["system_update_alt"] = "rbxassetid://6031251515";
-		["open_with"] = "rbxassetid://6026568265";
-		["build_circle"] = "rbxassetid://6023426952";
-		["toc"] = "rbxassetid://6031229341";
-		["settings_phone"] = "rbxassetid://6031289445";
-		["open_in_full"] = "rbxassetid://6026568245";
-		["history"] = "rbxassetid://6026568197";
-		["accessibility_new"] = "rbxassetid://6022668945";
-		["hourglass_disabled"] = "rbxassetid://6026568193";
-		["line_style"] = "rbxassetid://6026568276";
-		["account_circle"] = "rbxassetid://6022668898";
-		["settings_cell"] = "rbxassetid://6031280890";
-		["search_off"] = "rbxassetid://6031260783";
-		["shop"] = "rbxassetid://6031265983";
-		["anchor"] = "rbxassetid://6023426906";
-		["language"] = "rbxassetid://6026568213";
-		["settings_brightness"] = "rbxassetid://6031280902";
-		["restore_page"] = "rbxassetid://6031154877";
-		["chrome_reader_mode"] = "rbxassetid://6023426912";
-		["sync_alt"] = "rbxassetid://6031233840";
-		["book"] = "rbxassetid://6022860343";
-		["smart_button"] = "rbxassetid://6031265962";
-		["request_page"] = "rbxassetid://6031154873";
-		["lock_clock"] = "rbxassetid://6026568260";
-		["android"] = "rbxassetid://6022668966";
-		["outgoing_mail"] = "rbxassetid://6026568242";
-		["dynamic_form"] = "rbxassetid://6023426970";
-		["track_changes"] = "rbxassetid://6031225814";
-		["source"] = "rbxassetid://6031289451";
-		["thumb_down"] = "rbxassetid://6031229336";
-		["integration_instructions"] = "rbxassetid://6026568214";
-		["opacity"] = "rbxassetid://6026568295";
-		["perm_identity"] = "rbxassetid://6031215978";
-		["view_module"] = "rbxassetid://6031079152";
-		["perm_data_setting"] = "rbxassetid://6031215991";
-		["assignment_turned_in"] = "rbxassetid://6023426904";
-		["change_history"] = "rbxassetid://6023426914";
-		["thumb_down_off_alt"] = "rbxassetid://6031229354";
-		["text_rotation_angledown"] = "rbxassetid://6031251513";
-		["bookmark"] = "rbxassetid://6022852108";
-		["view_stream"] = "rbxassetid://6031079164";
-		["remove_done"] = "rbxassetid://6031086169";
-		["markunread_mailbox"] = "rbxassetid://6031082531";
-		["store"] = "rbxassetid://6031265968";
-		["text_rotation_angleup"] = "rbxassetid://6031229337";
-		["eco"] = "rbxassetid://6023426988";
-		["find_in_page"] = "rbxassetid://6023426986";
-		["api"] = "rbxassetid://6022668911";
-		["launch"] = "rbxassetid://6026568211";
-		["text_rotation_down"] = "rbxassetid://6031229334";
-		["flip_to_back"] = "rbxassetid://6023565896";
-		["contact_page"] = "rbxassetid://6022668881";
-		["preview"] = "rbxassetid://6031260793";
-		["restore"] = "rbxassetid://6031260800";
-		["favorite_border"] = "rbxassetid://6023565882";
-		["assignment_late"] = "rbxassetid://6022668880";
-		["youtube_searched_for"] = "rbxassetid://6031075934";
-		["hourglass_full"] = "rbxassetid://6026568190";
-		["timeline"] = "rbxassetid://6031229350";
-		["turned_in"] = "rbxassetid://6031225808";
-		["info"] = "rbxassetid://6026568227";
-		["restore_from_trash"] = "rbxassetid://6031154869";
-		["arrow_circle_down"] = "rbxassetid://6022668877";
-		["flaky"] = "rbxassetid://6031082523";
-		["alarm_on"] = "rbxassetid://6023426920";
-		["swap_vertical_circle"] = "rbxassetid://6031233839";
-		["open_in_new"] = "rbxassetid://6026568256";
-		["watch_later"] = "rbxassetid://6031075924";
-		["alarm_off"] = "rbxassetid://6023426901";
-		["maximize"] = "rbxassetid://6026568267";
-		["lock_outline"] = "rbxassetid://6031082533";
-		["outbond"] = "rbxassetid://6026568244";
-		["view_carousel"] = "rbxassetid://6031251507";
-		["published_with_changes"] = "rbxassetid://6031243328";
-		["verified_user"] = "rbxassetid://6031225819";
-		["drag_indicator"] = "rbxassetid://6023426962";
-		["lightbulb_outline"] = "rbxassetid://6026568254";
-		["segment"] = "rbxassetid://6031260773";
-		["assignment"] = "rbxassetid://6022668882";
-		["work_outline"] = "rbxassetid://6031075930";
-		["line_weight"] = "rbxassetid://6026568226";
-		["dangerous"] = "rbxassetid://6022668916";
-		["assessment"] = "rbxassetid://6022668897";
-		["view_day"] = "rbxassetid://6031079153";
-		["help_center"] = "rbxassetid://6026568192";
-		["logout"] = "rbxassetid://6031082522";
-		["event"] = "rbxassetid://6023426959";
-		["get_app"] = "rbxassetid://6023565889";
-		["tab"] = "rbxassetid://6031233851";
-		["label"] = "rbxassetid://6031082525";
-		["g_translate"] = "rbxassetid://6031082526";
-		["view_week"] = "rbxassetid://6031079154";
-		["view_in_ar"] = "rbxassetid://6031079158";
-		["card_travel"] = "rbxassetid://6023426925";
-		["lock_open"] = "rbxassetid://6026568220";
-		["voice_over_off"] = "rbxassetid://6031075927";
-		["app_blocking"] = "rbxassetid://6022668952";
-		["settings_ethernet"] = "rbxassetid://6031280883";
-		["supervised_user_circle"] = "rbxassetid://6031289449";
-		["done_all"] = "rbxassetid://6023426929";
-		["lightbulb"] = "rbxassetid://6026568247";
-		["find_replace"] = "rbxassetid://6023426979";
-		["bookmarks"] = "rbxassetid://6023426924";
-		["today"] = "rbxassetid://6031229352";
-		["class"] = "rbxassetid://6022668949";
-		["supervisor_account"] = "rbxassetid://6031251516";
-		["support"] = "rbxassetid://6031251532";
-		["done_outline"] = "rbxassetid://6023426936";
-		["reorder"] = "rbxassetid://6031154868";
-		["fact_check"] = "rbxassetid://6023426951";
-		["thumb_up"] = "rbxassetid://6031229347";
-		["assignment_returned"] = "rbxassetid://6023426899";
-		["card_giftcard"] = "rbxassetid://6023426978";
-		["trending_down"] = "rbxassetid://6031225811";
-		["settings_backup_restore"] = "rbxassetid://6031280886";
-		["settings_voice"] = "rbxassetid://6031265966";
-		["dns"] = "rbxassetid://6023426958";
-		["perm_scan_wifi"] = "rbxassetid://6031215985";
-		["plagiarism"] = "rbxassetid://6031243320";
-		["commute"] = "rbxassetid://6022668901";
-		["gif"] = "rbxassetid://6031082540";
-		["work"] = "rbxassetid://6031075939";
-		["picture_in_picture_alt"] = "rbxassetid://6031215979";
-		["query_builder"] = "rbxassetid://6031086183";
-		["label_off"] = "rbxassetid://6026568209";
-		["all_out"] = "rbxassetid://6022668876";
-		["article"] = "rbxassetid://6022668907";
-		["shopping_basket"] = "rbxassetid://6031265997";
-		["mark_as_unread"] = "rbxassetid://6026568223";
-		["work_off"] = "rbxassetid://6031075937";
-		["delete_outline"] = "rbxassetid://6022668962";
-		["account_box"] = "rbxassetid://6023426915";
-		["home_filled"] = "rbxassetid://9080449299";
-		["lock"] = "rbxassetid://6026568224";
-		["perm_device_information"] = "rbxassetid://6031215996";
-		["add_task"] = "rbxassetid://6022668912";
-		["text_rotate_up"] = "rbxassetid://6031251526";
-		["swipe"] = "rbxassetid://6031233863";
-		["eject"] = "rbxassetid://6023426930";
-		["mediation"] = "rbxassetid://6026568249";
-		["label_important_outline"] = "rbxassetid://6026568199";
-		["settings_remote"] = "rbxassetid://6031289442";
-		["history_toggle_off"] = "rbxassetid://6026568196";
-		["invert_colors"] = "rbxassetid://6026568253";
-		["visibility_off"] = "rbxassetid://6031075929";
-		["addchart"] = "rbxassetid://6023426905";
-		["cancel_schedule_send"] = "rbxassetid://6022668963";
-		["loyalty"] = "rbxassetid://6026568237";
-		["speaker_notes_off"] = "rbxassetid://6031265965";
-		["online_prediction"] = "rbxassetid://6026568239";
-		["remove_shopping_cart"] = "rbxassetid://6031260778";
-		["text_rotate_vertical"] = "rbxassetid://6031251518";
-		["visibility"] = "rbxassetid://6031075931";
-		["add_to_drive"] = "rbxassetid://6022860335";
-		["accessible"] = "rbxassetid://6022668902";
-		["bookmark_border"] = "rbxassetid://6022860339";
-		["tour"] = "rbxassetid://6031229362";
-		["compare_arrows"] = "rbxassetid://6022668951";
-		["view_sidebar"] = "rbxassetid://6031079160";
-		["face"] = "rbxassetid://6023426944";
-		["wysiwyg"] = "rbxassetid://6031075938";
-		["camera_enhance"] = "rbxassetid://6023426935";
-		["perm_camera_mic"] = "rbxassetid://6031215983";
-		["model_training"] = "rbxassetid://6026568222";
-		["arrow_circle_up"] = "rbxassetid://6022668934";
-		["euro_symbol"] = "rbxassetid://6023426954";
-		["pending_actions"] = "rbxassetid://6031260777";
-		["not_accessible"] = "rbxassetid://6026568269";
-		["explore_off"] = "rbxassetid://6023426953";
-		["build"] = "rbxassetid://6023426938";
-		["backup"] = "rbxassetid://6023426911";
-		["settings_input_antenna"] = "rbxassetid://6031280891";
-		["disabled_by_default"] = "rbxassetid://6023426939";
-		["upgrade"] = "rbxassetid://6031225815";
-		["contactless"] = "rbxassetid://6022668886";
-		["trending_flat"] = "rbxassetid://6031225818";
-		["schedule"] = "rbxassetid://6031260808";
-		["offline_pin"] = "rbxassetid://6031084770";
-		["date_range"] = "rbxassetid://6022668894";
-		["flight_land"] = "rbxassetid://6023565897";
-		["view_headline"] = "rbxassetid://6031079151";
-		["cached"] = "rbxassetid://6023426921";
-		["unpublished"] = "rbxassetid://6031225817";
-		["outlet"] = "rbxassetid://6031084748";
-		["favorite"] = "rbxassetid://6023426974";
-		["vertical_split"] = "rbxassetid://6031225820";
-		["report_problem"] = "rbxassetid://6031086176";
-		["fingerprint"] = "rbxassetid://6023565895";
-		["important_devices"] = "rbxassetid://6026568202";
-		["outbox"] = "rbxassetid://6026568263";
-		["all_inbox"] = "rbxassetid://6022668909";
-		["label_important"] = "rbxassetid://6026568215";
-		["print"] = "rbxassetid://6031243324";
-		["settings_bluetooth"] = "rbxassetid://6031280905";
-		["power_settings_new"] = "rbxassetid://6031260781";
-		["zoom_out"] = "rbxassetid://6031075577";
-		["stars"] = "rbxassetid://6031265971";
-		["offline_bolt"] = "rbxassetid://6031084742";
-		["feedback"] = "rbxassetid://6023426957";
-		["accessibility"] = "rbxassetid://6022668887";
-		["announcement"] = "rbxassetid://6022668946";
-		["settings_input_hdmi"] = "rbxassetid://6031280970";
-		["leaderboard"] = "rbxassetid://6026568216";
-		["view_quilt"] = "rbxassetid://6031079155";
-		["note_add"] = "rbxassetid://6031084749";
-		["theaters"] = "rbxassetid://6031229335";
-		["alarm"] = "rbxassetid://6023426910";
-		["settings_input_composite"] = "rbxassetid://6031280896";
-		["grade"] = "rbxassetid://6026568189";
-		["tab_unselected"] = "rbxassetid://6031251505";
-		["swap_vert"] = "rbxassetid://6031233847";
-		["assignment_return"] = "rbxassetid://6023426931";
-		["highlight_alt"] = "rbxassetid://6023565913";
-		["shopping_bag"] = "rbxassetid://6031265970";
-		["contact_support"] = "rbxassetid://6022668879";
-		["flip_to_front"] = "rbxassetid://6023565894";
-		["touch_app"] = "rbxassetid://6031229361";
-		["room"] = "rbxassetid://6031154875";
-		["send_and_archive"] = "rbxassetid://6031280889";
-		["view_array"] = "rbxassetid://6031225842";
-		["settings_power"] = "rbxassetid://6031289446";
-		["admin_panel_settings"] = "rbxassetid://6022668961";
-		["open_in_browser"] = "rbxassetid://6026568266";
-		["card_membership"] = "rbxassetid://6023426942";
-		["rule"] = "rbxassetid://6031154859";
-		["schedule_send"] = "rbxassetid://6031154866";
-		["calendar_today"] = "rbxassetid://6022668917";
-		["info_outline"] = "rbxassetid://6026568210";
-		["description"] = "rbxassetid://6022668888";
-		["dashboard_customize"] = "rbxassetid://6022668899";
-		["rowing"] = "rbxassetid://6031154857";
-		["swap_horizontal_circle"] = "rbxassetid://6031233833";
-		["account_balance_wallet"] = "rbxassetid://6022668892";
-		["view_agenda"] = "rbxassetid://6031225831";
-		["shop_two"] = "rbxassetid://6031289461";
-		["done"] = "rbxassetid://6023426926";
-		["circle_notifications"] = "rbxassetid://6023426923";
-		["compress"] = "rbxassetid://6022668878";
-		["calendar_view_day"] = "rbxassetid://6023426946";
-		["thumbs_up_down"] = "rbxassetid://6031229373";
-		["account_balance"] = "rbxassetid://6022668900";
-		["play_for_work"] = "rbxassetid://6031260776";
-		["pets"] = "rbxassetid://6031260782";
-		["view_column"] = "rbxassetid://6031079172";
-		["search"] = "rbxassetid://6031154871";
-		["autorenew"] = "rbxassetid://6023565901";
-		["copyright"] = "rbxassetid://6023565898";
-		["privacy_tip"] = "rbxassetid://6031260784";
-		["arrow_right_alt"] = "rbxassetid://6022668890";
-		["delete"] = "rbxassetid://6022668885";
-		["nightlight_round"] = "rbxassetid://6031084743";
-		["batch_prediction"] = "rbxassetid://6022860334";
-		["shopping_cart"] = "rbxassetid://6031265976";
-		["login"] = "rbxassetid://6031082527";
-		["settings_input_svideo"] = "rbxassetid://6031289444";
-		["payment"] = "rbxassetid://6031084751";
-		["update"] = "rbxassetid://6031225810";
-		["text_rotation_none"] = "rbxassetid://6031229344";
-		["perm_contact_calendar"] = "rbxassetid://6031215990";
-		["explore"] = "rbxassetid://6023426941";
-		["delete_forever"] = "rbxassetid://6022668939";
-		["rounded_corner"] = "rbxassetid://6031154861";
-		["book_online"] = "rbxassetid://6022860332";
-		["quickreply"] = "rbxassetid://6031243319";
-		["bug_report"] = "rbxassetid://6022852107";
-		["subtitles_off"] = "rbxassetid://6031289466";
-		["close_fullscreen"] = "rbxassetid://6023426928";
-		["horizontal_split"] = "rbxassetid://6026568194";
-		["minimize"] = "rbxassetid://6026568240";
-		["filter_list_alt"] = "rbxassetid://6023426955";
-		["add_shopping_cart"] = "rbxassetid://6022668875";
-		["next_plan"] = "rbxassetid://6026568231";
-		["view_list"] = "rbxassetid://6031079156";
-		["receipt"] = "rbxassetid://6031086173";
-		["polymer"] = "rbxassetid://6031260785";
-		["spellcheck"] = "rbxassetid://6031289450";
-		["wifi_protected_setup"] = "rbxassetid://6031075926";
-		["label_outline"] = "rbxassetid://6026568207";
-		["highlight_off"] = "rbxassetid://6023565916";
-		["turned_in_not"] = "rbxassetid://6031225806";
-		["edit_off"] = "rbxassetid://6023426983";
-		["question_answer"] = "rbxassetid://6031086172";
-		["settings_overscan"] = "rbxassetid://6031289459";
-		["trending_up"] = "rbxassetid://6031225816";
-		["verified"] = "rbxassetid://6031225809";
-		["flight_takeoff"] = "rbxassetid://6023565891";
-		["grading"] = "rbxassetid://6026568191";
-		["dashboard"] = "rbxassetid://6022668883";
-		["expand"] = "rbxassetid://6022668891";
-		["backup_table"] = "rbxassetid://6022860338";
-		["analytics"] = "rbxassetid://6022668884";
-		["picture_in_picture"] = "rbxassetid://6031215994";
-		["settings"] = "rbxassetid://6031280882";
-		["accessible_forward"] = "rbxassetid://6022668906";
-		["pan_tool"] = "rbxassetid://6031084771";
-		["https"] = "rbxassetid://6026568200";
-		["filter_alt"] = "rbxassetid://6023426984";
-		["thumb_up_off_alt"] = "rbxassetid://6031229342";
-		["record_voice_over"] = "rbxassetid://6031243318";
-		["help_outline"] = "rbxassetid://6026568201";
-		["check_circle"] = "rbxassetid://6023426945";
-		["comment_bank"] = "rbxassetid://6023426937";
-		["perm_phone_msg"] = "rbxassetid://6031215986";
-		["settings_applications"] = "rbxassetid://6031280894";
-		["exit_to_app"] = "rbxassetid://6023426922";
-		["saved_search"] = "rbxassetid://6031154867";
-		["toll"] = "rbxassetid://6031229343";
-		["not_started"] = "rbxassetid://6026568232";
-		["subject"] = "rbxassetid://6031289452";
-		["redeem"] = "rbxassetid://6031086170";
-		["input"] = "rbxassetid://6026568225";
-		["settings_input_component"] = "rbxassetid://6031280884";
-		["assignment_ind"] = "rbxassetid://6022668935";
-		["swap_horiz"] = "rbxassetid://6031233841";
-		["fullscreen"] = "rbxassetid://6031094681";
-		["cancel"] = "rbxassetid://6031094677";
-		["subdirectory_arrow_left"] = "rbxassetid://6031104654";
-		["close"] = "rbxassetid://6031094678";
-		["arrow_back_ios"] = "rbxassetid://6031091003";
-		["east"] = "rbxassetid://6031094675";
-		["unfold_more"] = "rbxassetid://6031104644";
-		["south"] = "rbxassetid://6031104646";
-		["arrow_drop_up"] = "rbxassetid://6031090990";
-		["arrow_back"] = "rbxassetid://6031091000";
-		["arrow_downward"] = "rbxassetid://6031090991";
-		["west"] = "rbxassetid://6031104677";
-		["legend_toggle"] = "rbxassetid://6031097233";
-		["fullscreen_exit"] = "rbxassetid://6031094691";
-		["last_page"] = "rbxassetid://6031094686";
-		["switch_right"] = "rbxassetid://6031104649";
-		["check"] = "rbxassetid://6031094667";
-		["home_work"] = "rbxassetid://6031094683";
-		["north_east"] = "rbxassetid://6031097228";
-		["double_arrow"] = "rbxassetid://6031094674";
-		["more_vert"] = "rbxassetid://6031104648";
-		["chevron_left"] = "rbxassetid://6031094670";
-		["more_horiz"] = "rbxassetid://6031104650";
-		["unfold_less"] = "rbxassetid://6031104681";
-		["first_page"] = "rbxassetid://6031094682";
-		["payments"] = "rbxassetid://6031097227";
-		["arrow_right"] = "rbxassetid://6031090994";
-		["offline_share"] = "rbxassetid://6031097267";
-		["south_west"] = "rbxassetid://6031104652";
-		["expand_less"] = "rbxassetid://6031094679";
-		["south_east"] = "rbxassetid://6031104642";
-		["assistant_navigation"] = "rbxassetid://6031091006";
-		["apps"] = "rbxassetid://6031090999";
-		["arrow_upward"] = "rbxassetid://6031090997";
-		["app_settings_alt"] = "rbxassetid://6031090998";
-		["subdirectory_arrow_right"] = "rbxassetid://6031104647";
-		["north_west"] = "rbxassetid://6031104630";
-		["switch_left"] = "rbxassetid://6031104651";
-		["chevron_right"] = "rbxassetid://6031094680";
-		["arrow_forward"] = "rbxassetid://6031090995";
-		["arrow_forward_ios"] = "rbxassetid://6031091008";
-		["arrow_drop_down"] = "rbxassetid://6031091004";
-		["refresh"] = "rbxassetid://6031097226";
-		["pivot_table_chart"] = "rbxassetid://6031097234";
-		["expand_more"] = "rbxassetid://6031094687";
-		["campaign"] = "rbxassetid://6031094666";
-		["arrow_left"] = "rbxassetid://6031091002";
-		["arrow_drop_down_circle"] = "rbxassetid://6031091001";
-		["menu_open"] = "rbxassetid://6031097229";
-		["waterfall_chart"] = "rbxassetid://6031104632";
-		["assistant_direction"] = "rbxassetid://6031091005";
-		["menu"] = "rbxassetid://6031097225";
-		["personal_video"] = "rbxassetid://6034457070";
-		["power_off"] = "rbxassetid://6034457087";
-		["wifi_off"] = "rbxassetid://6034461625";
-		["adb"] = "rbxassetid://6034418515";
-		["airline_seat_recline_normal"] = "rbxassetid://6034418512";
-		["sync_problem"] = "rbxassetid://6034452653";
-		["network_check"] = "rbxassetid://6034461631";
-		["event_busy"] = "rbxassetid://6034439634";
-		["airline_seat_flat"] = "rbxassetid://6034418511";
-		["disc_full"] = "rbxassetid://6034418518";
-		["sd_card"] = "rbxassetid://6034457089";
-		["time_to_leave"] = "rbxassetid://6034452660";
-		["phone_bluetooth_speaker"] = "rbxassetid://6034457057";
-		["phone_paused"] = "rbxassetid://6034457066";
-		["phone_locked"] = "rbxassetid://6034457058";
-		["more"] = "rbxassetid://6034461627";
-		["add_call"] = "rbxassetid://6034418524";
-		["account_tree"] = "rbxassetid://6034418507";
-		["do_not_disturb_on"] = "rbxassetid://6034439649";
-		["event_note"] = "rbxassetid://6034439637";
-		["sync_disabled"] = "rbxassetid://6034452649";
-		["mms"] = "rbxassetid://6034461621";
-		["airline_seat_flat_angled"] = "rbxassetid://6034418513";
-		["bluetooth_audio"] = "rbxassetid://6034418522";
-		["vibration"] = "rbxassetid://6034452651";
-		["system_update"] = "rbxassetid://6034452663";
-		["enhanced_encryption"] = "rbxassetid://6034439652";
-		["wc"] = "rbxassetid://6034452643";
-		["live_tv"] = "rbxassetid://6034439648";
-		["folder_special"] = "rbxassetid://6034439639";
-		["phone_missed"] = "rbxassetid://6034457056";
-		["airline_seat_recline_extra"] = "rbxassetid://6034418528";
-		["sms"] = "rbxassetid://6034452645";
-		["tap_and_play"] = "rbxassetid://6034452650";
-		["confirmation_number"] = "rbxassetid://6034418519";
-		["event_available"] = "rbxassetid://6034439643";
-		["sms_failed"] = "rbxassetid://6034452676";
-		["do_not_disturb_alt"] = "rbxassetid://6034461619";
-		["do_not_disturb"] = "rbxassetid://6034439645";
-		["ondemand_video"] = "rbxassetid://6034457065";
-		["no_encryption"] = "rbxassetid://6034457059";
-		["airline_seat_legroom_extra"] = "rbxassetid://6034418508";
-		["tv_off"] = "rbxassetid://6034452646";
-		["sim_card_alert"] = "rbxassetid://6034452641";
-		["airline_seat_legroom_normal"] = "rbxassetid://6034418532";
-		["wifi"] = "rbxassetid://6034461626";
-		["do_not_disturb_off"] = "rbxassetid://6034439642";
-		["imagesearch_roller"] = "rbxassetid://6034439635";
-		["power"] = "rbxassetid://6034457105";
-		["airline_seat_legroom_reduced"] = "rbxassetid://6034418520";
-		["phone_in_talk"] = "rbxassetid://6034457067";
-		["airline_seat_individual_suite"] = "rbxassetid://6034418514";
-		["priority_high"] = "rbxassetid://6034457092";
-		["phone_callback"] = "rbxassetid://6034457104";
-		["phone_forwarded"] = "rbxassetid://6034457106";
-		["sync"] = "rbxassetid://6034452662";
-		["vpn_lock"] = "rbxassetid://6034452648";
-		["support_agent"] = "rbxassetid://6034452656";
-		["network_locked"] = "rbxassetid://6034457064";
-		["directions_off"] = "rbxassetid://6034418517";
-		["drive_eta"] = "rbxassetid://6034464371";
-		["sensor_window"] = "rbxassetid://6031067242";
-		["sensor_door"] = "rbxassetid://6031067241";
-		["keyboard_return"] = "rbxassetid://6034818370";
-		["monitor"] = "rbxassetid://6034837803";
-		["device_hub"] = "rbxassetid://6034789877";
-		["keyboard"] = "rbxassetid://6034818398";
-		["keyboard_voice"] = "rbxassetid://6034818360";
-		["cast"] = "rbxassetid://6034789876";
-		["developer_board"] = "rbxassetid://6034789883";
-		["tablet"] = "rbxassetid://6034848733";
-		["keyboard_hide"] = "rbxassetid://6034818386";
-		["dock"] = "rbxassetid://6034789888";
-		["phonelink"] = "rbxassetid://6034837801";
-		["device_unknown"] = "rbxassetid://6034789884";
-		["speaker_group"] = "rbxassetid://6034848732";
-		["desktop_mac"] = "rbxassetid://6034789898";
-		["point_of_sale"] = "rbxassetid://6034837798";
-		["memory"] = "rbxassetid://6034837807";
-		["keyboard_tab"] = "rbxassetid://6034818363";
-		["router"] = "rbxassetid://6034837806";
-		["sim_card"] = "rbxassetid://6034837800";
-		["headset"] = "rbxassetid://6034789880";
-		["gamepad"] = "rbxassetid://6034789879";
-		["speaker"] = "rbxassetid://6034848746";
-		["devices_other"] = "rbxassetid://6034789873";
-		["laptop"] = "rbxassetid://6034818367";
-		["scanner"] = "rbxassetid://6034837799";
-		["tv"] = "rbxassetid://6034848740";
-		["headset_mic"] = "rbxassetid://6034818383";
-		["browser_not_supported"] = "rbxassetid://6034789875";
-		["computer"] = "rbxassetid://6034789874";
-		["connected_tv"] = "rbxassetid://6034789870";
-		["phonelink_off"] = "rbxassetid://6034837804";
-		["headset_off"] = "rbxassetid://6034818402";
-		["cast_connected"] = "rbxassetid://6034789895";
-		["watch"] = "rbxassetid://6034848747";
-		["keyboard_arrow_up"] = "rbxassetid://6034818379";
-		["keyboard_backspace"] = "rbxassetid://6034818381";
-		["laptop_chromebook"] = "rbxassetid://6034818364";
-		["phone_iphone"] = "rbxassetid://6034837811";
-		["smartphone"] = "rbxassetid://6034848731";
-		["power_input"] = "rbxassetid://6034837794";
-		["videogame_asset"] = "rbxassetid://6034848748";
-		["desktop_windows"] = "rbxassetid://6034789893";
-		["keyboard_arrow_down"] = "rbxassetid://6034818372";
-		["laptop_mac"] = "rbxassetid://6034837808";
-		["laptop_windows"] = "rbxassetid://6034837796";
-		["keyboard_arrow_right"] = "rbxassetid://6034818365";
-		["cast_for_education"] = "rbxassetid://6034789872";
-		["keyboard_capslock"] = "rbxassetid://6034818403";
-		["toys"] = "rbxassetid://6034848752";
-		["tablet_android"] = "rbxassetid://6034848734";
-		["mouse"] = "rbxassetid://6034837797";
-		["phone_android"] = "rbxassetid://6034837793";
-		["keyboard_arrow_left"] = "rbxassetid://6034818375";
-		["security"] = "rbxassetid://6034837802";
-		["dry_cleaning"] = "rbxassetid://6034754456";
-		["bakery_dining"] = "rbxassetid://6034767610";
-		["place"] = "rbxassetid://6034503372";
-		["run_circle"] = "rbxassetid://6034503367";
-		["local_post_office"] = "rbxassetid://6034513883";
-		["takeout_dining"] = "rbxassetid://6034467808";
-		["nightlife"] = "rbxassetid://6034510003";
-		["design_services"] = "rbxassetid://6034754453";
-		["celebration"] = "rbxassetid://6034767613";
-		["near_me_disabled"] = "rbxassetid://6034509988";
-		["add_location_alt"] = "rbxassetid://6034483678";
-		["directions_run"] = "rbxassetid://6034754445";
-		["local_fire_department"] = "rbxassetid://6034684949";
-		["add_road"] = "rbxassetid://6034483677";
-		["my_location"] = "rbxassetid://6034509987";
-		["dinner_dining"] = "rbxassetid://6034754457";
-		["local_airport"] = "rbxassetid://6034687951";
-		["zoom_out_map"] = "rbxassetid://6035229856";
-		["pin_drop"] = "rbxassetid://6034470807";
-		["subway"] = "rbxassetid://6034467790";
-		["electric_moped"] = "rbxassetid://6034744027";
-		["restaurant_menu"] = "rbxassetid://6034503378";
-		["local_gas_station"] = "rbxassetid://6034684935";
-		["local_cafe"] = "rbxassetid://6034687954";
-		["theater_comedy"] = "rbxassetid://6034467796";
-		["directions_bus"] = "rbxassetid://6034754434";
-		["hail"] = "rbxassetid://6034744033";
-		["satellite"] = "rbxassetid://6034503370";
-		["local_phone"] = "rbxassetid://6034513884";
-		["electric_bike"] = "rbxassetid://6034744032";
-		["local_see"] = "rbxassetid://6034513887";
-		["transit_enterexit"] = "rbxassetid://6034467805";
-		["local_convenience_store"] = "rbxassetid://6034687956";
-		["local_offer"] = "rbxassetid://6034513891";
-		["electric_car"] = "rbxassetid://6034744029";
-		["beenhere"] = "rbxassetid://6034483675";
-		["miscellaneous_services"] = "rbxassetid://6034509993";
-		["maps_ugc"] = "rbxassetid://6034509992";
-		["moped"] = "rbxassetid://6034509999";
-		["medical_services"] = "rbxassetid://6034510001";
-		["money"] = "rbxassetid://6034509997";
-		["transfer_within_a_station"] = "rbxassetid://6034467809";
-		["electrical_services"] = "rbxassetid://6034744038";
-		["museum"] = "rbxassetid://6034510005";
-		["add_location"] = "rbxassetid://6034483672";
-		["layers"] = "rbxassetid://6034687957";
-		["handyman"] = "rbxassetid://6034744057";
-		["local_pharmacy"] = "rbxassetid://6034513903";
-		["electric_rickshaw"] = "rbxassetid://6034744043";
-		["alt_route"] = "rbxassetid://6034483670";
-		["no_transfer"] = "rbxassetid://6034503363";
-		["pedal_bike"] = "rbxassetid://6034503374";
-		["directions_transit"] = "rbxassetid://6034754436";
-		["railway_alert"] = "rbxassetid://6034470823";
-		["local_police"] = "rbxassetid://6034513895";
-		["directions_car"] = "rbxassetid://6034754441";
-		["category"] = "rbxassetid://6034767621";
-		["attractions"] = "rbxassetid://6034767620";
-		["person_pin_circle"] = "rbxassetid://6034503375";
-		["cleaning_services"] = "rbxassetid://6034767619";
-		["terrain"] = "rbxassetid://6034467794";
-		["no_meals"] = "rbxassetid://6034510024";
-		["train"] = "rbxassetid://6034467803";
-		["delivery_dining"] = "rbxassetid://6034767644";
-		["pest_control"] = "rbxassetid://6034470809";
-		["directions"] = "rbxassetid://6034754449";
-		["atm"] = "rbxassetid://6034767614";
-		["rate_review"] = "rbxassetid://6034503385";
-		["local_bar"] = "rbxassetid://6034687950";
-		["local_drink"] = "rbxassetid://6034687965";
-		["directions_railway"] = "rbxassetid://6034754433";
-		["person_pin"] = "rbxassetid://6034503364";
-		["ev_station"] = "rbxassetid://6034744037";
-		["home_repair_service"] = "rbxassetid://6034744064";
-		["bus_alert"] = "rbxassetid://6034767618";
-		["agriculture"] = "rbxassetid://6034483674";
-		["volunteer_activism"] = "rbxassetid://6034467799";
-		["breakfast_dining"] = "rbxassetid://6034483671";
-		["layers_clear"] = "rbxassetid://6034687975";
-		["plumbing"] = "rbxassetid://6034470800";
-		["taxi_alert"] = "rbxassetid://6034467792";
-		["add_business"] = "rbxassetid://6034483666";
-		["badge"] = "rbxassetid://6034767607";
-		["edit_attributes"] = "rbxassetid://6034754443";
-		["directions_walk"] = "rbxassetid://6034754448";
-		["local_play"] = "rbxassetid://6034513889";
-		["bike_scooter"] = "rbxassetid://6034483669";
-		["two_wheeler"] = "rbxassetid://6034467795";
-		["local_florist"] = "rbxassetid://6034684940";
-		["local_hotel"] = "rbxassetid://6034684939";
-		["no_meals_ouline"] = "rbxassetid://6034510025";
-		["festival"] = "rbxassetid://6034744031";
-		["local_shipping"] = "rbxassetid://6034684926";
-		["directions_boat"] = "rbxassetid://6034754442";
-		["wrong_location"] = "rbxassetid://6034467801";
-		["restaurant"] = "rbxassetid://6034503366";
-		["directions_subway"] = "rbxassetid://6034754440";
-		["not_listed_location"] = "rbxassetid://6034503380";
-		["electric_scooter"] = "rbxassetid://6034744041";
-		["ramen_dining"] = "rbxassetid://6034503377";
-		["edit_road"] = "rbxassetid://6034744035";
-		["local_printshop"] = "rbxassetid://6034513897";
-		["map"] = "rbxassetid://6034684930";
-		["car_rental"] = "rbxassetid://6034767641";
-		["multiple_stop"] = "rbxassetid://6034510026";
-		["brunch_dining"] = "rbxassetid://6034767611";
-		["local_laundry_service"] = "rbxassetid://6034684943";
-		["set_meal"] = "rbxassetid://6034503368";
-		["local_car_wash"] = "rbxassetid://6034687976";
-		["pest_control_rodent"] = "rbxassetid://6034470803";
-		["local_pizza"] = "rbxassetid://6034513885";
-		["local_grocery_store"] = "rbxassetid://6034684933";
-		["traffic"] = "rbxassetid://6034467797";
-		["departure_board"] = "rbxassetid://6034767615";
-		["icecream"] = "rbxassetid://6034687967";
-		["navigation"] = "rbxassetid://6034509984";
-		["near_me"] = "rbxassetid://6034509996";
-		["fastfood"] = "rbxassetid://6034744034";
-		["local_library"] = "rbxassetid://6034684931";
-		["local_activity"] = "rbxassetid://6034687955";
-		["local_hospital"] = "rbxassetid://6034684956";
-		["menu_book"] = "rbxassetid://6034509994";
-		["directions_bike"] = "rbxassetid://6034754459";
-		["store_mall_directory"] = "rbxassetid://6034470811";
-		["trip_origin"] = "rbxassetid://6034467804";
-		["tram"] = "rbxassetid://6034467806";
-		["edit_location"] = "rbxassetid://6034754439";
-		["streetview"] = "rbxassetid://6034470805";
-		["hvac"] = "rbxassetid://6034687960";
-		["lunch_dining"] = "rbxassetid://6034684928";
-		["car_repair"] = "rbxassetid://6034767617";
-		["compass_calibration"] = "rbxassetid://6034767623";
-		["360"] = "rbxassetid://6034767608";
-		["flight"] = "rbxassetid://6034744030";
-		["local_mall"] = "rbxassetid://6034684934";
-		["hotel"] = "rbxassetid://6034687977";
-		["local_parking"] = "rbxassetid://6034513893";
-		["hardware"] = "rbxassetid://6034744036";
-		["local_dining"] = "rbxassetid://6034687963";
-		["park"] = "rbxassetid://6034503369";
-		["location_pin"] = "rbxassetid://6034684937";
-		["local_movies"] = "rbxassetid://6034684936";
-		["local_atm"] = "rbxassetid://6034687953";
-		["local_taxi"] = "rbxassetid://6034684927";
-		["brightness_low"] = "rbxassetid://6034989542";
-		["screen_lock_landscape"] = "rbxassetid://6034996700";
-		["graphic_eq"] = "rbxassetid://6034989551";
-		["screen_lock_rotation"] = "rbxassetid://6034996710";
-		["signal_cellular_4_bar"] = "rbxassetid://6035030076";
-		["airplanemode_inactive"] = "rbxassetid://6034983848";
-		["signal_wifi_0_bar"] = "rbxassetid://6035030067";
-		["battery_full"] = "rbxassetid://6034983854";
-		["gps_fixed"] = "rbxassetid://6034989550";
-		["brightness_high"] = "rbxassetid://6034989541";
-		["ad_units"] = "rbxassetid://6034983845";
-		["signal_cellular_alt"] = "rbxassetid://6035030079";
-		["bluetooth_connected"] = "rbxassetid://6034983855";
-		["wifi_tethering"] = "rbxassetid://6035039430";
-		["dvr"] = "rbxassetid://6034989561";
-		["screen_search_desktop"] = "rbxassetid://6034996711";
-		["network_wifi"] = "rbxassetid://6034996712";
-		["access_alarms"] = "rbxassetid://6034983853";
-		["nfc"] = "rbxassetid://6034996698";
-		["location_disabled"] = "rbxassetid://6034996694";
-		["signal_wifi_4_bar"] = "rbxassetid://6035030077";
-		["access_time"] = "rbxassetid://6034983856";
-		["mobile_off"] = "rbxassetid://6034996702";
-		["battery_unknown"] = "rbxassetid://6034983842";
-		["signal_cellular_null"] = "rbxassetid://6035030075";
-		["bluetooth_disabled"] = "rbxassetid://6034989562";
-		["developer_mode"] = "rbxassetid://6034989549";
-		["network_cell"] = "rbxassetid://6034996709";
-		["sd_storage"] = "rbxassetid://6034996719";
-		["signal_cellular_no_sim"] = "rbxassetid://6035030078";
-		["devices"] = "rbxassetid://6034989540";
-		["screen_rotation"] = "rbxassetid://6034996701";
-		["device_thermostat"] = "rbxassetid://6034989544";
-		["signal_wifi_off"] = "rbxassetid://6035030074";
-		["widgets"] = "rbxassetid://6035039429";
-		["bluetooth"] = "rbxassetid://6034983880";
-		["battery_charging_full"] = "rbxassetid://6034983849";
-		["mobile_friendly"] = "rbxassetid://6034996699";
-		["signal_cellular_0_bar"] = "rbxassetid://6035030072";
-		["storage"] = "rbxassetid://6035030083";
-		["send_to_mobile"] = "rbxassetid://6034996697";
-		["location_searching"] = "rbxassetid://6034996695";
-		["brightness_auto"] = "rbxassetid://6034989545";
-		["wifi_lock"] = "rbxassetid://6035039428";
-		["gps_not_fixed"] = "rbxassetid://6034989547";
-		["access_alarm"] = "rbxassetid://6034983844";
-		["battery_alert"] = "rbxassetid://6034983843";
-		["signal_cellular_off"] = "rbxassetid://6035030084";
-		["signal_cellular_connected_no_internet_4"] = "rbxassetid://6035229858";
-		["gps_off"] = "rbxassetid://6034989548";
-		["add_alarm"] = "rbxassetid://6034983850";
-		["brightness_medium"] = "rbxassetid://6034989543";
-		["usb"] = "rbxassetid://6035030080";
-		["airplanemode_active"] = "rbxassetid://6034983864";
-		["reset_tv"] = "rbxassetid://6034996696";
-		["wallpaper"] = "rbxassetid://6035030102";
-		["settings_system_daydream"] = "rbxassetid://6035030081";
-		["bluetooth_searching"] = "rbxassetid://6034989553";
-		["add_to_home_screen"] = "rbxassetid://6034983858";
-		["screen_lock_portrait"] = "rbxassetid://6034996706";
-		["data_usage"] = "rbxassetid://6034989568";
-		["_auto_delete"] = "rbxassetid://6031071068";
-		["_error"] = "rbxassetid://6031071057";
-		["_notification_important"] = "rbxassetid://6031071056";
-		["_add_alert"] = "rbxassetid://6031071067";
-		["_warning"] = "rbxassetid://6031071053";
-		["_error_outline"] = "rbxassetid://6031071050";
-		["check_box_outline_blank"] = "rbxassetid://6031068420";
-		["toggle_off"] = "rbxassetid://6031068429";
-		["indeterminate_check_box"] = "rbxassetid://6031068445";
-		["radio_button_checked"] = "rbxassetid://6031068426";
-		["toggle_on"] = "rbxassetid://6031068430";
-		["check_box"] = "rbxassetid://6031068421";
-		["radio_button_unchecked"] = "rbxassetid://6031068433";
-		["star"] = "rbxassetid://6031068423";
-		["star_border"] = "rbxassetid://6031068425";
-		["star_half"] = "rbxassetid://6031068427";
-		["star_outline"] = "rbxassetid://6031068428";
-		["multiline_chart"] = "rbxassetid://6034941721";
-		["pie_chart"] = "rbxassetid://6034973076";
-		["format_line_spacing"] = "rbxassetid://6034910905";
-		["format_align_left"] = "rbxassetid://6034900727";
-		["linear_scale"] = "rbxassetid://6034941707";
-		["insert_photo"] = "rbxassetid://6034941703";
-		["scatter_plot"] = "rbxassetid://6034973094";
-		["post_add"] = "rbxassetid://6034973083";
-		["format_textdirection_r_to_l"] = "rbxassetid://6034925623";
-		["format_size"] = "rbxassetid://6034910908";
-		["format_color_fill"] = "rbxassetid://6034910903";
-		["format_paint"] = "rbxassetid://6034925618";
-		["format_underlined"] = "rbxassetid://6034925627";
-		["format_shapes"] = "rbxassetid://6034910909";
-		["title"] = "rbxassetid://6034934042";
-		["highlight"] = "rbxassetid://6034925617";
-		["bar_chart"] = "rbxassetid://6034898096";
-		["format_indent_increase"] = "rbxassetid://6034900724";
-		["merge_type"] = "rbxassetid://6034941705";
-		["bubble_chart"] = "rbxassetid://6034925612";
-		["publish"] = "rbxassetid://6034973085";
-		["format_indent_decrease"] = "rbxassetid://6034900733";
-		["margin"] = "rbxassetid://6034941701";
-		["table_rows"] = "rbxassetid://6034934025";
-		["stacked_line_chart"] = "rbxassetid://6034934039";
-		["border_clear"] = "rbxassetid://6034898135";
-		["border_color"] = "rbxassetid://6034898100";
-		["border_inner"] = "rbxassetid://6034898131";
-		["insert_chart"] = "rbxassetid://6034925628";
-		["border_top"] = "rbxassetid://6034900726";
-		["padding"] = "rbxassetid://6034973078";
-		["border_vertical"] = "rbxassetid://6034900725";
-		["score"] = "rbxassetid://6034934041";
-		["border_right"] = "rbxassetid://6034898120";
-		["add_chart"] = "rbxassetid://6034898093";
-		["space_bar"] = "rbxassetid://6034934037";
-		["border_outer"] = "rbxassetid://6034898104";
-		["mode_comment"] = "rbxassetid://6034941700";
-		["attach_money"] = "rbxassetid://6034898098";
-		["drag_handle"] = "rbxassetid://6034910907";
-		["format_align_right"] = "rbxassetid://6034900723";
-		["pie_chart_outlined"] = "rbxassetid://6034973077";
-		["horizontal_rule"] = "rbxassetid://6034925610";
-		["border_all"] = "rbxassetid://6034898101";
-		["border_style"] = "rbxassetid://6034898097";
-		["insert_comment"] = "rbxassetid://6034925609";
-		["vertical_align_top"] = "rbxassetid://6034973080";
-		["vertical_align_center"] = "rbxassetid://6034934051";
-		["format_color_text"] = "rbxassetid://6034910910";
-		["format_quote"] = "rbxassetid://6034925629";
-		["height"] = "rbxassetid://6034925613";
-		["add_comment"] = "rbxassetid://6034898128";
-		["format_strikethrough"] = "rbxassetid://6034910904";
-		["strikethrough_s"] = "rbxassetid://6034934030";
-		["border_left"] = "rbxassetid://6034898099";
-		["format_list_bulleted"] = "rbxassetid://6034925620";
-		["format_italic"] = "rbxassetid://6034910912";
-		["format_list_numbered"] = "rbxassetid://6034925622";
-		["attach_file"] = "rbxassetid://6034898102";
-		["wrap_text"] = "rbxassetid://6034973118";
-		["insert_invitation"] = "rbxassetid://6034973091";
-		["format_list_numbered_rtl"] = "rbxassetid://6034910906";
-		["border_horizontal"] = "rbxassetid://6034898105";
-		["format_align_center"] = "rbxassetid://6034900718";
-		["format_textdirection_l_to_r"] = "rbxassetid://6034925619";
-		["show_chart"] = "rbxassetid://6034934032";
-		["insert_chart_outlined"] = "rbxassetid://6034925606";
-		["vertical_align_bottom"] = "rbxassetid://6034934023";
-		["subscript"] = "rbxassetid://6034934059";
-		["format_align_justify"] = "rbxassetid://6034900721";
-		["format_clear"] = "rbxassetid://6034910902";
-		["notes"] = "rbxassetid://6034973084";
-		["insert_drive_file"] = "rbxassetid://6034941697";
-		["functions"] = "rbxassetid://6034925614";
-		["insert_emoticon"] = "rbxassetid://6034973079";
-		["insert_link"] = "rbxassetid://6034973074";
-		["format_color_reset"] = "rbxassetid://6034900743";
-		["monetization_on"] = "rbxassetid://6034973115";
-		["short_text"] = "rbxassetid://6034934035";
-		["mode_edit"] = "rbxassetid://6034941708";
-		["superscript"] = "rbxassetid://6034934034";
-		["table_chart"] = "rbxassetid://6034973081";
-		["format_bold"] = "rbxassetid://6034900732";
-		["money_off"] = "rbxassetid://6034973088";
-		["border_bottom"] = "rbxassetid://6034898094";
-		["text_fields"] = "rbxassetid://6034934040";
-		["note"] = "rbxassetid://6026663734";
-		["shuffle"] = "rbxassetid://6026667003";
-		["library_books"] = "rbxassetid://6026660085";
-		["library_music"] = "rbxassetid://6026660075";
-		["surround_sound"] = "rbxassetid://6026671209";
-		["forward_30"] = "rbxassetid://6026660088";
-		["music_video"] = "rbxassetid://6026663704";
-		["videocam_off"] = "rbxassetid://6026671212";
-		["control_camera"] = "rbxassetid://6026647916";
-		["explicit"] = "rbxassetid://6026647913";
-		["3k_plus"] = "rbxassetid://6026681598";
-		["fiber_pin"] = "rbxassetid://6026660064";
-		["skip_previous"] = "rbxassetid://6026667011";
-		["pause_circle_filled"] = "rbxassetid://6026663718";
-		["video_settings"] = "rbxassetid://6026671211";
-		["movie"] = "rbxassetid://6026660081";
-		["add_to_queue"] = "rbxassetid://6026647903";
-		["6k"] = "rbxassetid://6026681579";
-		["web_asset"] = "rbxassetid://6026671239";
-		["play_circle_outline"] = "rbxassetid://6026663726";
-		["volume_off"] = "rbxassetid://6026671224";
-		["mic_off"] = "rbxassetid://6026660076";
-		["featured_play_list"] = "rbxassetid://6026647932";
-		["pause_circle_outline"] = "rbxassetid://6026663701";
-		["slow_motion_video"] = "rbxassetid://6026681583";
-		["7k"] = "rbxassetid://6026681584";
-		["playlist_add"] = "rbxassetid://6026663728";
-		["fiber_smart_record"] = "rbxassetid://6026660080";
-		["8k"] = "rbxassetid://6026643014";
-		["hd"] = "rbxassetid://6026660065";
-		["repeat_one_on"] = "rbxassetid://6026666992";
-		["recent_actors"] = "rbxassetid://6026663773";
-		["fiber_new"] = "rbxassetid://6026647930";
-		["fiber_dvr"] = "rbxassetid://6026647912";
-		["hearing_disabled"] = "rbxassetid://6026660068";
-		["forward_10"] = "rbxassetid://6026660062";
-		["4k_plus"] = "rbxassetid://6026643005";
-		["repeat_one"] = "rbxassetid://6026681590";
-		["equalizer"] = "rbxassetid://6026647906";
-		["stop"] = "rbxassetid://6026681576";
-		["2k"] = "rbxassetid://6026643032";
-		["playlist_add_check"] = "rbxassetid://6026663727";
-		["not_interested"] = "rbxassetid://6026663743";
-		["videocam"] = "rbxassetid://6026671213";
-		["sort_by_alpha"] = "rbxassetid://6026667009";
-		["library_add"] = "rbxassetid://6026660063";
-		["stop_circle"] = "rbxassetid://6026681577";
-		["pause"] = "rbxassetid://6026663719";
-		["new_releases"] = "rbxassetid://6026663730";
-		["album"] = "rbxassetid://6026647905";
-		["sd"] = "rbxassetid://6026681582";
-		["volume_up"] = "rbxassetid://6026671215";
-		["replay_5"] = "rbxassetid://6026666993";
-		["high_quality"] = "rbxassetid://6026660059";
-		["shuffle_on"] = "rbxassetid://6026666996";
-		["play_arrow"] = "rbxassetid://6026663699";
-		["snooze"] = "rbxassetid://6026667006";
-		["closed_caption_disabled"] = "rbxassetid://6026647900";
-		["subscriptions"] = "rbxassetid://6026671207";
-		["skip_next"] = "rbxassetid://6026667005";
-		["branding_watermark"] = "rbxassetid://6026647911";
-		["speed"] = "rbxassetid://6026681578";
-		["art_track"] = "rbxassetid://6026647908";
-		["3k"] = "rbxassetid://6026681574";
-		["4k"] = "rbxassetid://6026643017";
-		["volume_mute"] = "rbxassetid://6026671214";
-		["playlist_play"] = "rbxassetid://6026663723";
-		["remove_from_queue"] = "rbxassetid://6026663771";
-		["fast_forward"] = "rbxassetid://6026647902";
-		["play_disabled"] = "rbxassetid://6026663702";
-		["fast_rewind"] = "rbxassetid://6026647942";
-		["5k"] = "rbxassetid://6026681575";
-		["replay_10"] = "rbxassetid://6026667007";
-		["video_library"] = "rbxassetid://6026671208";
-		["loop"] = "rbxassetid://6026660087";
-		["replay_circle_filled"] = "rbxassetid://6026667002";
-		["5g"] = "rbxassetid://6026643007";
-		["library_add_check"] = "rbxassetid://6026660083";
-		["repeat"] = "rbxassetid://6026666998";
-		["queue_play_next"] = "rbxassetid://6026663700";
-		["forward_5"] = "rbxassetid://6026660067";
-		["web"] = "rbxassetid://6026671234";
-		["mic_none"] = "rbxassetid://6026660066";
-		["queue"] = "rbxassetid://6026663724";
-		["closed_caption_off"] = "rbxassetid://6026647943";
-		["hearing"] = "rbxassetid://6026660060";
-		["queue_music"] = "rbxassetid://6026663725";
-		["airplay"] = "rbxassetid://6026647929";
-		["9k"] = "rbxassetid://6026643013";
-		["video_label"] = "rbxassetid://6026671204";
-		["8k_plus"] = "rbxassetid://6026643003";
-		["play_circle_filled"] = "rbxassetid://6026663705";
-		["1k"] = "rbxassetid://6026643002";
-		["fiber_manual_record"] = "rbxassetid://6026647909";
-		["closed_caption"] = "rbxassetid://6026647896";
-		["subtitles"] = "rbxassetid://6026671203";
-		["featured_video"] = "rbxassetid://6026647910";
-		["replay_30"] = "rbxassetid://6026667010";
-		["10k"] = "rbxassetid://6026643035";
-		["5k_plus"] = "rbxassetid://6026643028";
-		["6k_plus"] = "rbxassetid://6026643019";
-		["replay"] = "rbxassetid://6026666999";
-		["repeat_on"] = "rbxassetid://6026666994";
-		["1k_plus"] = "rbxassetid://6026681580";
-		["2k_plus"] = "rbxassetid://6026681588";
-		["games"] = "rbxassetid://6026660074";
-		["volume_down"] = "rbxassetid://6026671206";
-		["mic"] = "rbxassetid://6026660078";
-		["call_to_action"] = "rbxassetid://6026647898";
-		["7k_plus"] = "rbxassetid://6026643012";
-		["av_timer"] = "rbxassetid://6026647934";
-		["9k_plus"] = "rbxassetid://6026681585";
-		["radio"] = "rbxassetid://6026663698";
-		["10mp"] = "rbxassetid://6031328149";
-		["20mp"] = "rbxassetid://6031488940";
-		["wb_twighlight"] = "rbxassetid://6034412760";
-		["movie_creation"] = "rbxassetid://6034323681";
-		["crop_portrait"] = "rbxassetid://6031630198";
-		["filter_5"] = "rbxassetid://6031597518";
-		["broken_image"] = "rbxassetid://6031471480";
-		["flip_camera_android"] = "rbxassetid://6034333280";
-		["flip_camera_ios"] = "rbxassetid://6034333267";
-		["circle"] = "rbxassetid://6031625146";
-		["photo_camera_front"] = "rbxassetid://6031771000";
-		["assistant"] = "rbxassetid://6031360356";
-		["face_retouching_natural"] = "rbxassetid://6034333274";
-		["palette"] = "rbxassetid://6034316009";
-		["nature_people"] = "rbxassetid://6034323711";
-		["14mp"] = "rbxassetid://6031328161";
-		["gradient"] = "rbxassetid://6034333261";
-		["filter_4"] = "rbxassetid://6031597512";
-		["panorama_wide_angle_select"] = "rbxassetid://6031770990";
-		["photo"] = "rbxassetid://6031770993";
-		["grid_off"] = "rbxassetid://6034333286";
-		["leak_add"] = "rbxassetid://6034407074";
-		["landscape"] = "rbxassetid://6034407069";
-		["exposure_plus_1"] = "rbxassetid://6034328970";
-		["slideshow"] = "rbxassetid://6031754546";
-		["camera_alt"] = "rbxassetid://6031572307";
-		["audiotrack"] = "rbxassetid://6031471489";
-		["filter_none"] = "rbxassetid://6031600815";
-		["blur_off"] = "rbxassetid://6031371055";
-		["crop_16_9"] = "rbxassetid://6031630205";
-		["blur_on"] = "rbxassetid://6031371068";
-		["brightness_4"] = "rbxassetid://6031471483";
-		["details"] = "rbxassetid://6034328968";
-		["panorama_horizontal"] = "rbxassetid://6034315966";
-		["camera_rear"] = "rbxassetid://6031572316";
-		["hdr_weak"] = "rbxassetid://6034407083";
-		["collections"] = "rbxassetid://6031625145";
-		["hdr_enhanced_select"] = "rbxassetid://6034333281";
-		["adjust"] = "rbxassetid://6031339048";
-		["burst_mode"] = "rbxassetid://6031572306";
-		["nature"] = "rbxassetid://6034323695";
-		["brightness_6"] = "rbxassetid://6031572309";
-		["19mp"] = "rbxassetid://6031339054";
-		["grain"] = "rbxassetid://6034333288";
-		["receipt_long"] = "rbxassetid://6031763428";
-		["photo_filter"] = "rbxassetid://6031770992";
-		["edit"] = "rbxassetid://6034328955";
-		["healing"] = "rbxassetid://6034407071";
-		["exposure_neg_1"] = "rbxassetid://6034328957";
-		["exposure"] = "rbxassetid://6034328962";
-		["wb_shade"] = "rbxassetid://6034315974";
-		["compare"] = "rbxassetid://6031625151";
-		["cases"] = "rbxassetid://6031572324";
-		["timer_3"] = "rbxassetid://6031754540";
-		["exposure_plus_2"] = "rbxassetid://6034328961";
-		["12mp"] = "rbxassetid://6031328140";
-		["22mp"] = "rbxassetid://6031360353";
-		["timer_off"] = "rbxassetid://6031734881";
-		["auto_stories"] = "rbxassetid://6031360360";
-		["rotate_left"] = "rbxassetid://6031763427";
-		["wb_iridescent"] = "rbxassetid://6034315972";
-		["shutter_speed"] = "rbxassetid://6031763443";
-		["switch_video"] = "rbxassetid://6031754536";
-		["23mp"] = "rbxassetid://6031339045";
-		["euro"] = "rbxassetid://6034328963";
-		["15mp"] = "rbxassetid://6031328158";
-		["filter_center_focus"] = "rbxassetid://6031600817";
-		["photo_library"] = "rbxassetid://6031770998";
-		["mp"] = "rbxassetid://6034323674";
-		["looks_4"] = "rbxassetid://6034407089";
-		["filter_2"] = "rbxassetid://6031597521";
-		["crop_3_2"] = "rbxassetid://6034328956";
-		["auto_fix_normal"] = "rbxassetid://6031371074";
-		["auto_fix_off"] = "rbxassetid://6031360381";
-		["wb_auto"] = "rbxassetid://6031734875";
-		["switch_camera"] = "rbxassetid://6031754550";
-		["filter_vintage"] = "rbxassetid://6031600811";
-		["photo_size_select_small"] = "rbxassetid://6031763457";
-		["blur_linear"] = "rbxassetid://6031488930";
-		["hdr_on"] = "rbxassetid://6034333279";
-		["tag_faces"] = "rbxassetid://6031754560";
-		["21mp"] = "rbxassetid://6031339065";
-		["camera"] = "rbxassetid://6031572312";
-		["image_aspect_ratio"] = "rbxassetid://6034407073";
-		["filter_b_and_w"] = "rbxassetid://6031600824";
-		["crop_landscape"] = "rbxassetid://6031630202";
-		["13mp"] = "rbxassetid://6031328137";
-		["grid_on"] = "rbxassetid://6034333276";
-		["motion_photos_pause"] = "rbxassetid://6034323668";
-		["filter_6"] = "rbxassetid://6031597524";
-		["linked_camera"] = "rbxassetid://6034407082";
-		["panorama_fish_eye"] = "rbxassetid://6034315969";
-		["panorama"] = "rbxassetid://6034315955";
-		["color_lens"] = "rbxassetid://6031625148";
-		["lens"] = "rbxassetid://6034407081";
-		["crop_din"] = "rbxassetid://6031630208";
-		["exposure_neg_2"] = "rbxassetid://6034328973";
-		["mic_external_off"] = "rbxassetid://6034323672";
-		["crop_free"] = "rbxassetid://6031630212";
-		["crop_original"] = "rbxassetid://6031630204";
-		["panorama_photosphere_select"] = "rbxassetid://6034315975";
-		["photo_size_select_actual"] = "rbxassetid://6031771012";
-		["leak_remove"] = "rbxassetid://6034407080";
-		["collections_bookmark"] = "rbxassetid://6034328965";
-		["straighten"] = "rbxassetid://6031754545";
-		["timelapse"] = "rbxassetid://6031754541";
-		["picture_as_pdf"] = "rbxassetid://6031763425";
-		["crop_rotate"] = "rbxassetid://6031630203";
-		["control_point_duplicate"] = "rbxassetid://6034328959";
-		["photo_camera_back"] = "rbxassetid://6031771007";
-		["looks_3"] = "rbxassetid://6034407088";
-		["motion_photos_off"] = "rbxassetid://6034323670";
-		["rotate_right"] = "rbxassetid://6031763429";
-		["view_compact"] = "rbxassetid://6031734878";
-		["crop_7_5"] = "rbxassetid://6031630197";
-		["style"] = "rbxassetid://6031754538";
-		["exposure_zero"] = "rbxassetid://6034329000";
-		["camera_front"] = "rbxassetid://6031572318";
-		["hdr_strong"] = "rbxassetid://6034333272";
-		["view_comfy"] = "rbxassetid://6031734876";
-		["panorama_vertical"] = "rbxassetid://6034315963";
-		["panorama_vertical_select"] = "rbxassetid://6034315961";
-		["looks_two"] = "rbxassetid://6034412757";
-		["filter_drama"] = "rbxassetid://6031600813";
-		["center_focus_strong"] = "rbxassetid://6031625147";
-		["18mp"] = "rbxassetid://6031339064";
-		["7mp"] = "rbxassetid://6031328139";
-		["wb_sunny"] = "rbxassetid://6034412758";
-		["filter_9_plus"] = "rbxassetid://6031600812";
-		["crop"] = "rbxassetid://6034328964";
-		["vignette"] = "rbxassetid://6031734905";
-		["brightness_2"] = "rbxassetid://6031488938";
-		["crop_square"] = "rbxassetid://6031630222";
-		["looks_5"] = "rbxassetid://6034412764";
-		["flip"] = "rbxassetid://6034333275";
-		["looks_one"] = "rbxassetid://6034412761";
-		["flash_off"] = "rbxassetid://6034333270";
-		["hdr_off"] = "rbxassetid://6034333266";
-		["photo_album"] = "rbxassetid://6031770989";
-		["motion_photos_paused"] = "rbxassetid://6034323675";
-		["photo_camera"] = "rbxassetid://6031770997";
-		["2mp"] = "rbxassetid://6031328138";
-		["3mp"] = "rbxassetid://6031328136";
-		["24mp"] = "rbxassetid://6031360352";
-		["filter_9"] = "rbxassetid://6031597534";
-		["6mp"] = "rbxassetid://6031328131";
-		["remove_red_eye"] = "rbxassetid://6031763426";
-		["4mp"] = "rbxassetid://6031328152";
-		["add_a_photo"] = "rbxassetid://6031339049";
-		["filter_3"] = "rbxassetid://6031597513";
-		["crop_5_4"] = "rbxassetid://6034328960";
-		["8mp"] = "rbxassetid://6031328133";
-		["camera_roll"] = "rbxassetid://6031572314";
-		["panorama_wide_angle"] = "rbxassetid://6031770995";
-		["transform"] = "rbxassetid://6031734873";
-		["flare"] = "rbxassetid://6031600816";
-		["image_search"] = "rbxassetid://6034407084";
-		["auto_awesome"] = "rbxassetid://6031360365";
-		["motion_photos_on"] = "rbxassetid://6034323669";
-		["rotate_90_degrees_ccw"] = "rbxassetid://6031763456";
-		["filter_1"] = "rbxassetid://6031597511";
-		["filter_tilt_shift"] = "rbxassetid://6031600814";
-		["image"] = "rbxassetid://6034407078";
-		["center_focus_weak"] = "rbxassetid://6031625144";
-		["blur_circular"] = "rbxassetid://6031488945";
-		["bedtime"] = "rbxassetid://6031371054";
-		["auto_fix_high"] = "rbxassetid://6031360355";
-		["monochrome_photos"] = "rbxassetid://6034323678";
-		["flash_auto"] = "rbxassetid://6034333287";
-		["5mp"] = "rbxassetid://6031328144";
-		["photo_size_select_large"] = "rbxassetid://6031763423";
-		["assistant_photo"] = "rbxassetid://6031339052";
-		["animation"] = "rbxassetid://6031625150";
-		["looks"] = "rbxassetid://6034407096";
-		["17mp"] = "rbxassetid://6031339055";
-		["panorama_horizontal_select"] = "rbxassetid://6034315965";
-		["flash_on"] = "rbxassetid://6034333271";
-		["iso"] = "rbxassetid://6034407106";
-		["music_note"] = "rbxassetid://6034323673";
-		["music_off"] = "rbxassetid://6034323679";
-		["navigate_next"] = "rbxassetid://6034315956";
-		["timer"] = "rbxassetid://6031754564";
-		["loupe"] = "rbxassetid://6034412770";
-		["navigate_before"] = "rbxassetid://6034323696";
-		["brightness_1"] = "rbxassetid://6031471488";
-		["brightness_7"] = "rbxassetid://6031471491";
-		["tonality"] = "rbxassetid://6031734891";
-		["brush"] = "rbxassetid://6031572320";
-		["colorize"] = "rbxassetid://6031625161";
-		["filter_7"] = "rbxassetid://6031597515";
-		["16mp"] = "rbxassetid://6031328168";
-		["timer_10"] = "rbxassetid://6031734880";
-		["portrait"] = "rbxassetid://6031763434";
-		["tune"] = "rbxassetid://6031734877";
-		["image_not_supported"] = "rbxassetid://6034407076";
-		["wb_cloudy"] = "rbxassetid://6031734907";
-		["auto_awesome_motion"] = "rbxassetid://6031360370";
-		["filter_8"] = "rbxassetid://6031597532";
-		["brightness_5"] = "rbxassetid://6031471479";
-		["movie_filter"] = "rbxassetid://6034323687";
-		["add_photo_alternate"] = "rbxassetid://6031471484";
-		["add_to_photos"] = "rbxassetid://6031371075";
-		["texture"] = "rbxassetid://6031754553";
-		["11mp"] = "rbxassetid://6031328141";
-		["mic_external_on"] = "rbxassetid://6034323671";
-		["looks_6"] = "rbxassetid://6034412759";
-		["dehaze"] = "rbxassetid://6031630200";
-		["control_point"] = "rbxassetid://6031625131";
-		["panorama_photosphere"] = "rbxassetid://6034412763";
-		["filter_frames"] = "rbxassetid://6031600833";
-		["auto_awesome_mosaic"] = "rbxassetid://6031371053";
-		["9mp"] = "rbxassetid://6031328146";
-		["filter"] = "rbxassetid://6031597514";
-		["brightness_3"] = "rbxassetid://6031572317";
-		["dirty_lens"] = "rbxassetid://6034328967";
-		["wb_incandescent"] = "rbxassetid://6034316010";
-		["filter_hdr"] = "rbxassetid://6031600819";
-		["textsms"] = "rbxassetid://6035202006";
-		["comment"] = "rbxassetid://6035181871";
-		["call_end"] = "rbxassetid://6035173845";
-		["qr_code_scanner"] = "rbxassetid://6035202022";
-		["phonelink_setup"] = "rbxassetid://6035202025";
-		["call_merge"] = "rbxassetid://6035173843";
-		["phonelink_erase"] = "rbxassetid://6035202085";
-		["contact_mail"] = "rbxassetid://6035181868";
-		["contact_phone"] = "rbxassetid://6035181861";
-		["screen_share"] = "rbxassetid://6035202008";
-		["present_to_all"] = "rbxassetid://6035202020";
-		["stay_primary_portrait"] = "rbxassetid://6035202009";
-		["message"] = "rbxassetid://6035202033";
-		["sentiment_satisfied_alt"] = "rbxassetid://6035202069";
-		["stay_current_portrait"] = "rbxassetid://6035202004";
-		["voicemail"] = "rbxassetid://6035202019";
-		["business"] = "rbxassetid://6035173853";
-		["mail_outline"] = "rbxassetid://6035190844";
-		["vpn_key"] = "rbxassetid://6035202034";
-		["forward_to_inbox"] = "rbxassetid://6035190840";
-		["contacts"] = "rbxassetid://6035181864";
-		["phonelink_ring"] = "rbxassetid://6035202066";
-		["domain_disabled"] = "rbxassetid://6035181862";
-		["person_add_disabled"] = "rbxassetid://6035202007";
-		["stay_primary_landscape"] = "rbxassetid://6035202026";
-		["alternate_email"] = "rbxassetid://6035173865";
-		["phone_disabled"] = "rbxassetid://6035202028";
-		["email"] = "rbxassetid://6035181866";
-		["mobile_screen_share"] = "rbxassetid://6035202021";
-		["live_help"] = "rbxassetid://6035190836";
-		["chat_bubble"] = "rbxassetid://6035181858";
-		["stop_screen_share"] = "rbxassetid://6035202042";
-		["location_on"] = "rbxassetid://6035190846";
-		["chat_bubble_outline"] = "rbxassetid://6035181869";
-		["dialer_sip"] = "rbxassetid://6035181865";
-		["no_sim"] = "rbxassetid://6035202030";
-		["list_alt"] = "rbxassetid://6035190838";
-		["call"] = "rbxassetid://6035173859";
-		["pause_presentation"] = "rbxassetid://6035202015";
-		["invert_colors_off"] = "rbxassetid://6035190842";
-		["call_missed_outgoing"] = "rbxassetid://6035173847";
-		["stay_current_landscape"] = "rbxassetid://6035202011";
-		["import_export"] = "rbxassetid://6035202040";
-		["add_ic_call"] = "rbxassetid://6035173839";
-		["dialpad"] = "rbxassetid://6035181892";
-		["nat"] = "rbxassetid://6035202082";
-		["unsubscribe"] = "rbxassetid://6035202044";
-		["mark_chat_unread"] = "rbxassetid://6035190841";
-		["portable_wifi_off"] = "rbxassetid://6035202091";
-		["location_off"] = "rbxassetid://6035202049";
-		["person_search"] = "rbxassetid://6035202013";
-		["phonelink_lock"] = "rbxassetid://6035202064";
-		["desktop_access_disabled"] = "rbxassetid://6035181863";
-		["import_contacts"] = "rbxassetid://6035190854";
-		["rss_feed"] = "rbxassetid://6035202016";
-		["chat"] = "rbxassetid://6035173838";
-		["print_disabled"] = "rbxassetid://6035202041";
-		["mark_email_read"] = "rbxassetid://6035202038";
-		["hourglass_top"] = "rbxassetid://6035190886";
-		["clear_all"] = "rbxassetid://6035181870";
-		["forum"] = "rbxassetid://6035202002";
-		["qr_code"] = "rbxassetid://6035202012";
-		["speaker_phone"] = "rbxassetid://6035202018";
-		["rtt"] = "rbxassetid://6035202010";
-		["domain_verification"] = "rbxassetid://6035181867";
-		["app_registration"] = "rbxassetid://6035173870";
-		["call_split"] = "rbxassetid://6035173861";
-		["cell_wifi"] = "rbxassetid://6035173852";
-		["phone_enabled"] = "rbxassetid://6035202089";
-		["call_made"] = "rbxassetid://6035173858";
-		["call_received"] = "rbxassetid://6035173844";
-		["phone"] = "rbxassetid://6035202017";
-		["ring_volume"] = "rbxassetid://6035202032";
-		["mark_email_unread"] = "rbxassetid://6035202027";
-		["hourglass_bottom"] = "rbxassetid://6035202043";
-		["read_more"] = "rbxassetid://6035202014";
-		["duo"] = "rbxassetid://6035181860";
-		["more_time"] = "rbxassetid://6035202036";
-		["wifi_calling"] = "rbxassetid://6035202065";
-		["swap_calls"] = "rbxassetid://6035202037";
-		["cancel_presentation"] = "rbxassetid://6035173837";
-		["call_missed"] = "rbxassetid://6035173850";
-		["mark_chat_read"] = "rbxassetid://6035202031";
-		["text_snippet"] = "rbxassetid://6031302995";
-		["snippet_folder"] = "rbxassetid://6031302947";
-		["workspaces_outline"] = "rbxassetid://6031302952";
-		["file_download"] = "rbxassetid://6031302931";
-		["request_quote"] = "rbxassetid://6031302941";
-		["approval"] = "rbxassetid://6031302928";
-		["drive_folder_upload"] = "rbxassetid://6031302929";
-		["rule_folder"] = "rbxassetid://6031302940";
-		["attach_email"] = "rbxassetid://6031302935";
-		["topic"] = "rbxassetid://6031302976";
-		["upload_file"] = "rbxassetid://6031302959";
-		["attachment"] = "rbxassetid://6031302921";
-		["file_download_done"] = "rbxassetid://6031302926";
-		["drive_file_move_outline"] = "rbxassetid://6031302924";
-		["cloud_upload"] = "rbxassetid://6031302992";
-		["cloud_circle"] = "rbxassetid://6031302919";
-		["folder_shared"] = "rbxassetid://6031302945";
-		["cloud_download"] = "rbxassetid://6031302917";
-		["file_upload"] = "rbxassetid://6031302996";
-		["workspaces_filled"] = "rbxassetid://6031302961";
-		["cloud_queue"] = "rbxassetid://6031302916";
-		["cloud"] = "rbxassetid://6031302918";
-		["folder_open"] = "rbxassetid://6031302934";
-		["grid_view"] = "rbxassetid://6031302950";
-		["cloud_off"] = "rbxassetid://6031302993";
-		["create_new_folder"] = "rbxassetid://6031302933";
-		["cloud_done"] = "rbxassetid://6031302927";
-		["folder"] = "rbxassetid://6031302932";
-		["drive_file_move"] = "rbxassetid://6031302922";
-		["drive_file_rename_outline"] = "rbxassetid://6031302994";
-		["notifications_active"] = "rbxassetid://6034304908";
-		["sentiment_neutral"] = "rbxassetid://6034230636";
-		["sick"] = "rbxassetid://6034230642";
-		["poll"] = "rbxassetid://6034267991";
-		["emoji_events"] = "rbxassetid://6034275726";
-		["groups"] = "rbxassetid://6034281935";
-		["sports_soccer"] = "rbxassetid://6034227075";
-		["person_add"] = "rbxassetid://6034287514";
-		["mood_bad"] = "rbxassetid://6034295706";
-		["person_remove_alt_1"] = "rbxassetid://6034287515";
-		["king_bed"] = "rbxassetid://6034281948";
-		["architecture"] = "rbxassetid://6034275730";
-		["deck"] = "rbxassetid://6034295703";
-		["group_add"] = "rbxassetid://6034281909";
-		["sports_basketball"] = "rbxassetid://6034230649";
-		["emoji_symbols"] = "rbxassetid://6034281899";
-		["switch_account"] = "rbxassetid://6034227138";
-		["remove_moderator"] = "rbxassetid://6034267998";
-		["coronavirus"] = "rbxassetid://6034275724";
-		["people"] = "rbxassetid://6034287513";
-		["person"] = "rbxassetid://6034287594";
-		["elderly"] = "rbxassetid://6034295698";
-		["clean_hands"] = "rbxassetid://6034275729";
-		["emoji_flags"] = "rbxassetid://6034304898";
-		["psychology"] = "rbxassetid://6034287516";
-		["person_add_alt"] = "rbxassetid://6034267994";
-		["sports_volleyball"] = "rbxassetid://6034227139";
-		["domain"] = "rbxassetid://6034275722";
-		["emoji_objects"] = "rbxassetid://6034281900";
-		["ios_share"] = "rbxassetid://6034281941";
-		["history_edu"] = "rbxassetid://6034281934";
-		["share"] = "rbxassetid://6034230648";
-		["military_tech"] = "rbxassetid://6034295711";
-		["sports_kabaddi"] = "rbxassetid://6034227141";
-		["cake"] = "rbxassetid://6034295702";
-		["engineering"] = "rbxassetid://6034281908";
-		["emoji_food_beverage"] = "rbxassetid://6034304883";
-		["notifications_none"] = "rbxassetid://6034308947";
-		["emoji_people"] = "rbxassetid://6034281904";
-		["thumb_down_alt"] = "rbxassetid://6034227069";
-		["sentiment_very_satisfied"] = "rbxassetid://6034230650";
-		["nights_stay"] = "rbxassetid://6034304881";
-		["reduce_capacity"] = "rbxassetid://6034268013";
-		["add_moderator"] = "rbxassetid://6034295699";
-		["science"] = "rbxassetid://6034230640";
-		["pages"] = "rbxassetid://6034304892";
-		["sentiment_satisfied"] = "rbxassetid://6034230668";
-		["plus_one"] = "rbxassetid://6034268012";
-		["party_mode"] = "rbxassetid://6034287521";
-		["person_remove"] = "rbxassetid://6034267996";
-		["single_bed"] = "rbxassetid://6034230651";
-		["mood"] = "rbxassetid://6034295704";
-		["public"] = "rbxassetid://6034287522";
-		["sports_rugby"] = "rbxassetid://6034227073";
-		["sports_handball"] = "rbxassetid://6034227074";
-		["person_add_alt_1"] = "rbxassetid://6034287519";
-		["people_alt"] = "rbxassetid://6034287518";
-		["notifications_off"] = "rbxassetid://6034304894";
-		["whatshot"] = "rbxassetid://6034287525";
-		["emoji_transportation"] = "rbxassetid://6034281894";
-		["outdoor_grill"] = "rbxassetid://6034304900";
-		["sentiment_very_dissatisfied"] = "rbxassetid://6034230659";
-		["masks"] = "rbxassetid://6034295710";
-		["luggage"] = "rbxassetid://6034295708";
-		["sports_motorsports"] = "rbxassetid://6034227071";
-		["sports_esports"] = "rbxassetid://6034227061";
-		["location_city"] = "rbxassetid://6034304889";
-		["sports_golf"] = "rbxassetid://6034227060";
-		["sentiment_dissatisfied"] = "rbxassetid://6034230637";
-		["no_luggage"] = "rbxassetid://6034304891";
-		["fireplace"] = "rbxassetid://6034281910";
-		["emoji_nature"] = "rbxassetid://6034281896";
-		["group"] = "rbxassetid://6034281901";
-		["thumb_up_alt"] = "rbxassetid://6034227076";
-		["sports_tennis"] = "rbxassetid://6034227068";
-		["facebook"] = "rbxassetid://6034281898";
-		["sports_mma"] = "rbxassetid://6034227072";
-		["person_outline"] = "rbxassetid://6034268008";
-		["sports_baseball"] = "rbxassetid://6034230652";
-		["sports_cricket"] = "rbxassetid://6034230660";
-		["people_outline"] = "rbxassetid://6034287528";
-		["notifications_paused"] = "rbxassetid://6034304896";
-		["emoji_emotions"] = "rbxassetid://6034275731";
-		["follow_the_signs"] = "rbxassetid://6034281911";
-		["sanitizer"] = "rbxassetid://6034287586";
-		["self_improvement"] = "rbxassetid://6034230634";
-		["notifications"] = "rbxassetid://6034308946";
-		["public_off"] = "rbxassetid://6034287538";
-		["recommend"] = "rbxassetid://6034287524";
-		["sports_football"] = "rbxassetid://6034227067";
-		["sports_hockey"] = "rbxassetid://6034227064";
-		["school"] = "rbxassetid://6034230641";
-		["connect_without_contact"] = "rbxassetid://6034275800";
-		["sports"] = "rbxassetid://6034230647";
-		["construction"] = "rbxassetid://6034275725";
-		["inventory"] = "rbxassetid://6035056487";
-		["add_box"] = "rbxassetid://6035047375";
-		["how_to_reg"] = "rbxassetid://6035053288";
-		["unarchive"] = "rbxassetid://6035078921";
-		["block_flipped"] = "rbxassetid://6035047378";
-		["file_copy"] = "rbxassetid://6035053293";
-		["bolt"] = "rbxassetid://6035047381";
-		["remove_circle_outline"] = "rbxassetid://6035067843";
-		["move_to_inbox"] = "rbxassetid://6035067838";
-		["save_alt"] = "rbxassetid://6035067842";
-		["weekend"] = "rbxassetid://6035078894";
-		["where_to_vote"] = "rbxassetid://6035078913";
-		["biotech"] = "rbxassetid://6035047385";
-		["report_off"] = "rbxassetid://6035067830";
-		["clear"] = "rbxassetid://6035047409";
-		["redo"] = "rbxassetid://6035056483";
-		["link"] = "rbxassetid://6035056475";
-		["drafts"] = "rbxassetid://6035053297";
-		["push_pin"] = "rbxassetid://6035056481";
-		["reply"] = "rbxassetid://6035067844";
-		["undo"] = "rbxassetid://6035078896";
-		["archive"] = "rbxassetid://6035047379";
-		["add"] = "rbxassetid://6035047377";
-		["insights"] = "rbxassetid://6035067839";
-		["flag"] = "rbxassetid://6035053279";
-		["save"] = "rbxassetid://6035067857";
-		["text_format"] = "rbxassetid://6035078890";
-		["content_cut"] = "rbxassetid://6035053280";
-		["ballot"] = "rbxassetid://6035047386";
-		["remove"] = "rbxassetid://6035067836";
-		["calculate"] = "rbxassetid://6035047384";
-		["report"] = "rbxassetid://6035067826";
-		["markunread"] = "rbxassetid://6035056476";
-		["delete_sweep"] = "rbxassetid://6035053301";
-		["gesture"] = "rbxassetid://6035053287";
-		["link_off"] = "rbxassetid://6035056484";
-		["forward"] = "rbxassetid://6035053298";
-		["reply_all"] = "rbxassetid://6035067824";
-		["how_to_vote"] = "rbxassetid://6035053295";
-		["square_foot"] = "rbxassetid://6035078918";
-		["outlined_flag"] = "rbxassetid://6035056486";
-		["add_circle"] = "rbxassetid://6035047380";
-		["stacked_bar_chart"] = "rbxassetid://6035078892";
-		["policy"] = "rbxassetid://6035056512";
-		["backspace"] = "rbxassetid://6035047397";
-		["sort"] = "rbxassetid://6035078888";
-		["content_paste"] = "rbxassetid://6035053285";
-		["low_priority"] = "rbxassetid://6035056491";
-		["font_download"] = "rbxassetid://6035053275";
-		["shield"] = "rbxassetid://6035078889";
-		["waves"] = "rbxassetid://6035078898";
-		["select_all"] = "rbxassetid://6035067834";
-		["dynamic_feed"] = "rbxassetid://6035053289";
-		["mail"] = "rbxassetid://6035056477";
-		["amp_stories"] = "rbxassetid://6035047382";
-		["filter_list"] = "rbxassetid://6035053294";
-		["send"] = "rbxassetid://6035067832";
-		["create"] = "rbxassetid://6035053304";
-		["stream"] = "rbxassetid://6035078897";
-		["next_week"] = "rbxassetid://6035067835";
-		["inbox"] = "rbxassetid://6035067831";
-		["add_link"] = "rbxassetid://6035047374";
-		["content_copy"] = "rbxassetid://6035053278";
-		["remove_circle"] = "rbxassetid://6035067837";
-		["add_circle_outline"] = "rbxassetid://6035047391";
-		["block"] = "rbxassetid://6035047387";
-		["tag"] = "rbxassetid://6035078895";
-		["beach_access"] = "rbxassetid://6035107923";
-		["stroller"] = "rbxassetid://6035161535";
-		["family_restroom"] = "rbxassetid://6035121916";
-		["corporate_fare"] = "rbxassetid://6035121908";
-		["no_meeting_room"] = "rbxassetid://6035153649";
-		["do_not_touch"] = "rbxassetid://6035121915";
-		["ac_unit"] = "rbxassetid://6035107929";
-		["business_center"] = "rbxassetid://6035107933";
-		["spa"] = "rbxassetid://6035153639";
-		["no_flash"] = "rbxassetid://6035145424";
-		["no_cell"] = "rbxassetid://6035145376";
-		["room_service"] = "rbxassetid://6035153648";
-		["tapas"] = "rbxassetid://6035161533";
-		["microwave"] = "rbxassetid://6035145367";
-		["meeting_room"] = "rbxassetid://6035145361";
-		["wash"] = "rbxassetid://6035161540";
-		["escalator"] = "rbxassetid://6035121939";
-		["house_siding"] = "rbxassetid://6035145393";
-		["food_bank"] = "rbxassetid://6035121921";
-		["foundation"] = "rbxassetid://6035121918";
-		["elevator"] = "rbxassetid://6035121912";
-		["room_preferences"] = "rbxassetid://6035153642";
-		["do_not_step"] = "rbxassetid://6035121910";
-		["free_breakfast"] = "rbxassetid://6035145363";
-		["house"] = "rbxassetid://6035145364";
-		["child_care"] = "rbxassetid://6035107927";
-		["night_shelter"] = "rbxassetid://6035145378";
-		["child_friendly"] = "rbxassetid://6035121942";
-		["checkroom"] = "rbxassetid://6035107931";
-		["hot_tub"] = "rbxassetid://6035145382";
-		["dry"] = "rbxassetid://6035121909";
-		["charging_station"] = "rbxassetid://6035107925";
-		["all_inclusive"] = "rbxassetid://6035107920";
-		["bento"] = "rbxassetid://6035107924";
-		["no_backpack"] = "rbxassetid://6035145368";
-		["storefront"] = "rbxassetid://6035161534";
-		["no_food"] = "rbxassetid://6035145372";
-		["backpack"] = "rbxassetid://6035107928";
-		["stairs"] = "rbxassetid://6035153637";
-		["carpenter"] = "rbxassetid://6035107955";
-		["no_stroller"] = "rbxassetid://6035153661";
-		["roofing"] = "rbxassetid://6035153656";
-		["umbrella"] = "rbxassetid://6035161550";
-		["sports_bar"] = "rbxassetid://6035153638";
-		["apartment"] = "rbxassetid://6035107922";
-		["smoke_free"] = "rbxassetid://6035153647";
-		["pool"] = "rbxassetid://6035153655";
-		["bathtub"] = "rbxassetid://6035107939";
-		["no_drinks"] = "rbxassetid://6035145390";
-		["escalator_warning"] = "rbxassetid://6035121930";
-		["wheelchair_pickup"] = "rbxassetid://6035161536";
-		["smoking_rooms"] = "rbxassetid://6035153636";
-		["rice_bowl"] = "rbxassetid://6035153662";
-		["tty"] = "rbxassetid://6035161541";
-		["no_photography"] = "rbxassetid://6035153664";
-		["casino"] = "rbxassetid://6035107936";
-		["fence"] = "rbxassetid://6035121923";
-		["grass"] = "rbxassetid://6035145359";
-		["countertops"] = "rbxassetid://6035121914";
-		["kitchen"] = "rbxassetid://6035145362";
-		["golf_course"] = "rbxassetid://6035145423";
-		["soap"] = "rbxassetid://6035153645";
-		["water_damage"] = "rbxassetid://6035161563";
-		["airport_shuttle"] = "rbxassetid://6035107921";
-		["fitness_center"] = "rbxassetid://6035121907";
-		["baby_changing_station"] = "rbxassetid://6035107930";
-		["fire_extinguisher"] = "rbxassetid://6035121913";
-		["sparkle"] = "rbxassetid://4483362748"
-	}
+local Themes = {
+    NutriexLibrary = {
+        Darker = {
+            Background = RGB(7, 7, 9), 
+            Surface = RGB(12, 12, 15), 
+            Elevated = RGB(18, 18, 22),
+            Hover = RGB(26, 26, 32), 
+            Stroke = RGB(38, 38, 48), 
+            Accent = RGB(200, 165, 110), 
+            Accent2 = RGB(235, 205, 150),
+            OnAccent = RGB(20, 14, 6), 
+            Text = RGB(240, 238, 235), 
+            SubText = RGB(150, 147, 142),
+            Muted = RGB(95, 93, 89),
+        },
+        Midnight = {
+            Background = RGB(11, 11, 15), 
+            Surface = RGB(18, 18, 24), 
+            Elevated = RGB(25, 25, 33),
+            Hover = RGB(33, 33, 43), 
+            Stroke = RGB(46, 46, 62), 
+            Accent = RGB(139, 108, 255), 
+            Accent2 = RGB(70, 170, 255),
+            OnAccent = RGB(255, 255, 255), 
+            Text = RGB(238, 238, 246), 
+            SubText = RGB(148, 148, 168),
+            Muted = RGB(92, 92, 110),
+        },
+        Obsidian = {
+            Background = RGB(12, 12, 13), 
+            Surface = RGB(20, 20, 22), 
+            Elevated = RGB(28, 28, 31),
+            Hover = RGB(37, 37, 41), 
+            Stroke = RGB(52, 52, 58), 
+            Accent = RGB(232, 232, 238), 
+            Accent2 = RGB(130, 130, 146),
+            OnAccent = RGB(14, 14, 16), 
+            Text = RGB(240, 240, 242), 
+            SubText = RGB(152, 152, 160),
+            Muted = RGB(98, 98, 106),
+        },
+        Ocean = {
+            Background = RGB(8, 12, 18), 
+            Surface = RGB(14, 20, 29), 
+            Elevated = RGB(20, 28, 40),
+            Hover = RGB(28, 38, 53), 
+            Stroke = RGB(40, 56, 78), 
+            Accent = RGB(66, 153, 255), 
+            Accent2 = RGB(45, 212, 200),
+            OnAccent = RGB(255, 255, 255), 
+            Text = RGB(232, 240, 250), 
+            SubText = RGB(136, 154, 178),
+            Muted = RGB(84, 100, 122),
+        },
+        Emerald = {
+            Background = RGB(8, 14, 13), 
+            Surface = RGB(13, 22, 20), 
+            Elevated = RGB(19, 31, 28),
+            Hover = RGB(26, 42, 38), 
+            Stroke = RGB(38, 62, 55), 
+            Accent = RGB(45, 212, 150), 
+            Accent2 = RGB(34, 190, 235),
+            OnAccent = RGB(6, 24, 18), 
+            Text = RGB(230, 246, 240), 
+            SubText = RGB(132, 164, 154),
+            Muted = RGB(80, 108, 100),
+        },
+        Rose = {
+            Background = RGB(15, 9, 12), 
+            Surface = RGB(24, 14, 19), 
+            Elevated = RGB(33, 20, 26),
+            Hover = RGB(44, 27, 35), 
+            Stroke = RGB(66, 40, 52), 
+            Accent = RGB(251, 113, 155), 
+            Accent2 = RGB(190, 130, 252),
+            OnAccent = RGB(36, 8, 18), 
+            Text = RGB(250, 234, 240), 
+            SubText = RGB(176, 138, 152),
+            Muted = RGB(116, 86, 98),
+        },
+        Ember = {
+            Background = RGB(14, 11, 8), 
+            Surface = RGB(23, 18, 12), 
+            Elevated = RGB(32, 25, 17),
+            Hover = RGB(43, 34, 23), 
+            Stroke = RGB(64, 50, 34), 
+            Accent = RGB(251, 176, 64), 
+            Accent2 = RGB(250, 98, 78),
+            OnAccent = RGB(30, 18, 4), 
+            Text = RGB(250, 242, 230), 
+            SubText = RGB(172, 156, 134),
+            Muted = RGB(112, 98, 80),
+        },
+        Frost = {
+            Background = RGB(10, 14, 20), 
+            Surface = RGB(17, 23, 32), 
+            Elevated = RGB(24, 32, 44),
+            Hover = RGB(33, 43, 58), 
+            Stroke = RGB(52, 66, 86), 
+            Accent = RGB(150, 205, 255), 
+            Accent2 = RGB(205, 228, 255),
+            OnAccent = RGB(10, 20, 34), 
+            Text = RGB(236, 243, 252), 
+            SubText = RGB(144, 160, 182),
+            Muted = RGB(92, 106, 126),
+        },
+        Noir = {
+            Background = RGB(10, 9, 8), 
+            Surface = RGB(18, 16, 14), 
+            Elevated = RGB(27, 24, 21),
+            Hover = RGB(37, 33, 28), 
+            Stroke = RGB(58, 51, 42), 
+            Accent = RGB(226, 190, 120), 
+            Accent2 = RGB(255, 228, 178),
+            OnAccent = RGB(28, 20, 8), 
+            Text = RGB(246, 240, 230), 
+            SubText = RGB(168, 158, 142),
+            Muted = RGB(106, 98, 86),
+        },
+        Platinum = {
+            Background = RGB(13, 14, 16), 
+            Surface = RGB(21, 23, 26), 
+            Elevated = RGB(30, 32, 36),
+            Hover = RGB(40, 43, 48), 
+            Stroke = RGB(60, 64, 72), 
+            Accent = RGB(196, 206, 224), 
+            Accent2 = RGB(150, 164, 190),
+            OnAccent = RGB(14, 16, 22), 
+            Text = RGB(242, 244, 248), 
+            SubText = RGB(152, 160, 174),
+            Muted = RGB(98, 104, 116),
+        },
+        Aurora = {
+            Background = RGB(9, 11, 17), 
+            Surface = RGB(15, 18, 27), 
+            Elevated = RGB(22, 26, 38),
+            Hover = RGB(30, 35, 50), 
+            Stroke = RGB(46, 54, 76), 
+            Accent = RGB(94, 234, 212), 
+            Accent2 = RGB(167, 139, 250),
+            OnAccent = RGB(6, 22, 24), 
+            Text = RGB(234, 242, 248), 
+            SubText = RGB(142, 156, 176),
+            Muted = RGB(90, 102, 122),
+        },
+        Cyberpunk = {
+            Background = RGB(10, 11, 16), 
+            Surface = RGB(16, 18, 28), 
+            Elevated = RGB(23, 26, 40),
+            Hover = RGB(32, 36, 56), 
+            Stroke = RGB(65, 42, 88), 
+            Accent = RGB(255, 0, 128), 
+            Accent2 = RGB(0, 240, 255),
+            OnAccent = RGB(255, 255, 255), 
+            Text = RGB(240, 244, 248), 
+            SubText = RGB(150, 160, 185),
+            Muted = RGB(95, 100, 125),
+        },
+        Crimson = {
+            Background = RGB(13, 9, 10), 
+            Surface = RGB(22, 14, 16), 
+            Elevated = RGB(31, 20, 23),
+            Hover = RGB(42, 28, 32), 
+            Stroke = RGB(70, 42, 48), 
+            Accent = RGB(255, 65, 65), 
+            Accent2 = RGB(255, 140, 65),
+            OnAccent = RGB(35, 8, 8), 
+            Text = RGB(248, 238, 238), 
+            SubText = RGB(175, 140, 140),
+            Muted = RGB(115, 88, 88),
+        },
+        Sunset = {
+            Background = RGB(14, 10, 14), 
+            Surface = RGB(23, 16, 23), 
+            Elevated = RGB(32, 23, 32),
+            Hover = RGB(44, 32, 44), 
+            Stroke = RGB(68, 46, 68), 
+            Accent = RGB(255, 120, 60), 
+            Accent2 = RGB(220, 90, 255),
+            OnAccent = RGB(30, 10, 30), 
+            Text = RGB(248, 238, 248), 
+            SubText = RGB(170, 140, 170),
+            Muted = RGB(110, 90, 110),
+        },
+        Toxic = {
+            Background = RGB(9, 13, 10), 
+            Surface = RGB(14, 22, 16), 
+            Elevated = RGB(20, 32, 23),
+            Hover = RGB(28, 44, 32), 
+            Stroke = RGB(42, 68, 48), 
+            Accent = RGB(100, 255, 50), 
+            Accent2 = RGB(50, 220, 180),
+            OnAccent = RGB(10, 30, 12), 
+            Text = RGB(235, 248, 238), 
+            SubText = RGB(135, 165, 142),
+            Muted = RGB(85, 110, 90),
+        },
+    }
 }
 
--- Other Variables
-local request = (syn and syn.request) or (http and http.request) or http_request or nil
-local tweeninfo = TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
-local PresetGradients = {
-	["Nightlight (Classic)"] = {Color3.fromRGB(147, 255, 239), Color3.fromRGB(201,211,233), Color3.fromRGB(255, 167, 227)},
-	["Nightlight (Neo)"] = {Color3.fromRGB(117, 164, 206), Color3.fromRGB(123, 201, 201), Color3.fromRGB(224, 138, 175)},
-	Starlight = {Color3.fromRGB(147, 255, 239), Color3.fromRGB(181, 206, 241), Color3.fromRGB(214, 158, 243)},
-	Solar = {Color3.fromRGB(242, 157, 76), Color3.fromRGB(240, 179, 81), Color3.fromRGB(238, 201, 86)},
-	Sparkle = {Color3.fromRGB(199, 130, 242), Color3.fromRGB(221, 130, 238), Color3.fromRGB(243, 129, 233)},
-	Lime = {Color3.fromRGB(170, 255, 127), Color3.fromRGB(163, 220, 138), Color3.fromRGB(155, 185, 149)},
-	Vine = {Color3.fromRGB(0, 191, 143), Color3.fromRGB(0, 126, 94), Color3.fromRGB(0, 61, 46)},
-	Cherry = {Color3.fromRGB(148, 54, 54), Color3.fromRGB(168, 67, 70), Color3.fromRGB(188, 80, 86)},
-	Daylight = {Color3.fromRGB(51, 156, 255), Color3.fromRGB(89, 171, 237), Color3.fromRGB(127, 186, 218)},
-	Blossom = {Color3.fromRGB(255, 165, 243), Color3.fromRGB(213, 129, 231), Color3.fromRGB(170, 92, 218)},
+for _, theme in pairs(Themes) do
+    for key, value in pairs(Semantic) do theme[key] = value end
+end
+
+local Corners = { 
+    Rounded = 12, 
+    Soft = 7, 
+    Sharp = 2, 
+    Square = 0 
 }
 
-local function GetIcon(icon, source)
-	if source == "Custom" then
-		return "rbxassetid://" .. icon
-	elseif source == "Lucide" then
-		-- full credit to latte softworks :)
-		local iconData = not isStudio and game:HttpGet("https://raw.githubusercontent.com/latte-soft/lucide-roblox/refs/heads/master/lib/Icons.luau")
-		local icons = isStudio and IconModule.Lucide or loadstring(iconData)()
-		if not isStudio then
-			icon = string.match(string.lower(icon), "^%s*(.*)%s*$") :: string
-			local sizedicons = icons['48px']
+NutriexLibrary.Themes = Themes
+NutriexLibrary.Corners = Corners
 
-			local r = sizedicons[icon]
-			if not r then
-				error("Lucide Icons: Failed to find icon by the name of \"" .. icon .. "\.", 2)
-			end
-
-			local rirs = r[2]
-			local riro = r[3]
-
-			if type(r[1]) ~= "number" or type(rirs) ~= "table" or type(riro) ~= "table" then
-				error("Lucide Icons: Internal error: Invalid auto-generated asset entry")
-			end
-
-			local irs = Vector2.new(rirs[1], rirs[2])
-			local iro = Vector2.new(riro[1], riro[2])
-
-			local asset = {
-				id = r[1],
-				imageRectSize = irs,
-				imageRectOffset = iro,
-			}
-
-			return asset
-		else
-			return "rbxassetid://10723434557"
-		end
-	else	
-		if icon ~= nil and IconModule[source] then
-			local sourceicon = IconModule[source]
-			return sourceicon[icon]
-		else
-			return nil
-		end
-	end
+function NutriexLibrary:AddTheme(name, colors)
+    colors = colors or {}
+    local theme = {}
+    for key, value in pairs(Themes.Midnight) do theme[key] = value end
+    for key, value in pairs(colors) do theme[key] = value end
+    if colors.Accent and not colors.Accent2 then
+        local h, s, v = colors.Accent:ToHSV()
+        theme.Accent2 = Color3.fromHSV((h + 0.1) % 1, s, v)
+    end
+    Themes[name] = theme
+    return theme
 end
 
-local function RemoveTable(tablre, value)
-	for i,v in pairs(tablre) do
-		if tostring(v) == tostring(value) then
-			table.remove(tablre, i)
-		end
-	end
+local function KP(t, c) return ColorSequenceKeypoint.new(t, c) end
+
+local Builders = {
+
+    Flow = function(T) return ColorSequence.new({ KP(0, T.Accent), KP(0.5, T.Accent2), KP(1, T.Accent) }) end,
+    Soft = function(T) return ColorSequence.new(T.Accent, T.Accent2) end,
+
+    Metal = function(T)
+        local function steel(v) return Color3.fromRGB(v, v, v + 6):Lerp(T.Accent, 0.1) end
+        return ColorSequence.new({
+            KP(0, steel(238)), KP(0.16, steel(118)), KP(0.34, steel(214)), KP(0.52, steel(66)),
+            KP(0.7, steel(196)), KP(0.86, steel(104)), KP(1, steel(238)),
+        })
+    end,
+
+    Pane = function(T)
+        return ColorSequence.new(T.Surface:Lerp(Color3.new(1, 1, 1), 0.07), T.Surface)
+    end,
+
+    Rim = function(T)
+        return ColorSequence.new({
+            KP(0, T.Accent), KP(0.22, T.Accent2), KP(0.5, T.Stroke), KP(0.78, T.Stroke), KP(1, T.Accent),
+        })
+    end,
+}
+
+local function LerpTheme(a, b, t)
+    local out = {}
+    for _, key in ipairs({ "Accent", "Accent2", "Stroke", "Surface", "Elevated", "Background", "Hover" }) do out[key] = a[key]:Lerp(b[key], t) end
+    return out
 end
 
-local function SetPrase(defaults, passed)
-	for i, v in pairs(defaults) do
-		if passed[i] == nil then
-			passed[i] = v
-		end
-	end
-	return passed
+local function RandomName()
+    return (HttpService:GenerateGUID(false):gsub("%-", ""))
 end
 
-local function PackColor(Color)
-	return {R = Color.R * 255, G = Color.G * 255, B = Color.B * 255}
-end    
-
-local function UnpackColor(Color)
-	return Color3.fromRGB(Color.R, Color.G, Color.B)
+local function Mount(gui)
+    local protect = (syn and syn.protect_gui) or protect_gui or protectgui
+    if protect then pcall(protect, gui) end
+    local ok = pcall(function()
+        gui.Parent = (gethui and gethui()) or CoreGui
+    end)
+    if not ok or not gui.Parent then
+        gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    end
 end
 
-function tween(object, goal, callback, tweenin)
-	local tween = TweenService:Create(object,tweenin or tweeninfo, goal)
-	tween.Completed:Connect(callback or function() end)
-	tween:Play()
-end
-
-local function unpackt(array : table)
-	local val = ""
-	local i = 0
-	for _,v in pairs(array) do
-		if i < 3 then
-			val = val .. v .. ", "
-			i += 1
-		else
-			val = "Various"
-			break
-		end
-	end
-	return val
-end
-
--- Interface Management
-local NutriexLibrary = isStudio and script.Parent:WaitForChild("NutriexLibrary") or game:GetObjects("rbxassetid://86467455075715")[1]
-
-local SizeBleh = nil
-
-local function Hide(Window, bind, notif)
-	SizeBleh = Window.Size
-	bind = string.split(tostring(bind), "Enum.KeyCode.")
-	bind = bind[2]
-	tween(Window, {BackgroundTransparency = 1})
-	tween(Window.Elements, {BackgroundTransparency = 1})
-	tween(Window.Line, {BackgroundTransparency = 1})
-	tween(Window.Title.Title, {TextTransparency = 1})
-	tween(Window.Title.subtitle, {TextTransparency = 1})
-	tween(Window.Logo, {ImageTransparency = 1})
-	tween(Window.Navigation.Line, {BackgroundTransparency = 1})
-
-	for _, TopbarButton in ipairs(Window.Controls:GetChildren()) do
-		if TopbarButton.ClassName == "Frame" then
-			tween(TopbarButton, {BackgroundTransparency = 1})
-			tween(TopbarButton.UIStroke, {Transparency = 1})
-			tween(TopbarButton.ImageLabel, {ImageTransparency = 1})
-			TopbarButton.Visible = false
-		end
-	end
-	for _, tabbtn in ipairs(Window.Navigation.Tabs:GetChildren()) do
-		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "InActive Template" then
-			TweenService:Create(tabbtn, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-			TweenService:Create(tabbtn.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-			TweenService:Create(tabbtn.DropShadowHolder.DropShadow, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-			TweenService:Create(tabbtn.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-		end
-	end
-
-	task.wait(0.28)
-	Window.Size = UDim2.new(0,0,0,0)
-	Window.Parent.ShadowHolder.Visible = false
-	task.wait()
-	Window.Elements.Parent.Visible = false
-	Window.Visible = false
-end
-
-
-if gethui then
-	NutriexLibrary.Parent = gethui()
-elseif syn and syn.protect_gui then 
-	syn.protect_gui(NutriexLibrary)
-	NutriexLibrary.Parent = CoreGui
-elseif not isStudio and CoreGui:FindFirstChild("RobloxGui") then
-	NutriexLibrary.Parent = CoreGui:FindFirstChild("RobloxGui")
-elseif not isStudio then
-	NutriexLibrary.Parent = CoreGui
-end
-
-if gethui then
-	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == NutriexLibrary.Name and Interface ~= NutriexLibrary then
-			Hide(Interface.SmartWindow)
-			Interface.Enabled = false
-			Interface.Name = "Nutriex-UI"
-		end
-	end
-elseif not isStudio then
-	for _, Interface in ipairs(CoreGui:GetChildren()) do
-		if Interface.Name == NutriexLibrary.Name and Interface ~= NutriexLibrary then
-			Hide(Interface.SmartWindow)
-			Interface.Enabled = false
-			Interface.Name = "Nutriex-UI"
-		end
-	end
-end
-
-NutriexLibrary.Enabled = false
-NutriexLibrary.SmartWindow.Visible = false
-NutriexLibrary.Notifications.Template.Visible = false
-NutriexLibrary.DisplayOrder = 1000000000
-
-local Main : Frame = NutriexLibrary.SmartWindow
-local Dragger = Main.Drag
-local dragBar = NutriexLibrary.Drag
-local dragInteract = dragBar and dragBar.Interact or nil
-local dragBarCosmetic = dragBar and dragBar.Drag or nil
-local Elements = Main.Elements.Interactions
-local LoadingFrame = Main.LoadingFrame
-local Navigation = Main.Navigation
-local Tabs = Navigation.Tabs
-local Notifications = NutriexLibrary.Notifications
-local KeySystem : Frame = Main.KeySystem
-
--- local function LoadConfiguration(Configuration, autoload)
--- 	local Data = HttpService:JSONDecode(Configuration)
--- 	local changed
--- 	local notified = false
-
--- 	-- Iterate through current UI elements' flags
--- 	for FlagName, Flag in pairs(Nutriex.Flags) do
--- 		local FlagValue = Data[FlagName]
-
--- 		if FlagValue then
--- 			task.spawn(function()
--- 				if Flag.Type == "ColorPicker" then
--- 					changed = true
--- 					Flag:Set(UnpackColor(FlagValue))
--- 				else
--- 					if (Flag.CurrentValue or Flag.CurrentKeybind or Flag.CurrentOption or Flag.Color) ~= FlagValue then 
--- 						changed = true
--- 						Flag:Set(FlagValue) 	
--- 					end
--- 				end
--- 			end)
--- 		else
--- 			notified = true
--- 			Nutriex:Notification({Title = "Config Error", Content = "Nutriex was unable to load or find '"..FlagName.. "'' in the current script.", Icon = "flag"})
--- 		end
--- 	end
--- 	if autoload and notified == false then
--- 		Nutriex:Notification({
--- 			Title = "Config Autoloaded",
--- 			Content = "The Configuration Has Been Automatically Loaded.",
--- 			Icon = "file-code-2",
--- 			ImageSource = "Lucide"
--- 		})
--- 	elseif notified == false then
--- 		Nutriex:Notification({
--- 			Title = "Config Loaded",
--- 			Content = "The Configuration Has Been Loaded.",
--- 			Icon = "file-code-2",
--- 			ImageSource = "Lucide"
--- 		})
--- 	end
-
--- 	return changed
--- end
-
--- local function SaveConfiguration(Configuration, ConfigFolder, hasRoot)
--- 	local Data = {}
--- 	for i,v in pairs(Nutriex.Flags) do
--- 		if v.Type == "ColorPicker" then
--- 			Data[i] = PackColor(v.Color)
--- 		else
--- 			Data[i] = v.CurrentValue or v.CurrentBind or v.CurrentOption or v.Color
--- 		end
--- 	end	
--- 	if hasRoot then
--- 		writefile(ConfigurationFolder .. "/" .. hasRoot .. "/" .. ConfigFolder .. "/" .. Configuration .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
--- 	else
--- 		writefile(ConfigurationFolder .. "/" .. "/" .. ConfigFolder .. Configuration .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
--- 	end
--- end
-
--- local function SetAutoload(ConfigName, ConfigFolder, hasRoot)
--- 	if hasRoot then
--- 		writefile(ConfigurationFolder .. "/" .. hasRoot .. "/" .. ConfigFolder .. "/" .. "autoload.txt", tostring(ConfigName) .. ConfigurationExtension)
--- 	else
--- 		writefile(ConfigurationFolder .. "/" .. "/" .. ConfigFolder .. "autoload.txt", tostring(ConfigName) .. ConfigurationExtension)
--- 	end
--- end
-
--- local function LoadAutoLoad(ConfigFolder, hasRoot)
--- 	local autoload = isfile(ConfigurationFolder .. "/" .. "/" .. ConfigFolder .. "autoload.txt")
--- 	if hasRoot then
--- 		autoload = isfile(ConfigurationFolder .. "/" .. hasRoot .. "/" .. ConfigFolder .. "/" .. "autoload.txt")
--- 	end
-
--- 	if autoload then
--- 		if hasRoot then
--- 			LoadConfiguration(readfile(ConfigurationFolder .. "/" .. hasRoot .. "/" .. ConfigFolder .. "/" .. readfile(ConfigurationFolder .. "/" .. hasRoot .. "/" .. ConfigFolder .. "/" .. "autoload.txt")), true)
--- 		else
--- 			LoadConfiguration(readfile(ConfigurationFolder .. "/" .. ConfigFolder .. "/" .. readfile(ConfigurationFolder .. "/" .. ConfigFolder .. "/" .. "autoload.txt")), true)
--- 		end
--- 	end
--- end
-
-local function Draggable(Bar, Window, enableTaptic, tapticOffset)
-	pcall(function()
-		local Dragging, DragInput, MousePos, FramePos
-
-		local function connectFunctions()
-			if dragBar and enableTaptic then
-				dragBar.MouseEnter:Connect(function()
-					if not Dragging then
-						TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0.5, Size = UDim2.new(0, 120, 0, 4)}):Play()
-					end
-				end)
-
-				dragBar.MouseLeave:Connect(function()
-					if not Dragging then
-						TweenService:Create(dragBarCosmetic, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {BackgroundTransparency = 0.7, Size = UDim2.new(0, 100, 0, 4)}):Play()
-					end
-				end)
-			end
-		end
-
-		connectFunctions()
-
-		Bar.InputBegan:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-				Dragging = true
-				MousePos = Input.Position
-				FramePos = Window.Position
-
-				if enableTaptic then
-					TweenService:Create(dragBarCosmetic, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 110, 0, 4), BackgroundTransparency = 0}):Play()
-				end
-
-				Input.Changed:Connect(function()
-					if Input.UserInputState == Enum.UserInputState.End then
-						Dragging = false
-						connectFunctions()
-
-						if enableTaptic then
-							TweenService:Create(dragBarCosmetic, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 4), BackgroundTransparency = 0.7}):Play()
-						end
-					end
-				end)
-			end
-		end)
-
-		Bar.InputChanged:Connect(function(Input)
-			if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-				DragInput = Input
-			end
-		end)
-
-		UserInputService.InputChanged:Connect(function(Input)
-			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-
-				local newMainPosition = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
-				TweenService:Create(Window, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = newMainPosition}):Play()
-
-				if dragBar then
-					local newDragBarPosition = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y + 240)
-					dragBar.Position = newDragBarPosition
-				end
-			end
-		end)
-
-	end)
-end
-
-function Nutriex:Notification(data) -- action e.g open messages
-	task.spawn(function()
-		data = SetPrase({
-			Title = "Missing Title",
-			Content = "Missing or Unknown Content",
-			Icon = "view_in_ar",
-			ImageSource = "Material"
-		}, data or {})
-
-		-- Notification Object Creation
-		local newNotification = Notifications.Template:Clone()
-		newNotification.Name = data.Title
-		newNotification.Parent = Notifications
-		newNotification.LayoutOrder = #Notifications:GetChildren()
-		newNotification.Visible = false
-		
-		-- Set Data
-		newNotification.Title.Text = data.Title
-		newNotification.Description.Text = data.Content 
-		newNotification.Icon.Image = GetIcon(data.Icon, data.ImageSource)
-
-		-- Set initial transparency values
-		newNotification.BackgroundTransparency = 1
-		newNotification.Title.TextTransparency = 1
-		newNotification.Description.TextTransparency = 1
-		newNotification.UIStroke.Transparency = 1
-		newNotification.Shadow.ImageTransparency = 1
-		newNotification.Icon.ImageTransparency = 1
-		newNotification.Icon.BackgroundTransparency = 1
-
-		task.wait()
-
-		-- Calculate textbounds and set initial values
-		newNotification.Size = UDim2.new(1, 0, 0, -Notifications:FindFirstChild("UIListLayout").Padding.Offset)
-
-		newNotification.Icon.Size = UDim2.new(0, 28, 0, 28)
-		newNotification.Icon.Position = UDim2.new(0, 16, 0.5, -1)
-
-		newNotification.Visible = true
-
-		newNotification.Description.Size = UDim2.new(1, -65, 0, math.huge)
-		local bounds = newNotification.Description.TextBounds.Y + 55
-		newNotification.Description.Size = UDim2.new(1,-65,0, bounds - 35)
-		newNotification.Size = UDim2.new(1, 0, 0, -Notifications:FindFirstChild("UIListLayout").Padding.Offset)
-		TweenService:Create(newNotification, TweenInfo.new(0.6, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, 0, 0, bounds)}):Play()
-
-		task.wait(0.15)
-		TweenService:Create(newNotification, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.45}):Play()
-		TweenService:Create(newNotification.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-		task.wait(0.05)
-
-		TweenService:Create(newNotification.Icon, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-
-		task.wait(0.05)
-		TweenService:Create(newNotification.Description, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0.35}):Play()
-		TweenService:Create(newNotification.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 0.95}):Play()
-		TweenService:Create(newNotification.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 0.82}):Play()
-
-		local waitDuration = math.min(math.max((#newNotification.Description.Text * 0.1) + 2.5, 3), 10)
-		task.wait(data.Duration or waitDuration)
-
-		newNotification.Icon.Visible = false
-		TweenService:Create(newNotification, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-		TweenService:Create(newNotification.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-		TweenService:Create(newNotification.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-		TweenService:Create(newNotification.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		TweenService:Create(newNotification.Description, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-
-		TweenService:Create(newNotification, TweenInfo.new(1, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -90, 0, 0)}):Play()
-
-		task.wait(1)
-
-		TweenService:Create(newNotification, TweenInfo.new(1, Enum.EasingStyle.Exponential), {Size = UDim2.new(1, -90, 0, -Notifications:FindFirstChild("UIListLayout").Padding.Offset)}):Play()
-
-		newNotification.Visible = false
-		newNotification:Destroy()
-	end)
-end
-
-local function Unhide(Window, currentTab)
-	Window.Size = SizeBleh
-	Window.Elements.Visible = true
-	Window.Visible = true
-	task.wait()
-	tween(Window, {BackgroundTransparency = 0.2})
-	tween(Window.Elements, {BackgroundTransparency = 0.08})
-	tween(Window.Line, {BackgroundTransparency = 0})
-	tween(Window.Title.Title, {TextTransparency = 0})
-	tween(Window.Title.subtitle, {TextTransparency = 0})
-	tween(Window.Logo, {ImageTransparency = 0})
-	tween(Window.Navigation.Line, {BackgroundTransparency = 0})
-
-	for _, TopbarButton in ipairs(Window.Controls:GetChildren()) do
-		if TopbarButton.ClassName == "Frame" and TopbarButton.Name ~= "Theme" then
-			TopbarButton.Visible = true
-			tween(TopbarButton, {BackgroundTransparency = 0.25})
-			tween(TopbarButton.UIStroke, {Transparency = 0.5})
-			tween(TopbarButton.ImageLabel, {ImageTransparency = 0.25})
-		end
-	end
-	for _, tabbtn in ipairs(Window.Navigation.Tabs:GetChildren()) do
-		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "InActive Template" then
-			if tabbtn.Name == currentTab then
-				TweenService:Create(tabbtn, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-				TweenService:Create(tabbtn.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.41}):Play()
-			end
-			TweenService:Create(tabbtn.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-			TweenService:Create(tabbtn.DropShadowHolder.DropShadow, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-		end
-	end
-
-end
-
-local MainSize
-local MinSize 
-if Camera.ViewportSize.X > 774 and Camera.ViewportSize.Y > 503 then
-	MainSize = UDim2.fromOffset(675, 424)
-	MinSize = UDim2.fromOffset(500, 42)
-else
-	MainSize = UDim2.fromOffset(Camera.ViewportSize.X - 100, Camera.ViewportSize.Y - 100)
-	MinSize = UDim2.fromOffset(Camera.ViewportSize.X - 275, 42)
-end
-
-local function Maximise(Window)
-	Window.Controls.ToggleSize.ImageLabel.Image = "rbxassetid://10137941941"
-	tween(Window, {Size = MainSize})
-	Window.Elements.Visible = true
-	Window.Navigation.Visible = true
-end
-
-local function Minimize(Window)
-	Window.Controls.ToggleSize.ImageLabel.Image = "rbxassetid://11036884234"
-	Window.Elements.Visible = false
-	Window.Navigation.Visible = false
-	tween(Window, {Size = MinSize})
-end
-
-function Nutriex:CreateWindow(WindowSettings)
-
-	WindowSettings = SetPrase({
-		Name = "NutriexLibrary Example Window",
-		Subtitle = "",
-		LogoID = "6031097225",
-		LoadingEnabled = true,
-		LoadingTitle = "Nutriex Interface Suite",
-		LoadingSubtitle = "by Nebula Softworks",
-
-		ConfigSettings = {},
-
-		KeySystem = false,
-		KeySettings = {}
-	}, WindowSettings or {})
-
-	WindowSettings.ConfigSettings = SetPrase({
-		RootFolder = nil,
-		ConfigFolder = "Big Hub"
-	}, WindowSettings.ConfigSettings or {})
-
-	WindowSettings.KeySettings = SetPrase({
-		Title = WindowSettings.Name,
-		Subtitle = "Key System",
-		Note = "No Instructions",
-		SaveInRoot = false, 
-		SaveKey = true, 
-		Key = {""}, 
-		SecondAction = {}	
-	}, WindowSettings.KeySettings or {})
-
-	WindowSettings.KeySettings.SecondAction = SetPrase({
-		Enabled = false,
-		Type = "Discord", 
-		Parameter = "" 
-	}, WindowSettings.KeySettings.SecondAction)
-
-	local Passthrough = false
-
-	local Window = { Bind = Enum.KeyCode.K, CurrentTab = nil, State = true, Size = false, Settings = nil }
-
-	Main.Title.Title.Text = WindowSettings.Name
-	Main.Title.subtitle.Text = WindowSettings.Subtitle
-	Main.Logo.Image = "rbxassetid://" .. WindowSettings.LogoID
-	Main.Visible = true
-	Main.BackgroundTransparency = 1
-	Main.Size = MainSize
-	Main.Size = UDim2.fromOffset(Main.Size.X.Offset - 70, Main.Size.Y.Offset - 55)
-	Main.Parent.ShadowHolder.Size = Main.Size
-	LoadingFrame.Frame.Frame.Title.TextTransparency = 1
-	LoadingFrame.Frame.Frame.Subtitle.TextTransparency = 1
-	LoadingFrame.Version.TextTransparency = 1
-	LoadingFrame.Frame.ImageLabel.ImageTransparency = 1
-
-	tween(Elements.Parent, {BackgroundTransparency = 1})
-	Elements.Parent.Visible = false
-
-	LoadingFrame.Frame.Frame.Title.Text = WindowSettings.LoadingTitle
-	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
-	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Nutriex Interface Suite" and Release or "NutriexLibrary"
-
-	-- Suporte a avatar de alta definição e estilo limpo
-	pcall(function()
-		Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
-	end)
-	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
-	Navigation.Player.TextLabel.Text = "@" .. Players.LocalPlayer.Name
-
-	for i,v in pairs(Main.Controls:GetChildren()) do
-		v.Visible = false
-	end
-
-	Main:GetPropertyChangedSignal("Position"):Connect(function()
-		Main.Parent.ShadowHolder.Position = Main.Position
-	end)
-	Main:GetPropertyChangedSignal("Size"):Connect(function()
-		Main.Parent.ShadowHolder.Size = Main.Size
-	end)
-
-	LoadingFrame.Visible = true
-
-	NutriexLibrary.Enabled = true
-
-	if WindowSettings.KeySystem then
-		local KeySettings = WindowSettings.KeySettings
-		
-		Draggable(Dragger, Main)
-		Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-		if dragBar then Draggable(dragInteract, Main, true, 255) end
-
-		if not WindowSettings.KeySettings then
-			Passthrough = true
-			return
-		end
-		
-		WindowSettings.KeySettings.FileName = "key"
-
-		if typeof(WindowSettings.KeySettings.Key) == "string" then WindowSettings.KeySettings.Key = {WindowSettings.KeySettings.Key} end
-
-		local direc = WindowSettings.KeySettings.SaveInRoot and "Nutriex/Configurations/" .. WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/" or "Nutriex/Configurations/" ..  WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
-
-		if isfile and isfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex") then
-			for i, Key in ipairs(WindowSettings.KeySettings.Key) do
-				if string.find(readfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex"), Key) then
-					Passthrough = true
-					break
-				end
-			end
-		end
-
-		if not Passthrough then
-
-			local Btn = KeySystem.Action.Copy
-			local typesys = KeySettings.SecondAction.Type
-			
-			if typesys == "Discord" then
-				Btn = KeySystem.Action.Discord
-			end
-
-			local AttemptsRemaining = math.random(2, 5)
-
-			KeySystem.Visible = true
-			KeySystem.Title.Text = WindowSettings.KeySettings.Title
-			KeySystem.Subtitle.Text = WindowSettings.KeySettings.Subtitle
-			KeySystem.textshit.Text = WindowSettings.KeySettings.Note
-
-			if KeySettings.SecondAction.Enabled == true then
-				Btn.Visible = true
-			end
-			
-			Btn.Interact.MouseButton1Click:Connect(function()
-				if typesys == "Discord" then
-					setclipboard(tostring("https://discord.gg/"..KeySettings.SecondAction.Parameter))
-					if request then
-						request({
-							Url = 'http://127.0.0.1:6463/rpc?v=1',
-							Method = 'POST',
-							Headers = {
-								['Content-Type'] = 'application/json',
-								Origin = 'https://discord.com'
-							},
-							Body = HttpService:JSONEncode({
-								cmd = 'INVITE_BROWSER',
-								nonce = HttpService:GenerateGUID(false),
-								args = {code = KeySettings.SecondAction.Parameter}
-							})
-						})
-					end
-				else
-					setclipboard(tostring(KeySettings.SecondAction.Parameter))
-				end
-			end)
-
-			KeySystem.Action.Submit.Interact.MouseButton1Click:Connect(function()
-				if #KeySystem.Input.InputBox.Text == 0 then return end
-				local KeyFound = false
-				local FoundKey = ''
-				for _, Key in ipairs(WindowSettings.KeySettings.Key) do
-					if KeySystem.Input.InputBox.Text == Key then
-						KeyFound = true
-						FoundKey = Key
-						break
-					end
-				end
-				if KeyFound then 
-					for _, instance in pairs(KeySystem:GetDescendants()) do
-						if instance.ClassName ~= "UICorner" and instance.ClassName ~= "UIPadding" then
-							if instance.ClassName ~= "UIStroke" and instance.ClassName ~= "UIListLayout" then
-								tween(instance, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "ImageButton" then
-								tween(instance, {ImageTransparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "TextLabel" then
-								tween(instance, {TextTransparency = 1}, nil,TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
-							end
-							if instance.ClassName == "UIStroke" then
-								tween(instance, {Transparency = 1}, nil,TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
-							end
-						end
-					end
-					tween(KeySystem, {BackgroundTransparency = 1}, nil,TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-					task.wait(0.51)
-					Passthrough = true
-					KeySystem.Visible = false
-					if WindowSettings.KeySettings.SaveKey then
-						if writefile then
-							writefile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex", FoundKey)
-						end
-						Nutriex:Notification({Title = "Key System", Content = "The key for this script has been saved successfully.", Icon = "lock_open"})
-					end
-				else
-					if AttemptsRemaining == 0 then
-						game.Players.LocalPlayer:Kick("No Attempts Remaining")
-						game:Shutdown()
-					end
-					KeySystem.Input.InputBox.Text = "Incorrect Key"
-					AttemptsRemaining = AttemptsRemaining - 1
-					task.wait(0.4)
-					KeySystem.Input.InputBox.Text = ""
-				end
-			end)
-
-			KeySystem.Close.MouseButton1Click:Connect(function()
-				Nutriex:Destroy()
-			end)
-		end
-	end
-
-	if WindowSettings.KeySystem then
-		repeat task.wait() until Passthrough
-	end
-
-	if WindowSettings.LoadingEnabled then
-		task.wait(0.3)
-		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-		task.wait(0.05)
-		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-		task.wait(0.29)
-		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(1.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 2, false, 0.2), {Rotation = 450}):Play()
-
-		task.wait(3.32)
-
-		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-		task.wait(0.05)
-		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		wait(0.3)
-		TweenService:Create(LoadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
-	end
-
-	-- ANIMAÇÃO DE ABERTURA APRIMORADA (Glassmorphism mais limpo e sem saltos)
-	TweenService:Create(Main, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 0.15, Size = MainSize}):Play()
-	TweenService:Create(Main.Parent.ShadowHolder, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = MainSize}):Play()
-	TweenService:Create(Main.Title.Title, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-	TweenService:Create(Main.Title.subtitle, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-	TweenService:Create(Main.Logo, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-	TweenService:Create(Navigation.Player.icon.ImageLabel, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-	TweenService:Create(Navigation.Player.icon.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Transparency = 0.2}):Play()
-	TweenService:Create(Main.Line, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 0.7}):Play()
-	
-	task.wait(0.4)
-	LoadingFrame.Visible = false
-
-	Draggable(Dragger, Main)
-	Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-	if dragBar then Draggable(dragInteract, Main, true, 255) end
-
-	Elements.Template.LayoutOrder = 1000000000
-	Elements.Template.Visible = false
-	Navigation.Tabs["InActive Template"].LayoutOrder = 1000000000
-	Navigation.Tabs["InActive Template"].Visible = false
-
-	local FirstTab = true
-
-	function Window:CreateHomeTab(HomeTabSettings)
-
-		HomeTabSettings = SetPrase({
-			Icon = 1,
-			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, 
-			DiscordInvite = "noinvitelink" 
-		}, HomeTabSettings or {})
-
-		local HomeTab = {}
-
-		local HomeTabButton = Navigation.Tabs.Home
-		HomeTabButton.Visible = true
-		if HomeTabSettings.Icon == 2 then
-			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
-		end
-
-		local HomeTabPage = Elements.Home
-		HomeTabPage.Visible = true
-
-		function HomeTab:Activate()
-			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(HomeTabButton, {BackgroundTransparency = 0})
-			tween(HomeTabButton.UIStroke, {Transparency = 0.41})
-
-			Elements.UIPageLayout:JumpTo(HomeTabPage)
-
-			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= HomeTabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
-				end
-			end
-
-			Window.CurrentTab = "Home"
-		end
-
-		HomeTab:Activate()
-		FirstTab = false
-		HomeTabButton.Interact.MouseButton1Click:Connect(function()
-			HomeTab:Activate()
-		end)
-
-		pcall(function()
-			HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-		end)
-		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = "@" .. Players.LocalPlayer.Name .. "  •  " .. WindowSettings.Name
-
-		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Unknown Executor"
-		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Nutriex - Debugging Mode" break end
-			if v == identifyexecutor() then
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Fully Supported Executor."
-				break
-			else
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Unofficial Executor Support."
-				break
-			end
-		end
-
-		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
-			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite))
-			if request then
-				request({
-					Url = 'http://127.0.0.1:6463/rpc?v=1',
-					Method = 'POST',
-					Headers = {
-						['Content-Type'] = 'application/json',
-						Origin = 'https://discord.com'
-					},
-					Body = HttpService:JSONEncode({
-						cmd = 'INVITE_BROWSER',
-						nonce = HttpService:GenerateGUID(false),
-						args = {code = HomeTabSettings.DiscordInvite}
-					})
-				})
-			end
-		end)
-
-		local friendsCooldown = 0
-		local function getPing() return math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700) end
-
-		local function checkFriends()
-			if friendsCooldown == 0 then
-				friendsCooldown = 25
-
-				local playersFriends = {}
-				local friendsInTotal = 0
-				local onlineFriends = 0 
-				local friendsInGame = 0 
-
-				pcall(function()
-					local list = Players:GetFriendsAsync(Players.LocalPlayer.UserId)
-					while true do
-						for _, data in ipairs(list:GetCurrentPage()) do
-							friendsInTotal += 1
-							table.insert(playersFriends, data)
-						end
-
-						if list.IsFinished then
-							break
-						else 
-							list:AdvanceToNextPageAsync()
-						end
-					end
-					for i, v in pairs(Players.LocalPlayer:GetFriendsOnline()) do
-						onlineFriends += 1
-					end
-
-					for i,v in pairs(playersFriends) do
-						if Players:FindFirstChild(v.Username) then
-							friendsInGame = friendsInGame + 1
-						end
-					end
-				end)
-
-				HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = tostring(friendsInTotal).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(friendsInTotal - onlineFriends).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = tostring(onlineFriends).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = tostring(friendsInGame).." friends"
-			else
-				friendsCooldown -= 1
-			end
-		end
-
-		local function format(Int)
-			return string.format("%02i", Int)
-		end
-
-		local function convertToHMS(Seconds)
-			local Minutes = (Seconds - Seconds%60)/60
-			Seconds = Seconds - Minutes*60
-			local Hours = (Minutes - Minutes%60)/60
-			Minutes = Minutes - Hours*60
-			return format(Hours)..":"..format(Minutes)..":"..format(Seconds)
-		end
-
-		coroutine.wrap(function()
-			while task.wait(1) do
-				pcall(function()
-					-- Players
-					HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." playing"
-					HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." slots max"
-
-					-- Ping
-					HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and "0ms" or tostring(math.floor(getPing()) .."ms")
-
-					-- Time
-					HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(time())
-
-					-- Region
-					HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
-
-					checkFriends()
-				end)
-			end
-		end)()
-
-	end
-end
-
-   function Window:CreateTab(TabSettings)
-		local Tab = {} 		
-		TabSettings = SetPrase({
-			Name = "Tab",
-			ShowTitle = true,
-			Icon = "view_in_ar",
-			ImageSource = "Material" 
-		}, TabSettings or {})
-
-		local TabButton = Navigation.Tabs["InActive Template"]:Clone()
-
-		TabButton.Name = TabSettings.Name
-		TabButton.TextLabel.Text = TabSettings.Name
-		TabButton.Parent = Navigation.Tabs
-		TabButton.ImageLabel.Image = GetIcon(TabSettings.Icon, TabSettings.ImageSource)
-
-		TabButton.Visible = true
-
-		local TabPage = Elements.Template:Clone()
-		TabPage.Name = TabSettings.Name
-		TabPage.Title.Visible = TabSettings.ShowTitle
-		TabPage.Title.Text = TabSettings.Name
-		TabPage.Visible = true
-
-		Tab.Page = TabPage
-
-		if TabSettings.ShowTitle == false then
-			TabPage.UIPadding.PaddingTop = UDim.new(0,10)
-		end
-
-		TabPage.LayoutOrder = #Elements:GetChildren() - 3
-
-		for _, TemplateElement in ipairs(TabPage:GetChildren()) do
-			if TemplateElement.ClassName == "Frame" or TemplateElement.ClassName == "TextLabel" and TemplateElement.Name ~= "Title" then
-				TemplateElement:Destroy()
-			end
-		end
-		TabPage.Parent = Elements
-
-		function Tab:Activate()
-			tween(TabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(TabButton, {BackgroundTransparency = 0})
-			tween(TabButton.UIStroke, {Transparency = 0.41})
-
-			Elements.UIPageLayout:JumpTo(TabPage)
-
-			task.wait(0.05)
-
-			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= TabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
-				end
-
-			end
-
-			Window.CurrentTab = TabSettings.Name
-		end
-
-		if FirstTab then
-			Tab:Activate()
-		end
-
-		task.wait(0.01)
-
-		TabButton.Interact.MouseButton1Click:Connect(function()
-			Tab:Activate()
-		end)
-
-		FirstTab = false
-
-		-- Section
-		function Tab:CreateSection(name : string)
-
-			local Section = {}
-
-			if name == nil then name = "Section" end
-
-			Section.Name = name
-
-			local Sectiont = Elements.Template.Section:Clone()
-			Sectiont.Text = name
-			Sectiont.Visible = true
-			Sectiont.Parent = TabPage
-			local TabPage = Sectiont.Frame
-
-			Sectiont.TextTransparency = 1
-			tween(Sectiont, {TextTransparency = 0})
-
-			function Section:Set(NewSection)
-				Sectiont.Text = NewSection
-			end
-
-			function Section:Destroy()
-				Sectiont:Destroy()
-			end
-
-			-- Divider
-			function Section:CreateDivider()
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local b = Elements.Template.Divider:Clone()
-				b.Parent = TabPage
-				b.Size = UDim2.new(1,0,0,18)
-				b.Line.BackgroundTransparency = 1
-				tween(b.Line, {BackgroundTransparency = 0})
-			end
-
-			-- Button
-function Section:CreateButton(ButtonSettings)
-	TabPage.Position = UDim2.new(0, 0, 0, 28)
-
-	ButtonSettings = SetPrase({
-		Name = "Button",
-		Description = nil,
-		Callback = function() end,
-	}, ButtonSettings or {})
-
-	local ButtonV = {
-		Hover = false,
-		Settings = ButtonSettings
-	}
-
-	local Button
-	if ButtonSettings.Description == nil or ButtonSettings.Description == "" then
-		Button = Elements.Template.Button:Clone()
-	else
-		Button = Elements.Template.ButtonDesc:Clone()
-	end
-	
-	Button.Name = ButtonSettings.Name
-	Button.Title.Text = ButtonSettings.Name
-	if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-		Button.Desc.Text = ButtonSettings.Description
-	end
-	Button.Visible = true
-	Button.Parent = TabPage
-
-	-- Propriedades iniciais para entrada suave
-	Button.UIStroke.Transparency = 1
-	Button.Title.TextTransparency = 1
-	if Button.Desc then
-		Button.Desc.TextTransparency = 1
-	end
-
-	TweenService:Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.4}):Play()
-	TweenService:Create(Button.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-	TweenService:Create(Button.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-	if Button.Desc then
-		TweenService:Create(Button.Desc, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-	end
-
-	-- Interação de Clique com Animação Tátil (Scale + Stroke Glow)
-	Button.Interact.MouseButton1Click:Connect(function()
-		-- Feedback visual de clique (afunda levemente)
-		tween(Button, {Size = Button.Size - UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.1, Enum.EasingStyle.Quad))
-		tween(Button.UIStroke, {Color = Color3.fromRGB(255, 255, 255), Transparency = 0.1}, TweenInfo.new(0.1))
-
-		local Success, Response = pcall(ButtonSettings.Callback)
-
-		task.delay(0.12, function()
-			tween(Button, {Size = Button.Size + UDim2.new(0, 4, 0, 4)}, TweenInfo.new(0.15, Enum.EasingStyle.Back))
-		end)
-
-		if not Success then
-			TweenService:Create(Button, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.1, BackgroundColor3 = Color3.fromRGB(120, 20, 20)}):Play()
-			TweenService:Create(Button.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {Transparency = 0, Color = Color3.fromRGB(255, 50, 50)}):Play()
-			
-			local originalText = Button.Title.Text
-			Button.Title.Text = "Execution Error!"
-			warn("Nutriex Interface Suite | " .. ButtonSettings.Name .. " Callback Error: " .. tostring(Response))
-			
-			task.wait(1.2)
-			
-			Button.Title.Text = originalText
-			TweenService:Create(Button, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.4, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-			TweenService:Create(Button.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {Transparency = 0.3, Color = Color3.fromRGB(64, 61, 76)}):Play()
-		else
-			-- Sucesso: Efeito flash elegante na borda
-			task.delay(0.15, function()
-				if ButtonV.Hover then
-					tween(Button.UIStroke, {Color = Color3.fromRGB(110, 105, 135), Transparency = 0.2})
-				else
-					tween(Button.UIStroke, {Color = Color3.fromRGB(64, 61, 76), Transparency = 0.3})
-				end
-			end)
-		end
-	end)
-
-	Button.MouseEnter:Connect(function()
-		ButtonV.Hover = true
-		tween(Button, {BackgroundTransparency = 0.25}, TweenInfo.new(0.2))
-		tween(Button.UIStroke, {Color = Color3.fromRGB(120, 115, 145), Transparency = 0.15}, TweenInfo.new(0.2))
-	end)
-
-	Button.MouseLeave:Connect(function()
-		ButtonV.Hover = false
-		tween(Button, {BackgroundTransparency = 0.4}, TweenInfo.new(0.2))
-		tween(Button.UIStroke, {Color = Color3.fromRGB(64, 61, 76), Transparency = 0.3}, TweenInfo.new(0.2))
-	end)
-
-	function ButtonV:Set(ButtonSettings2)
-		ButtonSettings2 = SetPrase({
-			Name = ButtonSettings.Name,
-			Description = ButtonSettings.Description,
-			Callback = ButtonSettings.Callback
-		}, ButtonSettings2 or {})
-
-		ButtonSettings = ButtonSettings2
-		ButtonV.Settings = ButtonSettings2
-
-		Button.Name = ButtonSettings.Name
-		Button.Title.Text = ButtonSettings.Name
-		if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" and Button.Desc ~= nil then
-			Button.Desc.Text = ButtonSettings.Description
-		end
-	end
-
-	function ButtonV:Destroy()
-		Button.Visible = false
-		Button:Destroy()
-	end
-
-	return ButtonV
-end
-
-			-- Label
-			function Section:CreateLabel(LabelSettings)
-				TabPage.Position = UDim2.new(0,0,0,28)
-
-				local LabelV = {}
-
-				LabelSettings = SetPrase({
-					Text = "Label",
-					Style = 1
-				}, LabelSettings or {}) 
-
-				LabelV.Settings = LabelSettings
-
-				local Label
-				if LabelSettings.Style == 1 then
-					Label = Elements.Template.Label:Clone()
-				elseif LabelSettings.Style == 2 then
-					Label = Elements.Template.Info:Clone()
-				elseif LabelSettings.Style == 3 then
-					Label = Elements.Template.Warn:Clone()
-				end
-
-				Label.Text.Text = LabelSettings.Text
-				Label.Visible = true
-				Label.Parent = TabPage
-
-				Label.BackgroundTransparency = 1
-				Label.UIStroke.Transparency = 1
-				Label.Text.TextTransparency = 1
-
-				if LabelSettings.Style ~= 1 then
-					TweenService:Create(Label, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.8}):Play()
-				else
-					TweenService:Create(Label, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-				end
-				TweenService:Create(Label.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Label.Text, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-				function LabelV:Set(NewLabel)
-					LabelSettings.Text = NewLabel
-					LabelV.Settings = LabelSettings
-					Label.Text.Text = NewLabel
-				end
-
-				function LabelV:Destroy()
-					Label.Visible = false
-					Label:Destroy()
-				end
-
-				return LabelV
-			end
-
-			-- Paragraph
-			function Section:CreateParagraph(ParagraphSettings)
-				TabPage.Position = UDim2.new(0,0,0,28)
-
-				ParagraphSettings = SetPrase({
-					Title = "Paragraph",
-					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
-				}, ParagraphSettings or {})
-
-				local ParagraphV = {
-					Settings = ParagraphSettings
-				}
-
-				local Paragraph = Elements.Template.Paragraph:Clone()
-				Paragraph.Title.Text = ParagraphSettings.Title
-				Paragraph.Text.Text = ParagraphSettings.Text
-				Paragraph.Visible = true
-				Paragraph.Parent = TabPage
-
-				Paragraph.BackgroundTransparency = 1
-				Paragraph.UIStroke.Transparency = 1
-				Paragraph.Title.TextTransparency = 1
-				Paragraph.Text.TextTransparency = 1
-
-				TweenService:Create(Paragraph, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-				TweenService:Create(Paragraph.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Paragraph.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-				TweenService:Create(Paragraph.Text, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-				function ParagraphV:Update()
-					Paragraph.Text.Size = UDim2.new(Paragraph.Text.Size.X.Scale, Paragraph.Text.Size.X.Offset, 0, math.huge)
-					Paragraph.Text.Size = UDim2.new(Paragraph.Text.Size.X.Scale, Paragraph.Text.Size.X.Offset, 0, Paragraph.Text.TextBounds.Y)
-					tween(Paragraph, {Size = UDim2.new(Paragraph.Size.X.Scale, Paragraph.Size.X.Offset, 0, Paragraph.Text.TextBounds.Y + 40)})
-				end
-
-				function ParagraphV:Set(NewParagraphSettings)
-
-					NewParagraphSettings = SetPrase({
-						Title = ParagraphSettings.Title,
-						Text = ParagraphSettings.Text
-					}, NewParagraphSettings or {})
-
-					ParagraphV.Settings = NewParagraphSettings
-
-					Paragraph.Title.Text = NewParagraphSettings.Title
-					Paragraph.Text.Text = NewParagraphSettings.Text
-
-					ParagraphV:Update()
-
-				end
-
-				function ParagraphV:Destroy()
-					Paragraph.Visible = false
-					Paragraph:Destroy()
-				end
-
-				ParagraphV:Update()
-
-				return ParagraphV
-			end
-
-			-- Slider
-function Section:CreateSlider(SliderSettings, Flag)
-	TabPage.Position = UDim2.new(0, 0, 0, 28)
-	local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
-
-	SliderSettings = SetPrase({
-		Name = "Slider",
-		Range = {0, 200},
-		Increment = 1,
-		CurrentValue = 100,
-		Callback = function(Value) end,
-	}, SliderSettings or {})
-
-	local SLDragging = false
-	local Slider = Elements.Template.Slider:Clone()
-	Slider.Name = SliderSettings.Name .. " - Slider"
-	Slider.Title.Text = SliderSettings.Name
-	Slider.Visible = true
-	Slider.Parent = TabPage
-
-	Slider.BackgroundTransparency = 1
-	Slider.UIStroke.Transparency = 1
-	Slider.Title.TextTransparency = 1
-
-	TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-	TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-	TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-	-- Função para atualizar visual e valor de forma segura
-	local function UpdateSlider(val, fireCallback)
-		local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
-		val = math.clamp(val, min, max)
-		
-		-- Arredondamento preciso baseado no Incremento
-		local inc = SliderSettings.Increment
-		if inc > 0 then
-			val = math.round((val - min) / inc) * inc + min
-		end
-		
-		-- Evita imprecisão de ponto flutuante
-		val = tonumber(string.format("%.4f", val))
-		if math.abs(val - math.floor(val)) < 0.0001 then
-			val = math.floor(val)
-		end
-
-		SliderSettings.CurrentValue = val
-		SliderV.CurrentValue = val
-		Slider.Value.Text = tostring(val)
-
-		local percent = math.clamp((val - min) / (max - min), 0, 1)
-		local barWidth = Slider.Main.AbsoluteSize.X
-		local newSize = math.max(barWidth * percent, 5)
-		
-		Slider.Main.Progress.Size = UDim2.new(0, newSize, 1, 0)
-
-		if fireCallback then
-			local Success, Response = pcall(function()
-				SliderSettings.Callback(val)
-			end)
-			if not Success then
-				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0, BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-				TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-				Slider.Title.Text = "Callback Error"
-				print("Nutriex Interface Suite | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
-				task.wait(0.5)
-				Slider.Title.Text = SliderSettings.Name
-				TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5, BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-				TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			end
-		end
-	end
-
-	-- Inicializa valor padrão
-	UpdateSlider(SliderSettings.CurrentValue, true)
-
-	Slider["MouseEnter"]:Connect(function()
-		tween(Slider.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-	end)
-
-	Slider["MouseLeave"]:Connect(function()
-		tween(Slider.UIStroke, {Color = Color3.fromRGB(64, 61, 76)})
-	end)
-
-	-- Lógica de arrasto otimizada e fluida (Mouse & Touch)
-	local function UpdateInput(input)
-		local mainBar = Slider.Main
-		local absPos = mainBar.AbsolutePosition.X
-		local absSize = mainBar.AbsoluteSize.X
-		
-		if absSize <= 0 then return end
-
-		local inputX = input.Position.X
-		local relativeX = math.clamp((inputX - absPos) / absSize, 0, 1)
-		
-		local min, max = SliderSettings.Range[1], SliderSettings.Range[2]
-		local newVal = min + (relativeX * (max - min))
-		
-		UpdateSlider(newVal, true)
-	end
-
-	Slider.Interact.InputBegan:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			SLDragging = true
-			UpdateInput(Input)
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(Input)
-		if SLDragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) then
-			UpdateInput(Input)
-		end
-	end)
-
-	UserInputService.InputEnded:Connect(function(Input)
-		if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-			SLDragging = false
-		end
-	end)
-
-	local function Set(NewVal, bleh)
-		NewVal = NewVal or SliderSettings.CurrentValue
-		UpdateSlider(NewVal, not bleh)
-	end
-
-	function SliderV:UpdateValue(Value)
-		Set(tonumber(Value))
-	end 
-
-	Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
-		local text = Slider.Value.Text
-		if not tonumber(text) and text ~= "." then
-			Slider.Value.Text = text:match("[0-9.]*") or ""
-		end
-		local num = tonumber(Slider.Value.Text)
-		if num then
-			if SliderSettings.Range[2] < num then 
-				Slider.Value.Text = tostring(SliderSettings.Range[2]) 
-			end
-			Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
-			Set(num, true)
-		end
-	end)
-
-	function SliderV:Set(NewSliderSettings)
-		NewSliderSettings = SetPrase({
-			Name = SliderSettings.Name,
-			Range = SliderSettings.Range,
-			Increment = SliderSettings.Increment,
-			CurrentValue = SliderSettings.CurrentValue,
-			Callback = SliderSettings.Callback
-		}, NewSliderSettings or {})
-
-delta = NewSliderSettings
-		SliderSettings = NewSliderSettings
-		SliderV.Settings = NewSliderSettings
-
-		Slider.Name = SliderSettings.Name .. " - Slider"
-		Slider.Title.Text = SliderSettings.Name
-
-		Set(SliderSettings.CurrentValue)
-	end
-
-	function SliderV:Destroy()
-		Slider.Visible = false
-		Slider:Destroy()
-	end
-
-	if Flag then
-		Nutriex.Options[Flag] = SliderV
-	end
-
-	pcall(function()
-		NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-			Slider.Main.color.Color = Nutriex.ThemeGradient
-			Slider.Main.UIStroke.color.Color = Nutriex.ThemeGradient
-		end)
-	end)
-
-	return SliderV
-end
-
-			-- Toggle
-			function Section:CreateToggle(ToggleSettings, Flag)    
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
-
-				ToggleSettings = SetPrase({
-					Name = "Toggle",
-					Description = nil,
-					CurrentValue = false,
-					Callback = function(Value)
-					end,
-				}, ToggleSettings or {})
-
-
-				local Toggle
-
-				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-					Toggle = Elements.Template.ToggleDesc:Clone()
-				else
-					Toggle = Elements.Template.Toggle:Clone()
-				end
-
-				Toggle.Visible = true
-				Toggle.Parent = TabPage
-
-				Toggle.Name = ToggleSettings.Name .. " - Toggle"
-				Toggle.Title.Text = ToggleSettings.Name
-				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-					Toggle.Desc.Text = ToggleSettings.Description
-				end
-
-				Toggle.UIStroke.Transparency = 1
-				Toggle.Title.TextTransparency = 1
-				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-					Toggle.Desc.TextTransparency = 1
-				end
-
-				TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-					TweenService:Create(Toggle.Desc, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-				end
-				TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Toggle.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-				local function Set(bool)
-					if bool then
-						Toggle.toggle.color.Enabled = true
-						tween(Toggle.toggle, {BackgroundTransparency = 0})
-
-						Toggle.toggle.UIStroke.color.Enabled = true
-						tween(Toggle.toggle.UIStroke, {Color = Color3.new(255,255,255)})
-
-						tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(255,255,255), Position = UDim2.new(1,-23,0.5,0), BackgroundTransparency = 0.45})
-					else
-						Toggle.toggle.color.Enabled = false
-						Toggle.toggle.UIStroke.color.Enabled = false
-
-						Toggle.toggle.UIStroke.Color = Color3.fromRGB(97,97,97)
-
-						tween(Toggle.toggle, {BackgroundTransparency = 1})
-
-						tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(97,97,97), Position = UDim2.new(0,5,0.5,0), BackgroundTransparency = 0})
-					end
-
-					ToggleV.CurrentValue = bool
-				end
-
-				Toggle.Interact.MouseButton1Click:Connect(function()
-					ToggleSettings.CurrentValue = not ToggleSettings.CurrentValue
-					Set(ToggleSettings.CurrentValue)
-
-					local Success, Response = pcall(function()
-						ToggleSettings.Callback(ToggleSettings.CurrentValue)
-					end)
-					if not Success then
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Toggle.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Toggle.Title.Text = ToggleSettings.Name
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-				end)
-
-				Toggle["MouseEnter"]:Connect(function()
-					tween(Toggle.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Toggle["MouseLeave"]:Connect(function()
-					tween(Toggle.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-				if ToggleSettings.CurrentValue then
-					Set(ToggleSettings.CurrentValue)
-					local Success, Response = pcall(function()
-						ToggleSettings.Callback(ToggleSettings.CurrentValue)
-					end)
-					if not Success then
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Toggle.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Toggle.Title.Text = ToggleSettings.Name
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-				end
-
-				function ToggleV:UpdateState(State)
-					ToggleSettings.CurrentValue = State
-					Set(ToggleSettings.CurrentValue)
-				end
-
-				function ToggleV:Set(NewToggleSettings)
-
-					NewToggleSettings = SetPrase({
-						Name = ToggleSettings.Name,
-						Description = ToggleSettings.Description,
-						CurrentValue = ToggleSettings.CurrentValue,
-						Callback = ToggleSettings.Callback
-					}, NewToggleSettings or {})
-
-					ToggleV.Settings = NewToggleSettings
-					ToggleSettings = NewToggleSettings
-
-					Toggle.Name = ToggleSettings.Name .. " - Toggle"
-					Toggle.Title.Text = ToggleSettings.Name
-					if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" and Toggle.Desc ~= nil then
-						Toggle.Desc.Text = ToggleSettings.Description
-					end
-
-					Set(ToggleSettings.CurrentValue)
-
-					ToggleV.CurrentValue = ToggleSettings.CurrentValue
-
-					local Success, Response = pcall(function()
-						ToggleSettings.Callback(ToggleSettings.CurrentValue)
-					end)
-					if not Success then
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-						Toggle.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Toggle.Title.Text = ToggleSettings.Name
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-				end
-
-				function ToggleV:Destroy()
-					Toggle.Visible = false
-					Toggle:Destroy()
-				end
-
-				NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-					Toggle.toggle.color.Color = Nutriex.ThemeGradient
-					Toggle.toggle.UIStroke.color.Color = Nutriex.ThemeGradient
-				end)
-
-				if Flag then
-					Nutriex.Options[Flag] = ToggleV
-				end
-
-				return ToggleV
-
-			end
-
-			-- Bind
-			function Section:CreateBind(BindSettings, Flag)
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
-
-				BindSettings = SetPrase({
-					Name = "Bind",
-					Description = nil,
-					CurrentBind = "Q",
-					HoldToInteract = false, -- setting this makes the Bind in toggle mode
-					Callback = function(Bind)
-						-- The function that takes place when the Bind is pressed
-						-- The variable (Bind) is a boolean for whether the Bind is being held or not (HoldToInteract needs to be true) or whether the Bind is currently active
-					end,
-
-					OnChangedCallback = function(Bind)
-						-- The function that takes place when the binded key changes
-						-- The variable (Bind) is a Enum.KeyCode for the new Binded Key
-					end,
-				}, BindSettings or {})
-
-				local CheckingForKey = false
-
-				local Bind
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-					Bind = Elements.Template.BindDesc:Clone()
-				else
-					Bind = Elements.Template.Bind:Clone()
-				end
-
-				Bind.Visible = true
-				Bind.Parent = TabPage
-
-				Bind.Name = BindSettings.Name
-				Bind.Title.Text = BindSettings.Name
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-					Bind.Desc.Text = BindSettings.Description
-				end
-
-				Bind.Title.TextTransparency = 1
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-					Bind.Desc.TextTransparency = 1
-				end
-				Bind.BindFrame.BackgroundTransparency = 1
-				Bind.BindFrame.UIStroke.Transparency = 1
-				Bind.BindFrame.BindBox.TextTransparency = 1
-
-				TweenService:Create(Bind, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-				TweenService:Create(Bind.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-					TweenService:Create(Bind.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-				end
-				TweenService:Create(Bind.BindFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-				TweenService:Create(Bind.BindFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-				TweenService:Create(Bind.BindFrame.BindBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-
-				Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-				Bind.BindFrame.BindBox.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 42)
-
-				Bind.BindFrame.BindBox.Focused:Connect(function()
-					CheckingForKey = true
-					Bind.BindFrame.BindBox.Text = ""
-				end)
-
-				Bind.BindFrame.BindBox.FocusLost:Connect(function()
-					CheckingForKey = false
-					if Bind.BindFrame.BindBox.Text == (nil or "") then
-						Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-					end
-				end)
-
-				Bind["MouseEnter"]:Connect(function()
-					tween(Bind.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Bind["MouseLeave"]:Connect(function()
-					tween(Bind.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-				UserInputService.InputBegan:Connect(function(input, processed)
-
-					if CheckingForKey then
-						if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode ~= Window.Bind then
-							local SplitMessage = string.split(tostring(input.KeyCode), ".")
-							local NewKeyNoEnum = SplitMessage[3]
-							Bind.BindFrame.BindBox.Text = tostring(NewKeyNoEnum)
-							BindSettings.CurrentBind = tostring(NewKeyNoEnum)
-							local Success, Response = pcall(function()
-								BindSettings.OnChangedCallback(BindSettings.CurrentBind)
-							end)
-							if not Success then
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Bind.Title.Text = "Callback Error"
-								print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-								wait(0.5)
-								Bind.Title.Text = BindSettings.Name
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-							end
-							Bind.BindFrame.BindBox:ReleaseFocus()
-						end
-					elseif BindSettings.CurrentBind ~= nil and (input.KeyCode == Enum.KeyCode[BindSettings.CurrentBind] and not processed) then -- Test
-						local Held = true
-						local Connection
-						Connection = input.Changed:Connect(function(prop)
-							if prop == "UserInputState" then
-								Connection:Disconnect()
-								Held = false
-							end
-						end)
-
-						if not BindSettings.HoldToInteract then
-							BindV.Active = not BindV.Active
-							local Success, Response = pcall(function()
-								BindSettings.Callback(BindV.Active)
-							end)
-							if not Success then
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Bind.Title.Text = "Callback Error"
-								print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-								wait(0.5)
-								Bind.Title.Text = BindSettings.Name
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-							end
-						else
-							wait(0.1)
-							if Held then
-								local Loop; Loop = RunService.Stepped:Connect(function()
-									if not Held then
-										local Success, Response = pcall(function()
-											BindSettings.Callback(false)
-										end)
-										if not Success then
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-											Bind.Title.Text = "Callback Error"
-											print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-											wait(0.5)
-											Bind.Title.Text = BindSettings.Name
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-										end 
-										Loop:Disconnect()
-									else
-										local Success, Response = pcall(function()
-											BindSettings.Callback(true)
-										end)
-										if not Success then
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-											Bind.Title.Text = "Callback Error"
-											print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-											wait(0.5)
-											Bind.Title.Text = BindSettings.Name
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-										end
-									end
-								end)	
-							end
-						end
-					end
-				end)
-
-				Bind.BindFrame.BindBox:GetPropertyChangedSignal("Text"):Connect(function()
-					TweenService:Create(Bind.BindFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 30)}):Play()
-				end)
-
-				function BindV:Set(NewBindSettings)
-
-					NewBindSettings = SetPrase({
-						Name = BindSettings.Name,
-						Description = BindSettings.Description,
-						CurrentBind =  BindSettings.CurrentBind,
-						HoldToInteract = BindSettings.HoldToInteract,
-						Callback = BindSettings.Callback
-					}, NewBindSettings or {})
-
-					BindV.Settings = NewBindSettings
-					BindSettings = NewBindSettings
-
-					Bind.Name = BindSettings.Name
-					Bind.Title.Text = BindSettings.Name
-					if BindSettings.Description ~= nil and BindSettings.Description ~= "" and Bind.Desc ~= nil then
-						Bind.Desc.Text = BindSettings.Description
-					end
-
-					Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-					Bind.BindFrame.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 42)
-
-
-					BindV.CurrentBind = BindSettings.CurrentBind
-				end
-
-				function BindV:Destroy()
-					Bind.Visible = false
-					Bind:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = BindV
-				end
-
-				-- Nutriex.Flags[BindSettings.Flag] = BindSettings
-
-				return BindV
-
-			end
-
-			-- Dynamic Input
-			function Section:CreateInput(InputSettings, Flag)
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
-
-				InputSettings = SetPrase({
-					Name = "Dynamic Input",
-					Description = nil,
-					CurrentValue = "",
-					PlaceholderText = "Input Placeholder",
-					RemoveTextAfterFocusLost = false,
-					Numeric = false,
-					Enter = false,
-					MaxCharacters = nil,
-					Callback = function(Text)
-
-					end, -- 52
-				}, InputSettings or {})
-
-				InputV.CurrentValue = InputSettings.CurrentValue
-
-				local descriptionbool
-				if InputSettings.Description ~= nil and InputSettings.Description ~= "" then
-					descriptionbool = true
-				end
-
-				local Input 
-				if descriptionbool then
-					Input = Elements.Template.InputDesc:Clone()
-				else
-					Input = Elements.Template.Input:Clone()
-				end
-
-				Input.Name = InputSettings.Name
-				Input.Title.Text = InputSettings.Name
-				if descriptionbool then Input.Desc.Text = InputSettings.Description end
-				Input.Visible = true
-				Input.Parent = TabPage
-
-				Input.BackgroundTransparency = 1
-				Input.UIStroke.Transparency = 1
-				Input.Title.TextTransparency = 1
-				if descriptionbool then Input.Desc.TextTransparency = 1 end
-				Input.InputFrame.BackgroundTransparency = 1
-				Input.InputFrame.UIStroke.Transparency = 1
-				Input.InputFrame.InputBox.TextTransparency = 1
-
-				TweenService:Create(Input, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-				TweenService:Create(Input.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				TweenService:Create(Input.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-				if descriptionbool then TweenService:Create(Input.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play() end
-				TweenService:Create(Input.InputFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-				TweenService:Create(Input.InputFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-				TweenService:Create(Input.InputFrame.InputBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-				Input.InputFrame.InputBox.PlaceholderText = InputSettings.PlaceholderText
-				Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)
-
-				Input.InputFrame.InputBox.FocusLost:Connect(function(bleh)
-
-					if InputSettings.Enter then
-						if bleh then
-							local Success, Response = pcall(function()
-								InputSettings.Callback(Input.InputFrame.InputBox.Text)
-								InputV.CurrentValue = Input.InputFrame.InputBox.Text
-							end)
-							if not Success then
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Input.Title.Text = "Callback Error"
-								print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-								wait(0.5)
-								Input.Title.Text = InputSettings.Name
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-							end
-						end
-					end
-
-					if InputSettings.RemoveTextAfterFocusLost then
-						Input.InputFrame.InputBox.Text = ""
-					end
-
-				end)
-
-				if InputSettings.Numeric then
-					Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-						local text = Input.InputFrame.InputBox.Text
-						if not tonumber(text) and text ~= "." then
-							Input.InputFrame.InputBox.Text = text:match("[0-9.]*") or ""
-						end
-					end)
-				end
-
-				Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-					if tonumber(InputSettings.MaxCharacters) then
-						if (#Input.InputFrame.InputBox.Text - 1) == InputSettings.MaxCharacters then
-							Input.InputFrame.InputBox.Text = Input.InputFrame.InputBox.Text:sub(1, InputSettings.MaxCharacters)
-						end
-					end
-					TweenService:Create(Input.InputFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)}):Play()
-					if not InputSettings.Enter then
-						local Success, Response = pcall(function()
-							InputSettings.Callback(Input.InputFrame.InputBox.Text)
-						end)
-						if not Success then
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Input.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Input.Title.Text = InputSettings.Name
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-					end
-					InputV.CurrentValue = Input.InputFrame.InputBox.Text				
-				end)
-
-				Input["MouseEnter"]:Connect(function()
-					tween(Input.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Input["MouseLeave"]:Connect(function()
-					tween(Input.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-
-				function InputV:Set(NewInputSettings)
-
-					NewInputSettings = SetPrase(InputSettings, NewInputSettings or {})
-
-					InputV.Settings = NewInputSettings
-					InputSettings = NewInputSettings
-
-					Input.Name = InputSettings.Name
-					Input.Title.Text = InputSettings.Name
-					if InputSettings.Description ~= nil and InputSettings.Description ~= "" and Input.Desc ~= nil then
-						Input.Desc.Text = InputSettings.Description
-					end
-
-					Input.InputFrame.InputBox:CaptureFocus()
-					Input.InputFrame.InputBox.Text = tostring(InputSettings.CurrentValue)
-					Input.InputFrame.InputBox:ReleaseFocus()
-					Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 42)
-
-					InputV.CurrentValue = InputSettings.CurrentValue
-				end
-
-				function InputV:Destroy()
-					Input.Visible = false
-					Input:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = InputV
-				end
-
-
-				return InputV
-
-			end
-
-			-- Dropdown
-			function Section:CreateDropdown(DropdownSettings, Flag)
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
-
-				DropdownSettings = SetPrase({
-					Name = "Dropdown",
-					Description = nil,
-					Options = {"Option 1", "Option 2"},
-					CurrentOption = {"Option 1"},
-					MultipleOptions = false,
-					SpecialType = nil,
-					Callback = function(Options)
-					end,
-				}, DropdownSettings or {})
-
-				DropdownV.CurrentOption = DropdownSettings.CurrentOption
-
-				local descriptionbool = false
-				if DropdownSettings.Description ~= nil and DropdownSettings.Description ~= "" then
-					descriptionbool = true
-				end
-				local closedsize
-				local openedsize
-				if descriptionbool then
-					closedsize = 48
-					openedsize = 170
-				elseif not descriptionbool then
-					closedsize = 38
-					openedsize = 160
-				end
-				local opened = false
-
-				local Dropdown
-				if descriptionbool then Dropdown = Elements.Template.DropdownDesc:Clone() else Dropdown = Elements.Template.Dropdown:Clone() end
-
-				Dropdown.Name = DropdownSettings.Name
-				Dropdown.Title.Text = DropdownSettings.Name
-				if descriptionbool then Dropdown.Desc.Text = DropdownSettings.Description end
-
-				Dropdown.Parent = TabPage
-				Dropdown.Visible = true
-				
-				-- Torna a caixa de seleção apenas leitura (sem barra de pesquisa)
-				Dropdown.Selected.ClearTextOnFocus = false
-				Dropdown.Selected.Active = false
-				Dropdown.Selected.Selectable = false
-				Dropdown.Selected.Interactable = false
-
-				local function Toggle()
-					opened = not opened
-					if opened then
-						tween(Dropdown.icon, {Rotation = 180})
-						tween(Dropdown, {Size = UDim2.new(1, -25, 0, openedsize)})
-					else
-						tween(Dropdown.icon, {Rotation = 0})
-						tween(Dropdown, {Size = UDim2.new(1, -25, 0, closedsize)})
-					end
-				end
-
-				local function SafeCallback(param, c2)
-					local Success, Response = pcall(function()
-						DropdownSettings.Callback(param)
-					end)
-					if not Success then
-						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Dropdown.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Dropdown.Title.Text = DropdownSettings.Name
-						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-					if Success and c2 then
-						c2()
-					end
-				end
-
-				local function Clear()
-					for _, option in ipairs(Dropdown.List:GetChildren()) do
-						if option.ClassName == "TextLabel" and option.Name ~= "Template" then
-							option:Destroy()
-						end
-					end
-				end
-
-				local function ActivateColorSingle(name)
-					for _, Option in pairs(Dropdown.List:GetChildren()) do
-						if Option.ClassName == "TextLabel" and Option.Name ~= "Template" then
-							tween(Option, {BackgroundTransparency = 0.98})
-						end
-					end
-
-					Toggle()
-					tween(Dropdown.List[name], {BackgroundTransparency = 0.95, TextColor3 = Color3.fromRGB(240,240,240)})
-				end
-
-				local function Refresh()
-					Clear()
-					for i,v in pairs(DropdownSettings.Options) do
-						local Option = Dropdown.List.Template:Clone()
-						local optionhover = false
-						Option.Text = v
-						if v == "Template" then v = "Template (Name)" end
-						Option.Name = v
-						Option.Interact.MouseButton1Click:Connect(function()
-							local bleh
-							if DropdownSettings.MultipleOptions then
-								if table.find(DropdownSettings.CurrentOption, v) then
-									RemoveTable(DropdownSettings.CurrentOption, v)
-									DropdownV.CurrentOption = DropdownSettings.CurrentOption
-									if not optionhover then
-										tween(Option, {TextColor3 = Color3.fromRGB(200,200,200)})
-									end
-									tween(Option, {BackgroundTransparency = 0.98})
-								else
-									table.insert(DropdownSettings.CurrentOption, v)
-									DropdownV.CurrentOption = DropdownSettings.CurrentOption
-									tween(Option, {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-								end
-								bleh = DropdownSettings.CurrentOption
-							else
-								DropdownSettings.CurrentOption = {v}
-								bleh = v
-								DropdownV.CurrentOption = bleh
-								ActivateColorSingle(v)
-							end
-
-							SafeCallback(bleh, function()
-								if DropdownSettings.MultipleOptions then
-									if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-										if #DropdownSettings.CurrentOption == 1 then
-											Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
-										elseif #DropdownSettings.CurrentOption == 0 then
-											Dropdown.Selected.Text = "None"
-										else
-											Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
-										end
-									else
-										DropdownSettings.CurrentOption = {}
-										Dropdown.Selected.Text = "None"
-									end
-								end
-								if not DropdownSettings.MultipleOptions then
-									Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
-								end
-							end)
-						end)
-						Option.Visible = true
-						Option.Parent = Dropdown.List
-						Option.MouseEnter:Connect(function()
-							optionhover = true
-							if Option.BackgroundTransparency == 0.95 then
-								return
-							else
-								tween(Option, {TextColor3 = Color3.fromRGB(240,240,240)})
-							end
-						end)
-						Option.MouseLeave:Connect(function()
-							optionhover = false
-							if Option.BackgroundTransparency == 0.95 then
-								return
-							else
-								tween(Option, {TextColor3 = Color3.fromRGB(200,200,200)})
-							end
-						end)	
-					end
-				end
-
-				local function PlayerTableRefresh()
-					for i,v in pairs(DropdownSettings.Options) do
-						table.remove(DropdownSettings.Options, i)
-					end
-
-					for i,v in pairs(Players:GetChildren()) do
-						table.insert(DropdownSettings.Options, v.Name)
-					end
-				end
-
-				Dropdown.Interact.MouseButton1Click:Connect(function()
-					Toggle()
-				end)
-
-				Dropdown["MouseEnter"]:Connect(function()
-					tween(Dropdown.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-
-				Dropdown["MouseLeave"]:Connect(function()
-					tween(Dropdown.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-				if DropdownSettings.SpecialType == "Player" then
-
-					for i,v in pairs(DropdownSettings.Options) do
-						table.remove(DropdownSettings.Options, i)
-					end
-					PlayerTableRefresh()
-					DropdownSettings.CurrentOption = DropdownSettings.Options[1]
-
-					Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
-					Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
-
-				end
-
-				Refresh()
-
-				if DropdownSettings.CurrentOption then
-					if type(DropdownSettings.CurrentOption) == "string" then
-						DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-					end
-					if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-						DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-					end
-				else
-					DropdownSettings.CurrentOption = {}
-				end
-
-				local bleh, ind = nil,0
-				for i,v in pairs(DropdownSettings.CurrentOption) do
-					ind = ind + 1
-				end
-				if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
-				SafeCallback(bleh)
-				if type(bleh) == "string" then 
-					tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-				else
-					for i,v in pairs(bleh) do
-						tween(Dropdown.List[v], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-					end
-				end
-
-				if DropdownSettings.MultipleOptions then
-					if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-						if #DropdownSettings.CurrentOption == 1 then
-							Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
-						elseif #DropdownSettings.CurrentOption == 0 then
-							Dropdown.Selected.Text = "None"
-						else
-							Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
-						end
-					else
-						DropdownSettings.CurrentOption = {}
-						Dropdown.Selected.Text = "None"
-					end
-					for _, name in pairs(DropdownSettings.CurrentOption) do
-						tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
-					end
-				else
-					Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
-				end
-
-				function DropdownV:Set(NewDropdownSettings)
-					NewDropdownSettings = SetPrase(DropdownSettings, NewDropdownSettings or {})
-
-					DropdownV.Settings = NewDropdownSettings
-					DropdownSettings = NewDropdownSettings
-
-					Dropdown.Name = DropdownSettings.Name
-					Dropdown.Title.Text = DropdownSettings.Name
-					if DropdownSettings.Description ~= nil and DropdownSettings.Description ~= "" and Dropdown.Desc ~= nil then
-						Dropdown.Desc.Text = DropdownSettings.Description
-					end
-
-					if DropdownSettings.SpecialType == "Player" then
-
-						for i,v in pairs(DropdownSettings.Options) do
-							table.remove(DropdownSettings.Options, i)
-						end
-						PlayerTableRefresh()
-						DropdownSettings.CurrentOption = DropdownSettings.Options[1]                    
-						Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
-						Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
-
-					end
-
-					Refresh()
-
-					if DropdownSettings.CurrentOption then
-						if type(DropdownSettings.CurrentOption) == "string" then
-							DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-						end
-						if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-							DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-						end
-					else
-						DropdownSettings.CurrentOption = {}
-					end
-
-					local bleh, ind = nil,0
-					for i,v in pairs(DropdownSettings.CurrentOption) do
-						ind = ind + 1
-					end
-					if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
-					SafeCallback(bleh)
-					for _, Option in pairs(Dropdown.List:GetChildren()) do
-						if Option.ClassName == "TextLabel" then
-							tween(Option, {TextColor3 = Color3.fromRGB(200,200,200), BackgroundTransparency = 0.98})
-						end
-					end
-					tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-
-					if DropdownSettings.MultipleOptions then
-						if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-							if #DropdownSettings.CurrentOption == 1 then
-								Dropdown.Selected.Text = DropdownSettings.CurrentOption[1]
-							elseif #DropdownSettings.CurrentOption == 0 then
-								Dropdown.Selected.Text = "None"
-							else
-								Dropdown.Selected.Text = unpackt(DropdownSettings.CurrentOption)
-							end
-						else
-							DropdownSettings.CurrentOption = {}
-							Dropdown.Selected.Text = "None"
-						end
-						for _, name in pairs(DropdownSettings.CurrentOption) do
-							tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
-						end
-					else
-						Dropdown.Selected.Text = DropdownSettings.CurrentOption[1] or "None"
-					end
-				end
-
-				function DropdownV:Destroy()
-					Dropdown.Visible = false
-					Dropdown:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = DropdownV
-				end
-
-				return DropdownV
-			end
-
-			-- Color Picker
-			function Section:CreateColorPicker(ColorPickerSettings, Flag) -- by Rayfield/Throit
-				TabPage.Position = UDim2.new(0,0,0,28)
-				local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
-
-				ColorPickerSettings = SetPrase({
-					Name = "Color Picker",
-					Color = Color3.fromRGB(255,255,255),
-					Callback = function(Value)
-						-- The function that takes place every time the color picker is moved/changed
-						-- The variable (Value) is a Color3fromRGB value based on which color is selected
-					end
-				}, ColorPickerSettings or {})
-
-				local function Color3ToHex(color)
-					return string.format("#%02X%02X%02X", math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255))
-				end
-
-				ColorPickerV.Color = Color3ToHex(ColorPickerSettings.Color)
-
-				local closedsize = UDim2.new(0, 75, 0, 22)
-				local openedsize = UDim2.new(0, 219, 0, 129)
-
-				local ColorPicker = Elements.Template.ColorPicker:Clone()
-				local Background = ColorPicker.CPBackground
-				local Display = Background.Display
-				local Main = Background.MainCP
-				local Slider = ColorPicker.ColorSlider
-
-				ColorPicker.Name = ColorPickerSettings.Name
-				ColorPicker.Title.Text = ColorPickerSettings.Name
-				ColorPicker.Visible = true
-				ColorPicker.Parent = TabPage
-				ColorPicker.Size = UDim2.new(1.042, -25,0, 38)
-				Background.Size = closedsize
-				Display.BackgroundTransparency = 0
-
-				ColorPicker["MouseEnter"]:Connect(function()
-					tween(ColorPicker.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-				end)
-				ColorPicker["MouseLeave"]:Connect(function()
-					tween(ColorPicker.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-				end)
-
-				local function SafeCallback(param, c2)
-					local Success, Response = pcall(function()
-						ColorPickerSettings.Callback(param)
-					end)
-					if not Success then
-						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						ColorPicker.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						ColorPicker.Title.Text = ColorPickerSettings.Name
-						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-					if Success and c2 then
-						c2()
-					end
-				end
-
-				local opened = false
-
-				local mouse = game.Players.LocalPlayer:GetMouse()
-				Main.Image = "rbxassetid://11415645739"
-				local mainDragging = false 
-				local sliderDragging = false 
-				ColorPicker.Interact.MouseButton1Down:Connect(function()
-					if not opened then
-						opened = true 
-						tween(ColorPicker, {Size = UDim2.new( 1.042, -25,0, 165)}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-						tween(Background, {Size = openedsize})
-						tween(Display, {BackgroundTransparency = 1})
-					else
-						opened = false
-						tween(ColorPicker, {Size = UDim2.new(1.042, -25,0, 38)}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-						tween(Background, {Size = closedsize})
-						tween(Display, {BackgroundTransparency = 0})
-					end
-				end)
-				UserInputService.InputEnded:Connect(function(input, gameProcessed) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-						mainDragging = false
-						sliderDragging = false
-					end end)
-				Main.MouseButton1Down:Connect(function()
-					if opened then
-						mainDragging = true 
-					end
-				end)
-				Main.MainPoint.MouseButton1Down:Connect(function()
-					if opened then
-						mainDragging = true 
-					end
-				end)
-				Slider.MouseButton1Down:Connect(function()
-					sliderDragging = true 
-				end)
-				Slider.SliderPoint.MouseButton1Down:Connect(function()
-					sliderDragging = true 
-				end)
-				local h,s,v = ColorPickerSettings.Color:ToHSV()
-				local color = Color3.fromHSV(h,s,v) 
-				local r,g,b = math.floor((h*255)+0.5),math.floor((s*255)+0.5),math.floor((v*255)+0.5)
-				local hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-				ColorPicker.HexInput.InputBox.Text = hex
-				local function setDisplay(hp,sp,vp)
-					--Main
-					Main.MainPoint.Position = UDim2.new(s,-Main.MainPoint.AbsoluteSize.X/2,1-v,-Main.MainPoint.AbsoluteSize.Y/2)
-					Main.MainPoint.ImageColor3 = Color3.fromHSV(hp,sp,vp)
-					Background.BackgroundColor3 = Color3.fromHSV(hp,1,1)
-					Display.BackgroundColor3 = Color3.fromHSV(hp,sp,vp)
-					--Slider 
-					local x = hp * Slider.AbsoluteSize.X
-					Slider.SliderPoint.Position = UDim2.new(0,x-Slider.SliderPoint.AbsoluteSize.X/2,0.5,0)
-					Slider.SliderPoint.ImageColor3 = Color3.fromHSV(hp,1,1)
-					local color = Color3.fromHSV(hp,sp,vp) 
-					local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					ColorPicker.RInput.InputBox.Text = tostring(r)
-					ColorPicker.GInput.InputBox.Text = tostring(g)
-					ColorPicker.BInput.InputBox.Text = tostring(b)
-					hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-					ColorPicker.HexInput.InputBox.Text = hex
-				end
-				setDisplay(h,s,v)
-				ColorPicker.HexInput.InputBox.FocusLost:Connect(function()
-					if not pcall(function()
-							local r, g, b = string.match(ColorPicker.HexInput.InputBox.Text, "^#?(%w%w)(%w%w)(%w%w)$")
-							local rgbColor = Color3.fromRGB(tonumber(r, 16),tonumber(g, 16), tonumber(b, 16))
-							h,s,v = rgbColor:ToHSV()
-							hex = ColorPicker.HexInput.InputBox.Text
-							setDisplay()
-							ColorPickerSettings.Color = rgbColor
-						end) 
-					then 
-						ColorPicker.HexInput.InputBox.Text = hex 
-					end
-					local r,g,b = math.floor((h*255)+0.5),math.floor((s*255)+0.5),math.floor((v*255)+0.5)
-					ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-					SafeCallback( Color3.fromRGB(r,g,b))
-				end)
-				--RGB
-				local function rgbBoxes(box,toChange)
-					local value = tonumber(box.Text) 
-					local color = Color3.fromHSV(h,s,v) 
-					local oldR,oldG,oldB = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					local save 
-					if toChange == "R" then save = oldR;oldR = value elseif toChange == "G" then save = oldG;oldG = value else save = oldB;oldB = value end
-					if value then 
-						value = math.clamp(value,0,255)
-						h,s,v = Color3.fromRGB(oldR,oldG,oldB):ToHSV()
-						setDisplay()
-					else 
-						box.Text = tostring(save)
-					end
-					local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-				end
-				ColorPicker.RInput.InputBox.FocusLost:connect(function()
-					rgbBoxes(ColorPicker.RInput.InputBox,"R")
-					SafeCallback(Color3.fromRGB(r,g,b))
-				end)
-				ColorPicker.GInput.InputBox.FocusLost:connect(function()
-					rgbBoxes(ColorPicker.GInput.InputBox,"G")
-					SafeCallback(Color3.fromRGB(r,g,b))
-				end)
-				ColorPicker.BInput.InputBox.FocusLost:connect(function()
-					rgbBoxes(ColorPicker.BInput.InputBox,"B")
-					SafeCallback(Color3.fromRGB(r,g,b))
-				end)
-				RunService.RenderStepped:connect(function()
-					if mainDragging then 
-						local localX = math.clamp(mouse.X-Main.AbsolutePosition.X,0,Main.AbsoluteSize.X)
-						local localY = math.clamp(mouse.Y-Main.AbsolutePosition.Y,0,Main.AbsoluteSize.Y)
-						Main.MainPoint.Position = UDim2.new(0,localX-Main.MainPoint.AbsoluteSize.X/2,0,localY-Main.MainPoint.AbsoluteSize.Y/2)
-						s = localX / Main.AbsoluteSize.X
-						v = 1 - (localY / Main.AbsoluteSize.Y)
-						Display.BackgroundColor3 = Color3.fromHSV(h,s,v)
-						Main.MainPoint.ImageColor3 = Color3.fromHSV(h,s,v)
-						Background.BackgroundColor3 = Color3.fromHSV(h,1,1)
-						local color = Color3.fromHSV(h,s,v) 
-						local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-						ColorPicker.RInput.InputBox.Text = tostring(r)
-						ColorPicker.GInput.InputBox.Text = tostring(g)
-						ColorPicker.BInput.InputBox.Text = tostring(b)
-						ColorPicker.HexInput.InputBox.Text = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-						SafeCallback(Color3.fromRGB(r,g,b))
-						ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-						ColorPickerV.Color = ColorPickerSettings.Color
-					end
-					if sliderDragging then 
-						local localX = math.clamp(mouse.X-Slider.AbsolutePosition.X,0,Slider.AbsoluteSize.X)
-						h = localX / Slider.AbsoluteSize.X
-						Display.BackgroundColor3 = Color3.fromHSV(h,s,v)
-						Slider.SliderPoint.Position = UDim2.new(0,localX-Slider.SliderPoint.AbsoluteSize.X/2,0.5,0)
-						Slider.SliderPoint.ImageColor3 = Color3.fromHSV(h,1,1)
-						Background.BackgroundColor3 = Color3.fromHSV(h,1,1)
-						Main.MainPoint.ImageColor3 = Color3.fromHSV(h,s,v)
-						local color = Color3.fromHSV(h,s,v) 
-						local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-						ColorPicker.RInput.InputBox.Text = tostring(r)
-						ColorPicker.GInput.InputBox.Text = tostring(g)
-						ColorPicker.BInput.InputBox.Text = tostring(b)
-						ColorPicker.HexInput.InputBox.Text = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-						SafeCallback(Color3.fromRGB(r,g,b))
-						ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-						ColorPickerV.Color = ColorPickerSettings.Color
-					end
-				end)
-
-				function ColorPickerV:Set(NewColorPickerSettings)
-
-					NewColorPickerSettings = SetPrase(ColorPickerSettings, NewColorPickerSettings or {})
-
-					ColorPickerV.Settings = NewColorPickerSettings
-					ColorPickerSettings = NewColorPickerSettings
-
-					ColorPicker.Name = ColorPickerSettings.Name
-					ColorPicker.Title.Text = ColorPickerSettings.Name
-					ColorPicker.Visible = true
-
-					local h,s,v = ColorPickerSettings.Color:ToHSV()
-					local color = Color3.fromHSV(h,s,v) 
-					local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					local hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-					ColorPicker.HexInput.InputBox.Text = hex
-					setDisplay(h,s,v)
-					SafeCallback(Color3.fromRGB(r,g,b))
-
-					ColorPickerV.Color = ColorPickerSettings.Color
-				end
-
-				function ColorPickerV:Destroy()
-					ColorPicker:Destroy()
-				end
-
-				if Flag then
-					Nutriex.Options[Flag] = ColorPickerV
-				end
-
-				SafeCallback(ColorPickerSettings.Color)
-
-				return ColorPickerV
-			end
-
-			return Section
-
-		end
-
-		-- Divider
-		function Tab:CreateDivider()
-			local b = Elements.Template.Divider:Clone()
-			b.Parent = TabPage
-			b.Line.BackgroundTransparency = 1
-			tween(b.Line, {BackgroundTransparency = 0})
-		end
-
-		-- Button
-		function Tab:CreateButton(ButtonSettings)
-
-			ButtonSettings = SetPrase({
-				Name = "Button",
-				Description = nil,
-				Callback = function()
-
-				end,
-			}, ButtonSettings or {})
-
-			local ButtonV = {
-				Hover = false,
-				Settings = ButtonSettings
-			}
-
-
-			local Button
-			if ButtonSettings.Description == nil and ButtonSettings.Description ~= "" then
-				Button = Elements.Template.Button:Clone()
-			else
-				Button = Elements.Template.ButtonDesc:Clone()
-			end
-			Button.Name = ButtonSettings.Name
-			Button.Title.Text = ButtonSettings.Name
-			if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-				Button.Desc.Text = ButtonSettings.Description
-			end
-			Button.Visible = true
-			Button.Parent = TabPage
-
-			Button.UIStroke.Transparency = 1
-			Button.Title.TextTransparency = 1
-			if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-				Button.Desc.TextTransparency = 1
-			end
-
-			TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Button.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-			if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" then
-				TweenService:Create(Button.Desc, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-			end
-
-			Button.Interact["MouseButton1Click"]:Connect(function()
-				local Success,Response = pcall(ButtonSettings.Callback)
-
-				if not Success then
-					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Button.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Button.Title.Text = ButtonSettings.Name
-					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				else
-					tween(Button.UIStroke, {Color = Color3.fromRGB(136, 131, 163)})
-					wait(0.2)
-					if ButtonV.Hover then
-						tween(Button.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-					else
-						tween(Button.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-					end
-				end
-			end)
-
-			Button["MouseEnter"]:Connect(function()
-				ButtonV.Hover = true
-				tween(Button.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Button["MouseLeave"]:Connect(function()
-				ButtonV.Hover = false
-				tween(Button.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-			function ButtonV:Set(ButtonSettings2)
-				ButtonSettings2 = SetPrase({
-					Name = ButtonSettings.Name,
-					Description = ButtonSettings.Description,
-					Callback = ButtonSettings.Callback
-				}, ButtonSettings2 or {})
-
-				ButtonSettings = ButtonSettings2
-				ButtonV.Settings = ButtonSettings2
-
-				Button.Name = ButtonSettings.Name
-				Button.Title.Text = ButtonSettings.Name
-				if ButtonSettings.Description ~= nil and ButtonSettings.Description ~= "" and Button.Desc ~= nil then
-					Button.Desc.Text = ButtonSettings.Description
-				end
-			end
-
-			function ButtonV:Destroy()
-				Button.Visible = false
-				Button:Destroy()
-			end
-
-			return ButtonV
-		end
-
-		-- Label
-		function Tab:CreateLabel(LabelSettings)
-
-			local LabelV = {}
-
-			LabelSettings = SetPrase({
-				Text = "Label",
-				Style = 1
-			}, LabelSettings or {}) 
-
-			LabelV.Settings = LabelSettings
-
-			local Label
-			if LabelSettings.Style == 1 then
-				Label = Elements.Template.Label:Clone()
-			elseif LabelSettings.Style == 2 then
-				Label = Elements.Template.Info:Clone()
-			elseif LabelSettings.Style == 3 then
-				Label = Elements.Template.Warn:Clone()
-			end
-
-			Label.Text.Text = LabelSettings.Text
-			Label.Visible = true
-			Label.Parent = TabPage
-
-			Label.BackgroundTransparency = 1
-			Label.UIStroke.Transparency = 1
-			Label.Text.TextTransparency = 1
-
-			if LabelSettings.Style ~= 1 then
-				TweenService:Create(Label, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.8}):Play()
-			else
-				TweenService:Create(Label, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-			end
-			TweenService:Create(Label.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Label.Text, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-			function LabelV:Set(NewLabel)
-				LabelSettings.Text = NewLabel
-				LabelV.Settings = LabelSettings
-				Label.Text.Text = NewLabel
-			end
-
-			function LabelV:Destroy()
-				Label.Visible = false
-				Label:Destroy()
-			end
-
-			return LabelV
-		end
-
-		-- Paragraph
-		function Tab:CreateParagraph(ParagraphSettings)
-
-			ParagraphSettings = SetPrase({
-				Title = "Paragraph",
-				Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
-			}, ParagraphSettings or {})
-
-			local ParagraphV = {
-				Settings = ParagraphSettings
-			}
-
-			local Paragraph = Elements.Template.Paragraph:Clone()
-			Paragraph.Title.Text = ParagraphSettings.Title
-			Paragraph.Text.Text = ParagraphSettings.Text
-			Paragraph.Visible = true
-			Paragraph.Parent = TabPage
-
-			Paragraph.BackgroundTransparency = 1
-			Paragraph.UIStroke.Transparency = 1
-			Paragraph.Title.TextTransparency = 1
-			Paragraph.Text.TextTransparency = 1
-
-			TweenService:Create(Paragraph, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 1}):Play()
-			TweenService:Create(Paragraph.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Paragraph.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-			TweenService:Create(Paragraph.Text, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-			function ParagraphV:Update()
-				Paragraph.Text.Size = UDim2.new(Paragraph.Text.Size.X.Scale, Paragraph.Text.Size.X.Offset, 0, math.huge)
-				Paragraph.Text.Size = UDim2.new(Paragraph.Text.Size.X.Scale, Paragraph.Text.Size.X.Offset, 0, Paragraph.Text.TextBounds.Y)
-				tween(Paragraph, {Size = UDim2.new(Paragraph.Size.X.Scale, Paragraph.Size.X.Offset, 0, Paragraph.Text.TextBounds.Y + 40)})
-			end
-
-			function ParagraphV:Set(NewParagraphSettings)
-
-				NewParagraphSettings = SetPrase({
-					Title = ParagraphSettings.Title,
-					Text = ParagraphSettings.Text
-				}, NewParagraphSettings or {})
-
-				ParagraphV.Settings = NewParagraphSettings
-
-				Paragraph.Title.Text = NewParagraphSettings.Title
-				Paragraph.Text.Text = NewParagraphSettings.Text
-
-				ParagraphV:Update()
-
-			end
-
-			function ParagraphV:Destroy()
-				Paragraph.Visible = false
-				Paragraph:Destroy()
-			end
-
-			ParagraphV:Update()
-
-			return ParagraphV
-		end
-
-		-- Slider
-		function Tab:CreateSlider(SliderSettings, Flag)
-			local SliderV = { IgnoreConfig = false, Class = "Slider", Settings = SliderSettings }
-
-			SliderSettings = SetPrase({
-				Name = "Slider",
-				Range = {0, 200},
-				Increment = 1,
-				CurrentValue = 100,
-				Callback = function(Value)
-
-				end,
-			}, SliderSettings or {})
-
-			local SLDragging = false
-			local Slider = Elements.Template.Slider:Clone()
-			Slider.Name = SliderSettings.Name .. " - Slider"
-			Slider.Title.Text = SliderSettings.Name
-			Slider.Visible = true
-			Slider.Parent = TabPage
-
-			Slider.BackgroundTransparency = 1
-			Slider.UIStroke.Transparency = 1
-			Slider.Title.TextTransparency = 1
-
-			TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-			Slider.Main.Progress.Size =	UDim2.new(0, Slider.Main.AbsoluteSize.X * ((SliderSettings.CurrentValue + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (SliderSettings.CurrentValue / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)
-
-			Slider.Value.Text = tostring(SliderSettings.CurrentValue)
-			SliderV.CurrentValue = Slider.Value.Text
-
-			SliderSettings.Callback(SliderSettings.CurrentValue)
-
-			Slider["MouseEnter"]:Connect(function()
-				tween(Slider.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Slider["MouseLeave"]:Connect(function()
-				tween(Slider.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-			Slider.Interact.InputBegan:Connect(function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-					SLDragging = true 
-				end 
-			end)
-
-			Slider.Interact.InputEnded:Connect(function(Input) 
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
-					SLDragging = false 
-				end 
-			end)
-
-			Slider.Interact.MouseButton1Down:Connect(function()
-				local Current = Slider.Main.Progress.AbsolutePosition.X + Slider.Main.Progress.AbsoluteSize.X
-				local Start = Current
-				local Location
-				local Loop; Loop = RunService.Stepped:Connect(function()
-					if SLDragging then
-						Location = UserInputService:GetMouseLocation().X
-						Current = Current + 0.025 * (Location - Start)
-
-						if Location < Slider.Main.AbsolutePosition.X then
-							Location = Slider.Main.AbsolutePosition.X
-						elseif Location > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
-							Location = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
-						end
-
-						if Current < Slider.Main.AbsolutePosition.X + 5 then
-							Current = Slider.Main.AbsolutePosition.X + 5
-						elseif Current > Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X then
-							Current = Slider.Main.AbsolutePosition.X + Slider.Main.AbsoluteSize.X
-						end
-
-						if Current <= Location and (Location - Start) < 0 then
-							Start = Location
-						elseif Current >= Location and (Location - Start) > 0 then
-							Start = Location
-						end
-						Slider.Main.Progress.Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X, 1, 0)
-						local NewValue = SliderSettings.Range[1] + (Location - Slider.Main.AbsolutePosition.X) / Slider.Main.AbsoluteSize.X * (SliderSettings.Range[2] - SliderSettings.Range[1])
-
-						NewValue = math.floor(NewValue / SliderSettings.Increment + 0.5) * (SliderSettings.Increment * 10000000) / 10000000
-
-						Slider.Value.Text = tostring(NewValue)
-
-						if SliderSettings.CurrentValue ~= NewValue then
-							local Success, Response = pcall(function()
-								SliderSettings.Callback(NewValue)
-							end)
-							if not Success then
-								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-								Slider.Title.Text = "Callback Error"
-								print("Nutriex Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
-								wait(0.5)
-								Slider.Title.Text = SliderSettings.Name
-								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-							end
-
-							SliderSettings.CurrentValue = NewValue
-							SliderV.CurrentValue = SliderSettings.CurrentValue
-							-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-						end
-					else
-						TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In, 0, false), {Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X > 5 and Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)}):Play()
-						Loop:Disconnect()
-					end
-				end)
-			end)
-
-			local function Set(NewVal, bleh)
-
-				NewVal = NewVal or SliderSettings.CurrentValue
-
-				TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut), {Size = UDim2.new(0, Slider.Main.AbsoluteSize.X * ((NewVal + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (NewVal / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)}):Play()
-				if not bleh then Slider.Value.Text = tostring(NewVal) end
-				local Success, Response = pcall(function()
-					SliderSettings.Callback(NewVal)
-				end)
-				if not Success then
-					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Slider.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Slider.Title.Text = SliderSettings.Name
-					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(30, 33, 40)}):Play()
-					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-
-				SliderSettings.CurrentValue = NewVal
-				SliderV.CurrentValue = SliderSettings.CurrentValue
-				-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-
-			end
-
-			function SliderV:UpdateValue(Value)
-				Set(tonumber(Value))
-			end 
-
-			Slider.Value:GetPropertyChangedSignal("Text"):Connect(function()
-				local text = Slider.Value.Text
-				if not tonumber(text) and text ~= "." then
-					Slider.Value.Text = text:match("[0-9.]*") or ""
-				end
-				if SliderSettings.Range[2] < (tonumber(Slider.Value.Text) or 0) then Slider.Value.Text = SliderSettings.Range[2] end
-				Slider.Value.Size = UDim2.fromOffset(Slider.Value.TextBounds.X, 23)
-				Set(tonumber(Slider.Value.Text), true)
-			end)
-
-			function SliderV:Set(NewSliderSettings)
-				NewSliderSettings = SetPrase({
-					Name = SliderSettings.Name,
-					Range = SliderSettings.Range,
-					Increment = SliderSettings.Increment,
-					CurrentValue = SliderSettings.CurrentValue,
-					Callback = SliderSettings.Callback
-				}, NewSliderSettings or {})
-
-				SliderSettings = NewSliderSettings
-				SliderV.Settings = NewSliderSettings
-
-				Slider.Name = SliderSettings.Name .. " - Slider"
-				Slider.Title.Text = SliderSettings.Name
-
-				Set()
-
-				-- Nutriex.Flags[SliderSettings.Flag] = SliderSettings
-			end
-
-			function SliderV:Destroy()
-				Slider.Visible = false
-				Slider:Destroy()
-			end
-
-			if Flag then
-				Nutriex.Options[Flag] = SliderV
-			end
-
-			NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-				Slider.Main.color.Color = Nutriex.ThemeGradient
-				Slider.Main.UIStroke.color.Color = Nutriex.ThemeGradient
-			end)
-
-			return SliderV
-
-		end
-
-		-- Toggle
-		function Tab:CreateToggle(ToggleSettings, Flag)    
-			local ToggleV = { IgnoreConfig = false, Class = "Toggle" }
-
-			ToggleSettings = SetPrase({
-				Name = "Toggle",
-				Description = nil,
-				CurrentValue = false,
-				Callback = function(Value)
-				end,
-			}, ToggleSettings or {})
-
-
-			local Toggle
-
-			if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-				Toggle = Elements.Template.ToggleDesc:Clone()
-			else
-				Toggle = Elements.Template.Toggle:Clone()
-			end
-
-			Toggle.Visible = true
-			Toggle.Parent = TabPage
-
-			Toggle.Name = ToggleSettings.Name .. " - Toggle"
-			Toggle.Title.Text = ToggleSettings.Name
-			if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-				Toggle.Desc.Text = ToggleSettings.Description
-			end
-
-			Toggle.UIStroke.Transparency = 1
-			Toggle.Title.TextTransparency = 1
-			if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-				Toggle.Desc.TextTransparency = 1
-			end
-
-			TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" then
-				TweenService:Create(Toggle.Desc, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-			end
-			TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Toggle.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-
-			local function Set(bool)
-				if bool then
-					Toggle.toggle.color.Enabled = true
-					tween(Toggle.toggle, {BackgroundTransparency = 0})
-
-					Toggle.toggle.UIStroke.color.Enabled = true
-					tween(Toggle.toggle.UIStroke, {Color = Color3.new(255,255,255)})
-
-					tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(255,255,255), Position = UDim2.new(1,-23,0.5,0), BackgroundTransparency = 0.45})
-				else
-					Toggle.toggle.color.Enabled = false
-					Toggle.toggle.UIStroke.color.Enabled = false
-
-					Toggle.toggle.UIStroke.Color = Color3.fromRGB(97,97,97)
-
-					tween(Toggle.toggle, {BackgroundTransparency = 1})
-
-					tween(Toggle.toggle.val, {BackgroundColor3 = Color3.fromRGB(97,97,97), Position = UDim2.new(0,5,0.5,0), BackgroundTransparency = 0})
-				end
-
-				ToggleV.CurrentValue = bool
-			end
-
-			Toggle.Interact.MouseButton1Click:Connect(function()
-				ToggleSettings.CurrentValue = not ToggleSettings.CurrentValue
-				Set(ToggleSettings.CurrentValue)
-
-				local Success, Response = pcall(function()
-					ToggleSettings.Callback(ToggleSettings.CurrentValue)
-				end)
-				if not Success then
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Toggle.Title.Text = ToggleSettings.Name
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-			end)
-
-			Toggle["MouseEnter"]:Connect(function()
-				tween(Toggle.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Toggle["MouseLeave"]:Connect(function()
-				tween(Toggle.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-			if ToggleSettings.CurrentValue then
-				Set(ToggleSettings.CurrentValue)
-				local Success, Response = pcall(function()
-					ToggleSettings.Callback(ToggleSettings.CurrentValue)
-				end)
-				if not Success then
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Toggle.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Toggle.Title.Text = ToggleSettings.Name
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-			end
-
-			function ToggleV:UpdateState(State)
-				ToggleSettings.CurrentValue = State
-				Set(ToggleSettings.CurrentValue)
-			end
-
-			function ToggleV:Set(NewToggleSettings)
-
-				NewToggleSettings = SetPrase({
-					Name = ToggleSettings.Name,
-					Description = ToggleSettings.Description,
-					CurrentValue = ToggleSettings.CurrentValue,
-					Callback = ToggleSettings.Callback
-				}, NewToggleSettings or {})
-
-				ToggleV.Settings = NewToggleSettings
-				ToggleSettings = NewToggleSettings
-
-				Toggle.Name = ToggleSettings.Name .. " - Toggle"
-				Toggle.Title.Text = ToggleSettings.Name
-				if ToggleSettings.Description ~= nil and ToggleSettings.Description ~= "" and Toggle.Desc ~= nil then
-					Toggle.Desc.Text = ToggleSettings.Description
-				end
-
-				Set(ToggleSettings.CurrentValue)
-
-				ToggleV.CurrentValue = ToggleSettings.CurrentValue
-
-				local Success, Response = pcall(function()
-					ToggleSettings.Callback(ToggleSettings.CurrentValue)
-				end)
-				if not Success then
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
-					Toggle.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Toggle.Title.Text = ToggleSettings.Name
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-			end
-
-			function ToggleV:Destroy()
-				Toggle.Visible = false
-				Toggle:Destroy()
-			end
-
-			NutriexLibrary.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-				Toggle.toggle.color.Color = Nutriex.ThemeGradient
-				Toggle.toggle.UIStroke.color.Color = Nutriex.ThemeGradient
-			end)
-
-			if Flag then
-				Nutriex.Options[Flag] = ToggleV
-			end
-
-			return ToggleV
-
-		end
-
-		-- Bind
-		function Tab:CreateBind(BindSettings, Flag)
-			local BindV = { Class = "Keybind", IgnoreConfig = false, Settings = BindSettings, Active = false }
-
-			BindSettings = SetPrase({
-				Name = "Bind",
-				Description = nil,
-				CurrentBind = "Q",
-				HoldToInteract = false, -- setting this makes the Bind in toggle mode
-				Callback = function(Bind)
-					-- The function that takes place when the Bind is pressed
-					-- The variable (Bind) is a boolean for whether the Bind is being held or not (HoldToInteract needs to be true) or whether the Bind is currently active
-				end,
-
-				OnChangedCallback = function(Bind)
-					-- The function that takes place when the binded key changes
-					-- The variable (Bind) is a Enum.KeyCode for the new Binded Key
-				end,
-			}, BindSettings or {})
-
-			local CheckingForKey = false
-
-			local Bind
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind = Elements.Template.BindDesc:Clone()
-			else
-				Bind = Elements.Template.Bind:Clone()
-			end
-
-			Bind.Visible = true
-			Bind.Parent = TabPage
-
-			Bind.Name = BindSettings.Name
-			Bind.Title.Text = BindSettings.Name
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind.Desc.Text = BindSettings.Description
-			end
-
-			Bind.Title.TextTransparency = 1
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind.Desc.TextTransparency = 1
-			end
-			Bind.BindFrame.BackgroundTransparency = 1
-			Bind.BindFrame.UIStroke.Transparency = 1
-			Bind.BindFrame.BindBox.TextTransparency = 1
-
-			TweenService:Create(Bind, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			TweenService:Create(Bind.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				TweenService:Create(Bind.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-			end
-			TweenService:Create(Bind.BindFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-			TweenService:Create(Bind.BindFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-			TweenService:Create(Bind.BindFrame.BindBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-
-			Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-			Bind.BindFrame.BindBox.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 42)
-
-			Bind.BindFrame.BindBox.Focused:Connect(function()
-				CheckingForKey = true
-				Bind.BindFrame.BindBox.Text = ""
-			end)
-
-			Bind.BindFrame.BindBox.FocusLost:Connect(function()
-				CheckingForKey = false
-				if Bind.BindFrame.BindBox.Text == (nil or "") then
-					Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-				end
-			end)
-
-			Bind["MouseEnter"]:Connect(function()
-				tween(Bind.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Bind["MouseLeave"]:Connect(function()
-				tween(Bind.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-			UserInputService.InputBegan:Connect(function(input, processed)
-
-				if CheckingForKey then
-					if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode ~= Window.Bind then
-						local SplitMessage = string.split(tostring(input.KeyCode), ".")
-						local NewKeyNoEnum = SplitMessage[3]
-						Bind.BindFrame.BindBox.Text = tostring(NewKeyNoEnum)
-						BindSettings.CurrentBind = tostring(NewKeyNoEnum)
-						local Success, Response = pcall(function()
-							BindSettings.OnChangedCallback(BindSettings.CurrentBind)
-						end)
-						if not Success then
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Bind.Title.Text = BindSettings.Name
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-						Bind.BindFrame.BindBox:ReleaseFocus()
-					end
-				elseif BindSettings.CurrentBind ~= nil and (input.KeyCode == Enum.KeyCode[BindSettings.CurrentBind] and not processed) then -- Test
-					local Held = true
-					local Connection
-					Connection = input.Changed:Connect(function(prop)
-						if prop == "UserInputState" then
-							Connection:Disconnect()
-							Held = false
-						end
-					end)
-
-					if not BindSettings.HoldToInteract then
-						BindV.Active = not BindV.Active
-						local Success, Response = pcall(function()
-							BindSettings.Callback(BindV.Active)
-						end)
-						if not Success then
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Bind.Title.Text = BindSettings.Name
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-					else
-						wait(0.1)
-						if Held then
-							local Loop; Loop = RunService.Stepped:Connect(function()
-								if not Held then
-									local Success, Response = pcall(function()
-										BindSettings.Callback(false)
-									end)
-									if not Success then
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-										wait(0.5)
-										Bind.Title.Text = BindSettings.Name
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-									end 
-									Loop:Disconnect()
-								else
-									local Success, Response = pcall(function()
-										BindSettings.Callback(true)
-									end)
-									if not Success then
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-										wait(0.5)
-										Bind.Title.Text = BindSettings.Name
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-									end
-								end
-							end)	
-						end
-					end
-				end
-			end)
-
-			Bind.BindFrame.BindBox:GetPropertyChangedSignal("Text"):Connect(function()
-				TweenService:Create(Bind.BindFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 30)}):Play()
-			end)
-
-			function BindV:Set(NewBindSettings)
-
-				NewBindSettings = SetPrase({
-					Name = BindSettings.Name,
-					Description = BindSettings.Description,
-					CurrentBind =  BindSettings.CurrentBind,
-					HoldToInteract = BindSettings.HoldToInteract,
-					Callback = BindSettings.Callback
-				}, NewBindSettings or {})
-
-				BindV.Settings = NewBindSettings
-				BindSettings = NewBindSettings
-
-				Bind.Name = BindSettings.Name
-				Bind.Title.Text = BindSettings.Name
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" and Bind.Desc ~= nil then
-					Bind.Desc.Text = BindSettings.Description
-				end
-
-				Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-				Bind.BindFrame.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 20, 0, 42)
-
-
-				BindV.CurrentBind = BindSettings.CurrentBind
-			end
-
-			function BindV:Destroy()
-				Bind.Visible = false
-				Bind:Destroy()
-			end
-
-			if Flag then
-				Nutriex.Options[Flag] = BindV
-			end
-
-			-- Nutriex.Flags[BindSettings.Flag] = BindSettings
-
-			return BindV
-
-		end
-
-		function Tab:CreateKeybind(BindSettings)
-
-			BindSettings = SetPrase({
-				Name = "Bind",
-				Description = nil,
-				CurrentBind = "Q",
-				HoldToInteract = false, -- setting this makes the Bind in toggle mode
-				Callback = function(Bind)
-					-- The function that takes place when the Bind is pressed
-					-- The variable (Bind) is a boolean for whether the Bind is being held or not (HoldToInteract needs to be true) or whether the Bind is currently active
-				end
-			}, BindSettings or {})
-
-			local BindV = { Settings = BindSettings, Active = false }
-			local CheckingForKey = false
-
-			local Bind
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind = Elements.Template.BindDesc:Clone()
-			else
-				Bind = Elements.Template.Bind:Clone()
-			end
-
-			Bind.Visible = true
-			Bind.Parent = TabPage
-
-			Bind.Name = BindSettings.Name
-			Bind.Title.Text = BindSettings.Name
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind.Desc.Text = BindSettings.Description
-			end
-
-			Bind.Title.TextTransparency = 1
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				Bind.Desc.TextTransparency = 1
-			end
-			Bind.BindFrame.BackgroundTransparency = 1
-			Bind.BindFrame.UIStroke.Transparency = 1
-			Bind.BindFrame.BindBox.TextTransparency = 1
-
-			TweenService:Create(Bind, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			TweenService:Create(Bind.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-			if BindSettings.Description ~= nil and BindSettings.Description ~= "" then
-				TweenService:Create(Bind.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-			end
-			TweenService:Create(Bind.BindFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-			TweenService:Create(Bind.BindFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-			TweenService:Create(Bind.BindFrame.BindBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-
-			Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-			Bind.BindFrame.BindBox.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 16, 0, 42)
-
-			Bind.BindFrame.BindBox.Focused:Connect(function()
-				CheckingForKey = true
-				Bind.BindFrame.BindBox.Text = ""
-			end)
-
-			Bind.BindFrame.BindBox.FocusLost:Connect(function()
-				CheckingForKey = false
-				if Bind.BindFrame.BindBox.Text == (nil or "") then
-					Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-				end
-			end)
-
-			Bind["MouseEnter"]:Connect(function()
-				tween(Bind.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Bind["MouseLeave"]:Connect(function()
-				tween(Bind.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-			UserInputService.InputBegan:Connect(function(input, processed)
-
-				if CheckingForKey then
-					if input.KeyCode ~= Enum.KeyCode.Unknown and input.KeyCode ~= Enum.KeyCode.K then
-						local SplitMessage = string.split(tostring(input.KeyCode), ".")
-						local NewKeyNoEnum = SplitMessage[3]
-						Bind.BindFrame.BindBox.Text = tostring(NewKeyNoEnum)
-						BindSettings.CurrentBind = tostring(NewKeyNoEnum)
-						Bind.BindFrame.BindBox:ReleaseFocus()
-					end
-				elseif BindSettings.CurrentBind ~= nil and (input.KeyCode == Enum.KeyCode[BindSettings.CurrentBind] and not processed) then -- Test
-					local Held = true
-					local Connection
-					Connection = input.Changed:Connect(function(prop)
-						if prop == "UserInputState" then
-							Connection:Disconnect()
-							Held = false
-						end
-					end)
-
-					if not BindSettings.HoldToInteract then
-						BindV.Active = not BindV.Active
-						local Success, Response = pcall(function()
-							BindSettings.Callback(BindV.Active)
-						end)
-						if not Success then
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Bind.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Bind.Title.Text = BindSettings.Name
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-					else
-						wait(0.1)
-						if Held then
-							local Loop; Loop = RunService.Stepped:Connect(function()
-								if not Held then
-									local Success, Response = pcall(function()
-										BindSettings.Callback(false)
-									end)
-									if not Success then
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-										wait(0.5)
-										Bind.Title.Text = BindSettings.Name
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-									end 
-									Loop:Disconnect()
-								else
-									local Success, Response = pcall(function()
-										BindSettings.Callback(true)
-									end)
-									if not Success then
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-										Bind.Title.Text = "Callback Error"
-										print("Nutriex Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
-										wait(0.5)
-										Bind.Title.Text = BindSettings.Name
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-									end
-								end
-							end)	
-						end
-					end
-				end
-			end)
-
-			Bind.BindFrame.BindBox:GetPropertyChangedSignal("Text"):Connect(function()
-				TweenService:Create(Bind.BindFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 16, 0, 30)}):Play()
-			end)
-
-			function BindV:Set(NewBindSettings)
-
-				NewBindSettings = SetPrase({
-					Name = BindSettings.Name,
-					Description = BindSettings.Description,
-					CurrentBind =  BindSettings.CurrentBind,
-					HoldToInteract = BindSettings.HoldToInteract,
-					Callback = BindSettings.Callback
-				}, NewBindSettings or {})
-
-				BindV.Settings = NewBindSettings
-				BindSettings = NewBindSettings
-
-				Bind.Name = BindSettings.Name
-				Bind.Title.Text = BindSettings.Name
-				if BindSettings.Description ~= nil and BindSettings.Description ~= "" and Bind.Desc ~= nil then
-					Bind.Desc.Text = BindSettings.Description
-				end
-
-				Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
-				Bind.BindFrame.BindBox.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 16, 0, 42)
-
-				-- Nutriex.Flags[BindSettings.Flag] = BindSettings
-
-			end
-
-			function BindV:Destroy()
-				Bind.Visible = false
-				Bind:Destroy()
-			end
-
-			-- Nutriex.Flags[BindSettings.Flag] = BindSettings
-
-			return BindV
-
-		end
-
-		-- Dynamic Input
-		function Tab:CreateInput(InputSettings, Flag)
-			local InputV = { IgnoreConfig = false, Class = "Input", Settings = InputSettings }
-
-			InputSettings = SetPrase({
-				Name = "Dynamic Input",
-				Description = nil,
-				CurrentValue = "",
-				PlaceholderText = "Input Placeholder",
-				RemoveTextAfterFocusLost = false,
-				Numeric = false,
-				Enter = false,
-				MaxCharacters = nil,
-				Callback = function(Text)
-
-				end, -- 52
-			}, InputSettings or {})
-
-			InputV.CurrentValue = InputSettings.CurrentValue
-
-			local descriptionbool
-			if InputSettings.Description ~= nil and InputSettings.Description ~= "" then
-				descriptionbool = true
-			end
-
-			local Input 
-			if descriptionbool then
-				Input = Elements.Template.InputDesc:Clone()
-			else
-				Input = Elements.Template.Input:Clone()
-			end
-
-			Input.Name = InputSettings.Name
-			Input.Title.Text = InputSettings.Name
-			if descriptionbool then Input.Desc.Text = InputSettings.Description end
-			Input.Visible = true
-			Input.Parent = TabPage
-
-			Input.BackgroundTransparency = 1
-			Input.UIStroke.Transparency = 1
-			Input.Title.TextTransparency = 1
-			if descriptionbool then Input.Desc.TextTransparency = 1 end
-			Input.InputFrame.BackgroundTransparency = 1
-			Input.InputFrame.UIStroke.Transparency = 1
-			Input.InputFrame.InputBox.TextTransparency = 1
-
-			TweenService:Create(Input, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-			TweenService:Create(Input.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-			TweenService:Create(Input.Title, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()	
-			if descriptionbool then TweenService:Create(Input.Desc, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play() end
-			TweenService:Create(Input.InputFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.9}):Play()
-			TweenService:Create(Input.InputFrame.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {Transparency = 0.3}):Play()
-			TweenService:Create(Input.InputFrame.InputBox, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-
-			Input.InputFrame.InputBox.PlaceholderText = InputSettings.PlaceholderText
-			Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)
-
-			Input.InputFrame.InputBox.FocusLost:Connect(function(bleh)
-
-				if InputSettings.Enter then
-					if bleh then
-						local Success, Response = pcall(function()
-							InputSettings.Callback(Input.InputFrame.InputBox.Text)
-							InputV.CurrentValue = Input.InputFrame.InputBox.Text
-						end)
-						if not Success then
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-							Input.Title.Text = "Callback Error"
-							print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-							wait(0.5)
-							Input.Title.Text = InputSettings.Name
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-						end
-					end
-				end
-
-				if InputSettings.RemoveTextAfterFocusLost then
-					Input.InputFrame.InputBox.Text = ""
-				end
-
-			end)
-
-			if InputSettings.Numeric then
-				Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-					local text = Input.InputFrame.InputBox.Text
-					if not tonumber(text) and text ~= "." then
-						Input.InputFrame.InputBox.Text = text:match("[0-9.]*") or ""
-					end
-				end)
-			end
-
-			Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Connect(function()
-				if tonumber(InputSettings.MaxCharacters) then
-					if (#Input.InputFrame.InputBox.Text - 1) == InputSettings.MaxCharacters then
-						Input.InputFrame.InputBox.Text = Input.InputFrame.InputBox.Text:sub(1, InputSettings.MaxCharacters)
-					end
-				end
-				TweenService:Create(Input.InputFrame, TweenInfo.new(0.55, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 30)}):Play()
-				if not InputSettings.Enter then
-					local Success, Response = pcall(function()
-						InputSettings.Callback(Input.InputFrame.InputBox.Text)
-					end)
-					if not Success then
-						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-						TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-						Input.Title.Text = "Callback Error"
-						print("Nutriex Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
-						wait(0.5)
-						Input.Title.Text = InputSettings.Name
-						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-						TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-					end
-				end
-				InputV.CurrentValue = Input.InputFrame.InputBox.Text				
-			end)
-
-			Input["MouseEnter"]:Connect(function()
-				tween(Input.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Input["MouseLeave"]:Connect(function()
-				tween(Input.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-
-			function InputV:Set(NewInputSettings)
-
-				NewInputSettings = SetPrase(InputSettings, NewInputSettings or {})
-
-				InputV.Settings = NewInputSettings
-				InputSettings = NewInputSettings
-
-				Input.Name = InputSettings.Name
-				Input.Title.Text = InputSettings.Name
-				if InputSettings.Description ~= nil and InputSettings.Description ~= "" and Input.Desc ~= nil then
-					Input.Desc.Text = InputSettings.Description
-				end
-
-				Input.InputFrame.InputBox:CaptureFocus()
-				Input.InputFrame.InputBox.Text = tostring(InputSettings.CurrentValue)
-				Input.InputFrame.InputBox:ReleaseFocus()
-				Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 52, 0, 42)
-
-				InputV.CurrentValue = InputSettings.CurrentValue
-			end
-
-			function InputV:Destroy()
-				Input.Visible = false
-				Input:Destroy()
-			end
-
-			if Flag then
-				Nutriex.Options[Flag] = InputV
-			end
-
-
-			return InputV
-
-		end
-
-		-- Dropdown
-		function Tab:CreateDropdown(DropdownSettings, Flag)
-			local DropdownV = { IgnoreConfig = false, Class = "Dropdown", Settings = DropdownSettings}
-
-			DropdownSettings = SetPrase({
-				Name = "Dropdown",
-				Description = nil,
-				Options = {"Option 1", "Option 2"},
-				CurrentOption = {"Option 1"},
-				MultipleOptions = false,
-				SpecialType = nil, -- currently onl player, might add more soon
-				Callback = function(Options)
-					-- The function that takes place when the selected option is changed
-					-- The variable (Options) is a table of strings for the current selected options or a string if multioptions is false
-				end,
-			}, DropdownSettings or {})
-
-			DropdownV.CurrentOption = DropdownSettings.CurrentOption
-
-			local descriptionbool = false
-			if DropdownSettings.Description ~= nil and DropdownSettings.Description ~= "" then
-				descriptionbool = true
-			end
-			local closedsize
-			local openedsize
-			if descriptionbool then
-				closedsize = 48
-				openedsize = 170
-			elseif not descriptionbool then
-				closedsize = 38
-				openedsize = 160
-			end
-			local opened = false
-
-			local Dropdown
-			if descriptionbool then Dropdown = Elements.Template.DropdownDesc:Clone() else Dropdown = Elements.Template.Dropdown:Clone() end
-
-			Dropdown.Name = DropdownSettings.Name
-			Dropdown.Title.Text = DropdownSettings.Name
-			if descriptionbool then Dropdown.Desc.Text = DropdownSettings.Description end
-
-			Dropdown.Parent = TabPage
-			Dropdown.Visible = true
-
-			local function Toggle()
-				opened = not opened
-				if opened then
-					tween(Dropdown.icon, {Rotation = 180})
-					tween(Dropdown, {Size = UDim2.new(1, -25, 0, openedsize)})
-				else
-					tween(Dropdown.icon, {Rotation = 0})
-					tween(Dropdown, {Size = UDim2.new(1, -25, 0, closedsize)})
-				end
-			end
-
-			local function SafeCallback(param, c2)
-				local Success, Response = pcall(function()
-					DropdownSettings.Callback(param)
-				end)
-				if not Success then
-					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					Dropdown.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					Dropdown.Title.Text = DropdownSettings.Name
-					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-				if Success and c2 then
-					c2()
-				end
-			end
-
-			-- fixed by justhey
-			Dropdown.Selected:GetPropertyChangedSignal("Text"):Connect(function()
-				local text = Dropdown.Selected.Text:lower()
-				for _, Item in ipairs(Dropdown.List:GetChildren()) do
-					if Item:IsA("TextLabel") and Item.Name ~= "Template" then
-						Item.Visible = text == "" or string.find(Item.Name:lower(), text, 1, true) ~= nil
-					end
-				end
-			end)
-
-
-			local function Clear()
-				for _, option in ipairs(Dropdown.List:GetChildren()) do
-					if option.ClassName == "TextLabel" and option.Name ~= "Template" then
-						option:Destroy()
-					end
-				end
-			end
-
-			local function ActivateColorSingle(name)
-				for _, Option in pairs(Dropdown.List:GetChildren()) do
-					if Option.ClassName == "TextLabel" and Option.Name ~= "Template" then
-						tween(Option, {BackgroundTransparency = 0.98})
-					end
-				end
-
-				Toggle()
-				tween(Dropdown.List[name], {BackgroundTransparency = 0.95, TextColor3 = Color3.fromRGB(240,240,240)})
-			end
-
-			local function Refresh()
-				Clear()
-				for i,v in pairs(DropdownSettings.Options) do
-					local Option = Dropdown.List.Template:Clone()
-					local optionhover = false
-					Option.Text = v
-					if v == "Template" then v = "Template (Name)" end
-					Option.Name = v
-					Option.Interact.MouseButton1Click:Connect(function()
-						local bleh
-						if DropdownSettings.MultipleOptions then
-							if table.find(DropdownSettings.CurrentOption, v) then
-								RemoveTable(DropdownSettings.CurrentOption, v)
-								DropdownV.CurrentOption = DropdownSettings.CurrentOption
-								if not optionhover then
-									tween(Option, {TextColor3 = Color3.fromRGB(200,200,200)})
-								end
-								tween(Option, {BackgroundTransparency = 0.98})
-							else
-								table.insert(DropdownSettings.CurrentOption, v)
-								DropdownV.CurrentOption = DropdownSettings.CurrentOption
-								tween(Option, {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-							end
-							bleh = DropdownSettings.CurrentOption
-						else
-							DropdownSettings.CurrentOption = {v}
-							bleh = v
-							DropdownV.CurrentOption = bleh
-							ActivateColorSingle(v)
-						end
-
-						SafeCallback(bleh, function()
-							if DropdownSettings.MultipleOptions then
-								if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-									if #DropdownSettings.CurrentOption == 1 then
-										Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
-									elseif #DropdownSettings.CurrentOption == 0 then
-										Dropdown.Selected.PlaceholderText = "None"
-									else
-										Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
-									end
-								else
-									DropdownSettings.CurrentOption = {}
-									Dropdown.Selected.PlaceholderText = "None"
-								end
-							end
-							if not DropdownSettings.MultipleOptions then
-								Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
-							end
-							Dropdown.Selected.Text = ""
-						end)
-					end)
-					Option.Visible = true
-					Option.Parent = Dropdown.List
-					Option.MouseEnter:Connect(function()
-						optionhover = true
-						if Option.BackgroundTransparency == 0.95 then
-							return
-						else
-							tween(Option, {TextColor3 = Color3.fromRGB(240,240,240)})
-						end
-					end)
-					Option.MouseLeave:Connect(function()
-						optionhover = false
-						if Option.BackgroundTransparency == 0.95 then
-							return
-						else
-							tween(Option, {TextColor3 = Color3.fromRGB(200,200,200)})
-						end
-					end)	
-				end
-			end
-
-			local function PlayerTableRefresh()
-				for i,v in pairs(DropdownSettings.Options) do
-					table.remove(DropdownSettings.Options, i)
-				end
-
-				for i,v in pairs(Players:GetChildren()) do
-					table.insert(DropdownSettings.Options, v.Name)
-				end
-			end
-
-			Dropdown.Interact.MouseButton1Click:Connect(function()
-				Toggle()
-			end)
-
-			Dropdown["MouseEnter"]:Connect(function()
-				tween(Dropdown.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-
-			Dropdown["MouseLeave"]:Connect(function()
-				tween(Dropdown.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-			if DropdownSettings.SpecialType == "Player" then
-
-				for i,v in pairs(DropdownSettings.Options) do
-					table.remove(DropdownSettings.Options, i)
-				end
-				PlayerTableRefresh()
-				DropdownSettings.CurrentOption = DropdownSettings.Options[1]
-
-				Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
-				Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
-
-			end
-
-			Refresh()
-
-			if DropdownSettings.CurrentOption then
-				if type(DropdownSettings.CurrentOption) == "string" then
-					DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-				end
-				if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-					DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-				end
-			else
-				DropdownSettings.CurrentOption = {}
-			end
-
-			local bleh, ind = nil,0
-			for i,v in pairs(DropdownSettings.CurrentOption) do
-				ind = ind + 1
-			end
-			if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
-			SafeCallback(bleh)
-			if type(bleh) == "string" then 
-				tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-			else
-				for i,v in pairs(bleh) do
-					tween(Dropdown.List[v], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-				end
-			end
-
-			if DropdownSettings.MultipleOptions then
-				if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-					if #DropdownSettings.CurrentOption == 1 then
-						Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
-					elseif #DropdownSettings.CurrentOption == 0 then
-						Dropdown.Selected.PlaceholderText = "None"
-					else
-						Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
-					end
-				else
-					DropdownSettings.CurrentOption = {}
-					Dropdown.Selected.PlaceholderText = "None"
-				end
-				for _, name in pairs(DropdownSettings.CurrentOption) do
-					tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
-				end
-			else
-				Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
-			end
-			Dropdown.Selected.Text = ""
-
-			function DropdownV:Set(NewDropdownSettings)
-				NewDropdownSettings = SetPrase(DropdownSettings, NewDropdownSettings or {})
-
-				DropdownV.Settings = NewDropdownSettings
-				DropdownSettings = NewDropdownSettings
-
-				Dropdown.Name = DropdownSettings.Name
-				Dropdown.Title.Text = DropdownSettings.Name
-				if DropdownSettings.Description ~= nil and DropdownSettings.Description ~= "" and Dropdown.Desc ~= nil then
-					Dropdown.Desc.Text = DropdownSettings.Description
-				end
-
-				if DropdownSettings.SpecialType == "Player" then
-
-					for i,v in pairs(DropdownSettings.Options) do
-						table.remove(DropdownSettings.Options, i)
-					end
-					PlayerTableRefresh()
-					DropdownSettings.CurrentOption = DropdownSettings.Options[1]                    
-					Players.PlayerAdded:Connect(function() PlayerTableRefresh() end)
-					Players.PlayerRemoving:Connect(function() PlayerTableRefresh() end)
-
-				end
-
-				Refresh()
-
-				if DropdownSettings.CurrentOption then
-					if type(DropdownSettings.CurrentOption) == "string" then
-						DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption}
-					end
-					if not DropdownSettings.MultipleOptions and type(DropdownSettings.CurrentOption) == "table" then
-						DropdownSettings.CurrentOption = {DropdownSettings.CurrentOption[1]}
-					end
-				else
-					DropdownSettings.CurrentOption = {}
-				end
-
-				local bleh, ind = nil,0
-				for i,v in pairs(DropdownSettings.CurrentOption) do
-					ind = ind + 1
-				end
-				if ind == 1 then bleh = DropdownSettings.CurrentOption[1] else bleh = DropdownSettings.CurrentOption end
-				SafeCallback(bleh)
-				for _, Option in pairs(Dropdown.List:GetChildren()) do
-					if Option.ClassName == "TextLabel" then
-						tween(Option, {TextColor3 = Color3.fromRGB(200,200,200), BackgroundTransparency = 0.98})
-					end
-				end
-				tween(Dropdown.List[bleh], {TextColor3 = Color3.fromRGB(240,240,240), BackgroundTransparency = 0.95})
-
-				if DropdownSettings.MultipleOptions then
-					if DropdownSettings.CurrentOption and type(DropdownSettings.CurrentOption) == "table" then
-						if #DropdownSettings.CurrentOption == 1 then
-							Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1]
-						elseif #DropdownSettings.CurrentOption == 0 then
-							Dropdown.Selected.PlaceholderText = "None"
-						else
-							Dropdown.Selected.PlaceholderText = unpackt(DropdownSettings.CurrentOption)
-						end
-					else
-						DropdownSettings.CurrentOption = {}
-						Dropdown.Selected.PlaceholderText = "None"
-					end
-					for _, name in pairs(DropdownSettings.CurrentOption) do
-						tween(Dropdown.List[name], {TextColor3 = Color3.fromRGB(227,227,227), BackgroundTransparency = 0.95})
-					end
-				else
-					Dropdown.Selected.PlaceholderText = DropdownSettings.CurrentOption[1] or "None"
-				end
-				Dropdown.Selected.Text = ""
-
-				-- Nutriex.Flags[DropdownSettings.Flag] = DropdownSettings
-
-			end
-
-			function DropdownV:Destroy()
-				Dropdown.Visible = false
-				Dropdown:Destroy()
-			end
-
-			if Flag then
-				Nutriex.Options[Flag] = DropdownV
-			end
-
-			-- Nutriex.Flags[DropdownSettings.Flag] = DropdownSettings
-
-			return DropdownV
-
-		end
-
-		-- Color Picker
-		function Tab:CreateColorPicker(ColorPickerSettings, Flag) -- by Rayfield/Throit
-			local ColorPickerV = {IgnoreClass = false, Class = "Colorpicker", Settings = ColorPickerSettings}
-
-			ColorPickerSettings = SetPrase({
-				Name = "Color Picker",
-				Color = Color3.fromRGB(255,255,255),
-				Callback = function(Value)
-					-- The function that takes place every time the color picker is moved/changed
-					-- The variable (Value) is a Color3fromRGB value based on which color is selected
-				end
-			}, ColorPickerSettings or {})
-
-			local function Color3ToHex(color)
-				return string.format("#%02X%02X%02X", math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255))
-			end
-
-			ColorPickerV.Color = Color3ToHex(ColorPickerSettings.Color)
-
-			local closedsize = UDim2.new(0, 75, 0, 22)
-			local openedsize = UDim2.new(0, 219, 0, 129)
-
-			local ColorPicker = Elements.Template.ColorPicker:Clone()
-			local Background = ColorPicker.CPBackground
-			local Display = Background.Display
-			local Main = Background.MainCP
-			local Slider = ColorPicker.ColorSlider
-
-			ColorPicker.Name = ColorPickerSettings.Name
-			ColorPicker.Title.Text = ColorPickerSettings.Name
-			ColorPicker.Visible = true
-			ColorPicker.Parent = TabPage
-			ColorPicker.Size = UDim2.new(1.042, -25,0, 38)
-			Background.Size = closedsize
-			Display.BackgroundTransparency = 0
-
-			ColorPicker["MouseEnter"]:Connect(function()
-				tween(ColorPicker.UIStroke, {Color = Color3.fromRGB(87, 84, 104)})
-			end)
-			ColorPicker["MouseLeave"]:Connect(function()
-				tween(ColorPicker.UIStroke, {Color = Color3.fromRGB(64,61,76)})
-			end)
-
-			local function SafeCallback(param, c2)
-				local Success, Response = pcall(function()
-					ColorPickerSettings.Callback(param)
-				end)
-				if not Success then
-					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0}):Play()
-					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
-					TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
-					ColorPicker.Title.Text = "Callback Error"
-					print("Nutriex Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
-					wait(0.5)
-					ColorPicker.Title.Text = ColorPickerSettings.Name
-					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
-					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(32, 30, 38)}):Play()
-					TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0.5}):Play()
-				end
-				if Success and c2 then
-					c2()
-				end
-			end
-
-			local opened = false
-
-			local mouse = game.Players.LocalPlayer:GetMouse()
-			Main.Image = "rbxassetid://11415645739"
-			local mainDragging = false 
-			local sliderDragging = false 
-			ColorPicker.Interact.MouseButton1Down:Connect(function()
-				if not opened then
-					opened = true 
-					tween(ColorPicker, {Size = UDim2.new( 1.042, -25,0, 165)}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-					tween(Background, {Size = openedsize})
-					tween(Display, {BackgroundTransparency = 1})
-				else
-					opened = false
-					tween(ColorPicker, {Size = UDim2.new(1.042, -25,0, 38)}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-					tween(Background, {Size = closedsize})
-					tween(Display, {BackgroundTransparency = 0})
-				end
-			end)
-			UserInputService.InputEnded:Connect(function(input, gameProcessed) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-					mainDragging = false
-					sliderDragging = false
-				end end)
-			Main.MouseButton1Down:Connect(function()
-				if opened then
-					mainDragging = true 
-				end
-			end)
-			Main.MainPoint.MouseButton1Down:Connect(function()
-				if opened then
-					mainDragging = true 
-				end
-			end)
-			Slider.MouseButton1Down:Connect(function()
-				sliderDragging = true 
-			end)
-			Slider.SliderPoint.MouseButton1Down:Connect(function()
-				sliderDragging = true 
-			end)
-			local h,s,v = ColorPickerSettings.Color:ToHSV()
-			local color = Color3.fromHSV(h,s,v) 
-			local r,g,b = math.floor((h*255)+0.5),math.floor((s*255)+0.5),math.floor((v*255)+0.5)
-			local hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-			ColorPicker.HexInput.InputBox.Text = hex
-			local function setDisplay(hp,sp,vp)
-				--Main
-				Main.MainPoint.Position = UDim2.new(s,-Main.MainPoint.AbsoluteSize.X/2,1-v,-Main.MainPoint.AbsoluteSize.Y/2)
-				Main.MainPoint.ImageColor3 = Color3.fromHSV(hp,sp,vp)
-				Background.BackgroundColor3 = Color3.fromHSV(hp,1,1)
-				Display.BackgroundColor3 = Color3.fromHSV(hp,sp,vp)
-				--Slider 
-				local x = hp * Slider.AbsoluteSize.X
-				Slider.SliderPoint.Position = UDim2.new(0,x-Slider.SliderPoint.AbsoluteSize.X/2,0.5,0)
-				Slider.SliderPoint.ImageColor3 = Color3.fromHSV(hp,1,1)
-				local color = Color3.fromHSV(hp,sp,vp) 
-				local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-				ColorPicker.RInput.InputBox.Text = tostring(r)
-				ColorPicker.GInput.InputBox.Text = tostring(g)
-				ColorPicker.BInput.InputBox.Text = tostring(b)
-				hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-				ColorPicker.HexInput.InputBox.Text = hex
-			end
-			setDisplay(h,s,v)
-			ColorPicker.HexInput.InputBox.FocusLost:Connect(function()
-				if not pcall(function()
-						local r, g, b = string.match(ColorPicker.HexInput.InputBox.Text, "^#?(%w%w)(%w%w)(%w%w)$")
-						local rgbColor = Color3.fromRGB(tonumber(r, 16),tonumber(g, 16), tonumber(b, 16))
-						h,s,v = rgbColor:ToHSV()
-						hex = ColorPicker.HexInput.InputBox.Text
-						setDisplay()
-						ColorPickerSettings.Color = rgbColor
-					end) 
-				then 
-					ColorPicker.HexInput.InputBox.Text = hex 
-				end
-				local r,g,b = math.floor((h*255)+0.5),math.floor((s*255)+0.5),math.floor((v*255)+0.5)
-				ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-				SafeCallback( Color3.fromRGB(r,g,b))
-			end)
-			--RGB
-			local function rgbBoxes(box,toChange)
-				local value = tonumber(box.Text) 
-				local color = Color3.fromHSV(h,s,v) 
-				local oldR,oldG,oldB = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-				local save 
-				if toChange == "R" then save = oldR;oldR = value elseif toChange == "G" then save = oldG;oldG = value else save = oldB;oldB = value end
-				if value then 
-					value = math.clamp(value,0,255)
-					h,s,v = Color3.fromRGB(oldR,oldG,oldB):ToHSV()
-					setDisplay()
-				else 
-					box.Text = tostring(save)
-				end
-				local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-				ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-			end
-			ColorPicker.RInput.InputBox.FocusLost:connect(function()
-				rgbBoxes(ColorPicker.RInput.InputBox,"R")
-				SafeCallback(Color3.fromRGB(r,g,b))
-			end)
-			ColorPicker.GInput.InputBox.FocusLost:connect(function()
-				rgbBoxes(ColorPicker.GInput.InputBox,"G")
-				SafeCallback(Color3.fromRGB(r,g,b))
-			end)
-			ColorPicker.BInput.InputBox.FocusLost:connect(function()
-				rgbBoxes(ColorPicker.BInput.InputBox,"B")
-				SafeCallback(Color3.fromRGB(r,g,b))
-			end)
-			RunService.RenderStepped:connect(function()
-				if mainDragging then 
-					local localX = math.clamp(mouse.X-Main.AbsolutePosition.X,0,Main.AbsoluteSize.X)
-					local localY = math.clamp(mouse.Y-Main.AbsolutePosition.Y,0,Main.AbsoluteSize.Y)
-					Main.MainPoint.Position = UDim2.new(0,localX-Main.MainPoint.AbsoluteSize.X/2,0,localY-Main.MainPoint.AbsoluteSize.Y/2)
-					s = localX / Main.AbsoluteSize.X
-					v = 1 - (localY / Main.AbsoluteSize.Y)
-					Display.BackgroundColor3 = Color3.fromHSV(h,s,v)
-					Main.MainPoint.ImageColor3 = Color3.fromHSV(h,s,v)
-					Background.BackgroundColor3 = Color3.fromHSV(h,1,1)
-					local color = Color3.fromHSV(h,s,v) 
-					local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					ColorPicker.RInput.InputBox.Text = tostring(r)
-					ColorPicker.GInput.InputBox.Text = tostring(g)
-					ColorPicker.BInput.InputBox.Text = tostring(b)
-					ColorPicker.HexInput.InputBox.Text = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-					SafeCallback(Color3.fromRGB(r,g,b))
-					ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-					ColorPickerV.Color = ColorPickerSettings.Color
-				end
-				if sliderDragging then 
-					local localX = math.clamp(mouse.X-Slider.AbsolutePosition.X,0,Slider.AbsoluteSize.X)
-					h = localX / Slider.AbsoluteSize.X
-					Display.BackgroundColor3 = Color3.fromHSV(h,s,v)
-					Slider.SliderPoint.Position = UDim2.new(0,localX-Slider.SliderPoint.AbsoluteSize.X/2,0.5,0)
-					Slider.SliderPoint.ImageColor3 = Color3.fromHSV(h,1,1)
-					Background.BackgroundColor3 = Color3.fromHSV(h,1,1)
-					Main.MainPoint.ImageColor3 = Color3.fromHSV(h,s,v)
-					local color = Color3.fromHSV(h,s,v) 
-					local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-					ColorPicker.RInput.InputBox.Text = tostring(r)
-					ColorPicker.GInput.InputBox.Text = tostring(g)
-					ColorPicker.BInput.InputBox.Text = tostring(b)
-					ColorPicker.HexInput.InputBox.Text = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-					SafeCallback(Color3.fromRGB(r,g,b))
-					ColorPickerSettings.Color = Color3.fromRGB(r,g,b)
-					ColorPickerV.Color = ColorPickerSettings.Color
-				end
-			end)
-
-			function ColorPickerV:Set(NewColorPickerSettings)
-
-				NewColorPickerSettings = SetPrase(ColorPickerSettings, NewColorPickerSettings or {})
-
-				ColorPickerV.Settings = NewColorPickerSettings
-				ColorPickerSettings = NewColorPickerSettings
-
-				ColorPicker.Name = ColorPickerSettings.Name
-				ColorPicker.Title.Text = ColorPickerSettings.Name
-				ColorPicker.Visible = true
-
-				local h,s,v = ColorPickerSettings.Color:ToHSV()
-				local color = Color3.fromHSV(h,s,v) 
-				local r,g,b = math.floor((color.R*255)+0.5),math.floor((color.G*255)+0.5),math.floor((color.B*255)+0.5)
-				local hex = string.format("#%02X%02X%02X",color.R*0xFF,color.G*0xFF,color.B*0xFF)
-				ColorPicker.HexInput.InputBox.Text = hex
-				setDisplay(h,s,v)
-				SafeCallback(Color3.fromRGB(r,g,b))
-
-				ColorPickerV.Color = ColorPickerSettings.Color
-			end
-
-			function ColorPickerV:Destroy()
-				ColorPicker:Destroy()
-			end
-
-			if Flag then
-				Nutriex.Options[Flag] = ColorPickerV
-			end
-
-			SafeCallback(ColorPickerSettings.Color)
-
-			return ColorPickerV
-		end
-
-
-		function Tab:BuildConfigSection()
-			if isStudio then
-				Tab:CreateLabel({Text = "Config system unavailable. (Environment isStudio)", Style = 3})
-				return "Config system unavailable." 
-			end
-
-			local inputPath = nil
-			local selectedConfig = nil
-
-			local Title = Elements.Template.Title:Clone()
-			Title.Text = "Configurations"
-			Title.Visible = true
-			Title.Parent = TabPage
-			Title.TextTransparency = 1
-			TweenService:Create(Title, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-
-			Tab:CreateInput({
-				Name = "Config Name",
-				Description = "Insert a name for your to be created config.",
-				PlaceholderText = "Name",
-				CurrentValue = "",
-				Numeric = false,
-				MaxCharacters = nil,
-				Enter = false,
-				Callback = function(input)
-					inputPath = input
-				end,
-			})
-
-			local configSelection
-
-			Tab:CreateButton({
-				Name = "Create Config",
-				Description = "Create a config with all of your current settings.",
-				Callback = function()
-					if not inputPath or string.gsub(inputPath, " ", "") == "" then
-						Nutriex:Notification({
-							Title = "Interface",
-							Icon = "warning",
-							ImageSource = "Material",
-							Content = "Config name cannot be empty."
-						})
-						return
-					end
-
-					local success, returned = Nutriex:SaveConfig(inputPath)
-					if not success then
-						Nutriex:Notification({
-							Title = "Interface",
-							Icon = "_error",
-							ImageSource = "Material",
-							Content = "Unable to save config, return error: " .. returned
-						})
-					end
-
-					Nutriex:Notification({
-						Title = "Interface",
-						Icon = "info",
-						ImageSource = "Material",
-						Content = string.format("Created config %q", inputPath),
-					})
-
-					configSelection:Set({ Options = Nutriex:RefreshConfigList() })
-				end
-			})
-
-			Tab:CreateSection("Config Load/Settings")
-
-
-			configSelection = Tab:CreateDropdown({
-				Name = "Select Config",
-				Description = "Select a config to load your settings on.",
-				Options = Nutriex:RefreshConfigList(),
-				CurrentOption = {},
-				MultipleOptions = false,
-				SpecialType = nil,
-				Callback = function(Value)
-					selectedConfig = Value
-				end,
-			})
-
-			Tab:CreateButton({
-				Name = "Load Config",
-				Description = "Load your saved config settings.",
-				Callback = function()
-					local success, returned = Nutriex:LoadConfig(selectedConfig)
-					if not success then
-						Nutriex:Notification({
-							Title = "Interface",
-							Icon = "_error",
-							ImageSource = "Material",
-							Content = "Unable to load config, return error: " .. returned
-						})
-						return
-					end
-
-					Nutriex:Notification({
-						Title = "Interface",
-						Icon = "info",
-						ImageSource = "Material",
-						Content = string.format("Loaded config %q", selectedConfig),
-					})
-				end
-			})
-
-			Tab:CreateButton({
-				Name = "Overwrite Config",
-				Description = "Overwrite your current config settings.",
-				Callback = function()
-					local success, returned = Nutriex:SaveConfig(selectedConfig)
-					if not success then
-						Nutriex:Notification({
-							Title = "Interface",
-							Icon = "_error",
-							ImageSource = "Material",
-							Content = "Unable to overwrite config, return error: " .. returned
-						})
-						return
-					end
-
-					Nutriex:Notification({
-						Title = "Interface",
-						Icon = "info",
-						ImageSource = "Material",
-						Content = string.format("Overwrote config %q", selectedConfig),
-					})
-				end
-			})
-
-			Tab:CreateButton({
-				Name = "Refresh Config List",
-				Description = "Refresh the current config list.",
-				Callback = function()
-					configSelection:Set({ Options = Nutriex:RefreshConfigList() })
-				end,
-			})
-
-			local loadlabel
-			Tab:CreateButton({
-				Name = "Set as autoload",
-				Description = "Set a config to auto load setting in your next session.",
-				Callback = function()
-					local name = selectedConfig
-					writefile(Nutriex.Folder .. "/settings/autoload.txt", name)
-					loadlabel:Set({ Text = "Current autoload config: " .. name })
-
-					Nutriex:Notification({
-						Title = "Interface",
-						Icon = "info",
-						ImageSource = "Material",
-						Content = string.format("Set %q to auto load", name),
-					})
-				end,
-			})
-
-			loadlabel = Tab:CreateParagraph({
-				Title = "Current Auto Load",
-				Text = "None"
-			})
-
-			Tab:CreateButton({
-				Name = "Delete Autoload",
-				Description = "Delete The Autoload File",
-				Callback = function()
-					local name = selectedConfig
-					delfile(Nutriex.Folder .. "/settings/autoload.txt")
-					loadlabel:Set({ Text = "None" })
-
-					Nutriex:Notification({
-						Title = "Interface",
-						Icon = "info",
-						ImageSource = "Material",
-						Content = "Deleted Autoload",
-					})
-				end,
-			})
-
-			if isfile(Nutriex.Folder .. "/settings/autoload.txt") then
-				local name = readfile(Nutriex.Folder .. "/settings/autoload.txt")
-				loadlabel:Set( { Text = "Current autoload config: " .. name })
-			end     
-		end
-
-		local ClassParser = {
-			["Toggle"] = {
-				Save = function(Flag, data)
-					return {
-						type = "Toggle", 
-						flag = Flag, 
-						state = data.CurrentValue or false
-					}
-				end,
-				Load = function(Flag, data)
-					if Nutriex.Options[Flag] then
-						Nutriex.Options[Flag]:Set({ CurrentValue = data.state })
-					end
-				end
-			},
-			["Slider"] = {
-				Save = function(Flag, data)
-					return {
-						type = "Slider", 
-						flag = Flag, 
-						value = (data.CurrentValue and tostring(data.CurrentValue)),
-					}
-				end,
-				Load = function(Flag, data)
-					if Nutriex.Options[Flag] and data.value then
-						Nutriex.Options[Flag]:Set({ CurrentValue = data.value })
-					end
-				end
-			},
-			["Input"] = {
-				Save = function(Flag, data)
-					return {
-						type = "Input", 
-						flag = Flag, 
-						text = data.CurrentValue
-					}
-				end,
-				Load = function(Flag, data)
-					if Nutriex.Options[Flag] and data.text and type(data.text) == "string" then
-						Nutriex.Options[Flag]:Set({ CurrentValue = data.text })
-					end
-				end
-			},
-			["Dropdown"] = {
-				Save = function(Flag, data)
-					return {
-						type = "Dropdown", 
-						flag = Flag, 
-						value = data.CurrentOption
-					}
-				end,
-				Load = function(Flag, data)
-					if Nutriex.Options[Flag] and data.value then
-						Nutriex.Options[Flag]:Set({ CurrentOption = data.value })
-					end
-				end
-			},
-			-- buggy as hell stil
-			["Colorpicker"] = {
-				Save = function(Flag, data)
-					local function Color3ToHex(color)
-						return string.format("#%02X%02X%02X", math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255))
-					end
-
-					return {
-						type = "Colorpicker", 
-						flag = Flag, 
-						color = Color3ToHex(data.Color) or nil,
-						alpha = data.Alpha
-					}
-				end,
-				Load = function(Flag, data)
-					local function HexToColor3(hex)
-						local r = tonumber(hex:sub(2, 3), 16) / 255
-						local g = tonumber(hex:sub(4, 5), 16) / 255
-						local b = tonumber(hex:sub(6, 7), 16) / 255
-						return Color3.new(r, g, b)
-					end
-
-					if Nutriex.Options[Flag] and data.color then
-						Nutriex.Options[Flag]:Set({Color = HexToColor3(data.color)})
-					end
-				end
-			}
-		}
-
-
-		function Tab:BuildThemeSection()
-
-			local Title = Elements.Template.Title:Clone()
-			Title.Text = "Theming"
-			Title.Visible = true
-			Title.Parent = TabPage
-			Title.TextTransparency = 1
-			TweenService:Create(Title, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-
-			Tab:CreateSection("Custom Editor")
-
-			local c1cp = Tab:CreateColorPicker({
-				Name = "Color 1",
-				Color = Color3.fromRGB(117, 164, 206),
-			}, "NutriexInterfaceSuitePrebuiltCPC1") -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-
-			local c2cp = Tab:CreateColorPicker({
-				Name = "Color 2",
-				Color = Color3.fromRGB(123, 201, 201),
-			}, "NutriexInterfaceSuitePrebuiltCPC2")
-
-			local c3cp = Tab:CreateColorPicker({
-				Name = "Color 3",
-				Color = Color3.fromRGB(224, 138, 184),
-			}, "NutriexInterfaceSuitePrebuiltCPC3") 
-
-			task.wait(1)
-
-			c1cp:Set({
-				Callback = function(Value)
-					if c2cp and c3cp then
-						Nutriex.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
-						NutriexLibrary.ThemeRemote.Value = not NutriexLibrary.ThemeRemote.Value
-					end
-				end
-			})
-
-			c2cp:Set({
-				Callback = function(Value)
-					if c1cp and c3cp then
-						Nutriex.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
-						NutriexLibrary.ThemeRemote.Value = not NutriexLibrary.ThemeRemote.Value
-					end
-				end
-			})
-
-			c3cp:Set({
-				Callback = function(Valuex)
-					if c2cp and c1cp then
-						Nutriex.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, Valuex or Color3.fromRGB(255,255,255))}
-						NutriexLibrary.ThemeRemote.Value = not NutriexLibrary.ThemeRemote.Value
-					end
-				end
-			})
-
-			Tab:CreateSection("Preset Gradients")
-
-			for i,v in pairs(PresetGradients) do
-				Tab:CreateButton({
-					Name = tostring(i),
-					Callback = function()
-						c1cp:Set({ Color = v[1] })
-						c2cp:Set({ Color = v[2] })
-						c3cp:Set({ Color = v[3] })
-					end,
-				})
-			end
-
-		end
-
-
-		local function BuildFolderTree()
-			if isStudio then return "Config system unavailable." end
-			local paths = {
-				Nutriex.Folder,
-				Nutriex.Folder .. "/settings"
-			}
-
-			for i = 1, #paths do
-				local str = paths[i]
-				if not isfolder(str) then
-					makefolder(str)
-				end
-			end
-		end
-
-		local function SetFolder()
-
-			if isStudio then return "Config system unavailable." end
-
-			if WindowSettings.ConfigSettings.RootFolder ~= nil and WindowSettings.ConfigSettings.RootFolder ~= "" then
-				Nutriex.Folder = WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder
-			else
-				Nutriex.Folder = WindowSettings.ConfigSettings.ConfigFolder
-			end
-
-			BuildFolderTree()
-		end
-
-		SetFolder()
-
-		function Nutriex:SaveConfig(Path)
-			if isStudio then return "Config system unavailable." end
-
-			if (not Path) then
-				return false, "Please select a config file."
-			end
-
-			local fullPath = Nutriex.Folder .. "/settings/" .. Path .. ".Nutriex"
-
-			local data = {
-				objects = {}
-			}
-
-			for flag, option in next, Nutriex.Options do
-				if not ClassParser[option.Class] then continue end
-				if option.IgnoreConfig then continue end
-
-				table.insert(data.objects, ClassParser[option.Class].Save(flag, option))
-			end	
-
-			local success, encoded = pcall(HttpService.JSONEncode, HttpService, data)
-			if not success then
-				return false, "Unable to encode into JSON data"
-			end
-
-			writefile(fullPath, encoded)
-			return true
-		end
-
-		function Nutriex:LoadConfig(Path)
-			if isStudio then return "Config system unavailable." end
-
-			if (not Path) then
-				return false, "Please select a config file."
-			end
-
-			local file = Nutriex.Folder .. "/settings/" .. Path .. ".Nutriex"
-			if not isfile(file) then return false, "Invalid file" end
-
-			local success, decoded = pcall(HttpService.JSONDecode, HttpService, readfile(file))
-			if not success then return false, "Unable to decode JSON data." end
-
-			for _, option in next, decoded.objects do
-				if ClassParser[option.type] then
-					task.spawn(function() 
-						ClassParser[option.type].Load(option.flag, option) 
-					end)
-				end
-			end
-
-			return true
-		end
-
-		function Nutriex:LoadAutoloadConfig()
-			if isfile(Nutriex.Folder .. "/settings/autoload.txt") then
-
-				if isStudio then return "Config system unavailable." end
-
-				local name = readfile(Nutriex.Folder .. "/settings/autoload.txt")
-
-				local success, err = Nutriex:LoadConfig(name)
-				if not success then
-					return Nutriex:Notification({
-						Title = "Interface",
-						Icon = "sparkle",
-						ImageSource = "Material",
-						Content = "Failed to load autoload config: " .. err,
-					})
-				end
-
-				Nutriex:Notification({
-					Title = "Interface",
-					Icon = "sparkle",
-					ImageSource = "Material",
-					Content = string.format("Auto loaded config %q", name),
-				})
-
-			end 
-		end
-
-		function Nutriex:RefreshConfigList()
-			if isStudio then return "Config system unavailable." end
-
-			local list = listfiles(Nutriex.Folder .. "/settings")
-
-			local out = {}
-			for i = 1, #list do
-				local file = list[i]
-				if file:sub(-5) == ".Nutriex" then
-					local pos = file:find(".Nutriex", 1, true)
-					local start = pos
-
-					local char = file:sub(pos, pos)
-					while char ~= "/" and char ~= "\\" and char ~= "" do
-						pos = pos - 1
-						char = file:sub(pos, pos)
-					end
-
-					if char == "/" or char == "\\" then
-						local name = file:sub(pos + 1, start - 1)
-						if name ~= "options" then
-							table.insert(out, name)
-						end
-					end
-				end
-			end
-
-			return out
-		end
-		return Tab
-	end
-
-
-	Elements.Parent.Visible = true
-	tween(Elements.Parent, {BackgroundTransparency = 0.1})
-	Navigation.Visible = true
-	tween(Navigation.Line, {BackgroundTransparency = 0})
-
-	for _, TopbarButton in ipairs(Main.Controls:GetChildren()) do
-		if TopbarButton.ClassName == "Frame" and TopbarButton.Name ~= "Theme" then
-			TopbarButton.Visible = true
-			tween(TopbarButton, {BackgroundTransparency = 0.25})
-			tween(TopbarButton.UIStroke, {Transparency = 0.5})
-			tween(TopbarButton.ImageLabel, {ImageTransparency = 0.25})
-		end
-	end
-
-	Main.Controls.Close.ImageLabel.MouseButton1Click:Connect(function()
-		Hide(Main, Window.Bind, true)
-		dragBar.Visible = false
-		Window.State = false
-		if UserInputService.KeyboardEnabled == false then
-			NutriexLibrary.MobileSupport.Visible = true
-		end
-	end)
-	Main.Controls.Close["MouseEnter"]:Connect(function()
-		tween(Main.Controls.Close.ImageLabel, {ImageColor3 = Color3.new(1,1,1)})
-	end)
-	Main.Controls.Close["MouseLeave"]:Connect(function()
-		tween(Main.Controls.Close.ImageLabel, {ImageColor3 = Color3.fromRGB(195,195,195)})
-	end)
-
-	UserInputService.InputBegan:Connect(function(input, gpe)
-		if gpe then return end
-		if Window.State then return end
-		if input.KeyCode == Window.Bind then
-			Unhide(Main, Window.CurrentTab)
-			NutriexLibrary.MobileSupport.Visible = false
-			dragBar.Visible = true
-			Window.State = true
-		end
-	end)
-
-	Main.Logo.MouseButton1Click:Connect(function()
-		if Navigation.Size.X.Offset == 205 then
-			tween(Elements.Parent, {Size = UDim2.new(1, -55, Elements.Parent.Size.Y.Scale, Elements.Parent.Size.Y.Offset)})
-			tween(Navigation, {Size = UDim2.new(Navigation.Size.X.Scale, 55, Navigation.Size.Y.Scale, Navigation.Size.Y.Offset)})
-		else
-			tween(Elements.Parent, {Size = UDim2.new(1, -205, Elements.Parent.Size.Y.Scale, Elements.Parent.Size.Y.Offset)})
-			tween(Navigation, {Size = UDim2.new(Navigation.Size.X.Scale, 205, Navigation.Size.Y.Scale, Navigation.Size.Y.Offset)})
-		end
-	end)
-
-	Main.Controls.ToggleSize.ImageLabel.MouseButton1Click:Connect(function()
-		Window.Size = not Window.Size
-		if Window.Size then
-			Minimize(Main)
-			dragBar.Visible = false
-		else
-			Maximise(Main)
-			dragBar.Visible = true
-		end
-	end)
-	Main.Controls.ToggleSize["MouseEnter"]:Connect(function()
-		tween(Main.Controls.ToggleSize.ImageLabel, {ImageColor3 = Color3.new(1,1,1)})
-	end)
-	Main.Controls.ToggleSize["MouseLeave"]:Connect(function()
-		tween(Main.Controls.ToggleSize.ImageLabel, {ImageColor3 = Color3.fromRGB(195,195,195)})
-	end)
-
-	Main.Controls.Theme.ImageLabel.MouseButton1Click:Connect(function()
-		if Window.Settings then
-			Window.Settings:Activate()
-			Elements.Settings.CanvasPosition = Vector2.new(0,698)
-		end
-	end)
-	Main.Controls.Theme["MouseEnter"]:Connect(function()
-		tween(Main.Controls.Theme.ImageLabel, {ImageColor3 = Color3.new(1,1,1)})
-	end)
-	Main.Controls.Theme["MouseLeave"]:Connect(function()
-		tween(Main.Controls.Theme.ImageLabel, {ImageColor3 = Color3.fromRGB(195,195,195)})
-	end)	
-
-
-	NutriexLibrary.MobileSupport.Interact.MouseButton1Click:Connect(function()
-		Unhide(Main, Window.CurrentTab)
-		dragBar.Visible = true
-		Window.State = true
-		NutriexLibrary.MobileSupport.Visible = false
-	end)
-
-	return Window
-end
-
-function Nutriex:Destroy()
-	Main.Visible = false
-	for _, Notification in ipairs(Notifications:GetChildren()) do
-		if Notification.ClassName == "Frame" then
-			Notification.Visible = false
-			Notification:Destroy()
-		end
-	end
-	NutriexLibrary:Destroy()
-end
-
-if isStudio then
-	local Window = Nutriex:CreateWindow({
-		Name = "Nebula Client - Nutriex Hub | Blade Ball",
-		Subtitle = "by Nebula Softworks",
-		LogoID = "123795201100198",
-		LoadingEnabled = true,
-		LoadingTitle = "Nebula Client (Nutriex Hub)",
-		LoadingSubtitle = "Loading script for Blade Ball",
-		KeySystem = true,
-		KeySettings = {
-			Title = "Nebula Client | Key System",
-			Subtitle = "Blade Ball",
-			Note = "Please Enter Your Key To Use Nebula Client",
-			FileName = "Key", -- the name of the key file. this will be saved in ur RootFolder. However, if you don't have one, it'll save in ur config folder instead
-			SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-			Key = {"Example Key"}, -- List of keys that will be accepted by the system, please use a system like Pelican or Luarmor that provide key strings based on your HWID since putting a simple string is very easy to bypass
-			SecondAction = {
-				Enabled = true,
-				Type = "Link", -- Link/Discord
-				Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
-			}
-		}
-	})
-	
-	--[[local Window = Nutriex:CreateWindow({
-		Name = "Nutriex Example Window",
-		Subtitle = "Test",
-		LogoID = "6031097225",
-		LoadingEnabled = true,
-		LoadingTitle = "Nutriex Interface Suite",
-		LoadingSubtitle = "by Nebula Softworks",
-		KeySystem = true,
-		KeySettings = {
-			Title = "Nutriex Example Key",
-			Subtitle = "Key System",
-			Note = "Please Enter Your Key To Use Example Hub",
-			FileName = "Key", -- the name of the key file. this will be saved in ur RootFolder. However, if you don't have one, it'll save in ur config folder instead
-			SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-			Key = {"Example Key"} -- List of keys that will be accepted by the system, please use a system like Pelican or Luarmor that provide key strings based on your HWID since putting a simple string is very easy to bypass
-		}
-	})
-
-	Nutriex:Notification({ 
-		Title = "Welcome to Nutriex",
-		Icon = "sparkle",
-		ImageSource = "Material",
-		Content = "Welcome to the Nutriex Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Nutriex was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Nutriex Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For?"
-	})
-
-	local Tabs = {
-		Main = Window:CreateTab({
-			Name = "Tab Example 1",
-			Icon = "view_in_ar",
-			ImageSource = "Material",
-			ShowTitle = true
-		}),
-		Main2 = Window:CreateTab({
-			Name = "Tab Example 2",
-			Icon = "location_searching",
-			ImageSource = "Material",
-			ShowTitle = false
-		}),
-		Premium = Window:CreateTab({
-			Name = "Premium Tab",
-			Icon = "sparkle",
-			ImageSource = "Material",
-			ShowTitle = true
-		}),
-		Debug = Window:CreateTab({
-			Name = "Debug",
-			Icon = "settings"
-		})
-	}
-
-
-	Window:CreateHomeTab()
-	local bleh =Tabs.Debug:CreateColorPicker()
-	Tabs.Debug:CreateButton({
-		Callback = function()
-			bleh:Set({
-				Color = Color3.fromRGB(0,0,0)
-			})
-		end,
-	})
-
-	Tabs.Main:CreateSection("Section Example")
-	Tabs.Main:CreateButton({
-		Name = "Button Example!",
-		Description = "Every Element Except For Sliders Can Have a description like this"
-	})
-	Tabs.Main:CreateLabel({
-		Text = "Label Example",
-		Style = 1
-	})
-	Tabs.Main:CreateLabel({
-		Text = "Information Example",
-		Style = 2
-	})
-	Tabs.Main:CreateLabel({
-		Text = "Warning Example",
-		Style = 3
-	})
-	Tabs.Main:CreateParagraph({
-		Title = "Paragraph Example ",
-		Text = "This Is A Paragraph. You Can Type Very Long Strings Here And They'll Automatically Fit! This Counts As A Description Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Right? Also Did I Mention This Has Rich Text? Also Did I Mention This Has Rich Text? Also Did I Mention This Has Rich Text? Also Did I Mention This Has Rich Text? Also Did I Mention This Has Rich Text? Also Did I Mention This Has Rich Text?"
-	})
-	Tabs.Main:CreateSlider({
-		Name = "Slider Example",
-		Range = {0, 200},
-		Increment = 0.1,
-		CurrentValue = 100,
-		Flag = "Slider",
-	})
-	Tabs.Main:CreateToggle({
-		Name = "Toggle Example",
-		Description = "This Is A Toggle. See I Was Right? Sliders Don't Have Descriptions!",
-		CurrentValue = false,
-	})
-
-	Tabs.Main:CreateBind({
-		Name = "Bind Example",
-		Description = "Btw Using CreateKeybind is deprecated, use CreateBind For Future Binds :)",
-		CurrentKeybind = "Q",
-		HoldToInteract = false,
-	})
-	Tabs.Main:CreateInput({
-		Name = "Dynamic Input Example",
-		Description = "Every Element has :Set(). Sadly this one is broken;the text wont update :(",
-		PlaceholderText = "Input Placeholder",
-		CurrentValue = "",
-		Numeric = false,
-		MaxCharacters = nil,
-		Enter = false
-	})
-	Tabs.Main:CreateDropdown({
-		Name = "Dropdown Example",
-		Description = "U can access a element's values using .Settings!",
-		Options = {"Option 1","Option 2","Option 3","Option 4","Option 5","Option 6"},
-		CurrentOption = "Option 1",
-		MultipleOptions = false,
-		SpecialType = nil
-	})
-
-	Tabs.Main:CreateColorPicker({
-		Name = "Color Picker Example",
-		Color = Color3.fromRGB(86, 171, 128),
-		Flag = "ColorPicker1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-		Callback = function(Value)
-			-- The function that takes place every time the color picker is moved/changed
-			-- The variable (Value) is a Color3fromRGB value based on which color is selected
-		end
-	})
-
-	Tabs.Main2:CreateSection("The Elements Here Are To Show Unique Features")
-	Tabs.Main2:CreateToggle({
-		Name = "Toggle - Default On",
-		Description = "Toggles Can be Onned By Default!",
-		CurrentValue = true
-	})
-	Tabs.Main2:CreateBind({
-		Name = "Hold To Interact - Walkspeed Example",
-		Description = "Binds Can Be Made to only Callback when held",
-		HoldToInteract = true,
-		CurrentBind = "E",
-		Callback = function(v)
-			if v then 
-				Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
-			else
-				Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
-			end
-		end,
-	})
-	Tabs.Main2:CreateInput({
-		Name = "Numeric And 12 Max Characters",
-		Description = "You Can Limit The Max Characters or Allow Only Numbers",
-		Numeric = true,
-		MaxCharacters = 12
-	})
-	Tabs.Main2:CreateInput({
-		Name = "Require Enter",
-		Description = "You Can Only make the callback happen after user hits enter",
-		Enter = true
-	})
-	Tabs.Main2:CreateLabel({
-		Text = "Every Element Can be Destroyed as well!"
-	})
-	Tabs.Main2:CreateDropdown({
-		Name = "Dropdown - Multi Options",
-		Description = "Multiple Special Features can be used on the same element!",
-		Options = {"Option 1","Option 2","Option 3","Option 4","Option 5","Option 6"},
-		CurrentOption = {"Option 1","Option 3","Option 6"},
-		MultipleOptions = true
-	})
-	Tabs.Main2:CreateDropdown({
-		Name = "Dropdown - Players",
-		Description = "Nutriex's Dropdowns Has a built in Player Dropdown!",
-		Options = {"u can put anything here, it wont be shown anyway"},
-		CurrentOption = {"same here, itll be the first option"},
-		MultipleOptions = false,
-		SpecialType = "Player"
-	})
-
-	local s = Tabs.Premium:CreateSection("You can add elements inside section too")
-	s:CreateButton()
-	s:CreateLabel()
-	s:CreateDivider()
-	s:CreateDropdown()
-
-	Tabs.Premium:BuildConfigSection()
-	Tabs.Premium:BuildThemeSection()]]
-end
-
--- THIS IS THE DEBUG DEMO, ONLY USED WHEN TESTING NEW ELEMENTS AND CODE
---[[if isStudio then
-    window = Nutriex:CreateWindow({LoadingEnabled = false})
-    t1 = window:CreateTab()
-    t2 = window:CreateTab({ Name = "Tab 2", Icon = "location_searching"})
-    Nutriex:Notification({ 
-        Title = "Welcome to Nutriex",
-        Icon = "sparkle",
-        ImageSource = "Material",
-        Content = "Welcome to the Nutriex Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Nutriex was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Nutriex Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For?"
-    })
-    t1:CreateSection()
-    local btn = t1:CreateButton({Callback = "", Description = "This Is A Description"})
-    local l = t1:CreateLabel({ Style = 2})
-    local l2 = t1:CreateLabel({ Text = "Another Label" })
-    t2:CreateButton({ Callback = function() 
-        l:Destroy()
-        l2:Set("New Text")
-    end})
-    t2:CreateLabel({Style = 3})
-    t1:CreateParagraph({Text = "Single String"})
-    t1:CreateParagraph({Text = "Welcome to the Nutriex Interface Suite. This Is an Amazing Quality Freemium UI Library For Roblox Exploiting Made By Nebula Softworks. Nutriex was Created in hopes of improving the standard of UI Library designs by being the golden standard for it. Nutriex Has Amazing Features like a key system, notification and perfection in aesthetics and design. So, What Are You Waiting For? Start Using Nutriex Today at "})
-    s = t2:CreateSlider({ Callback = function(v) print(v) end })	
-    t1:CreateButton({ Callback = function()
-        s:Set({Name = "new name", Callback = ""})
-        wait(5)
-        s:Destroy()
-    end})
-    t1:CreateColorPicker()
-    local toggle = t1:CreateToggle({Name = "test", Description = "test", CurrentValue = true, Callback = ""}, "toggle2")
-    t1:CreateToggle({Callback = function(Value) toggle:Destroy() print(Value) end})
-    local bind = t2:CreateBind({Name = "test", Description = "test", CurrentBind = "E", HoldToInteract = false, Callback = ""})
-    t2:CreateKeybind({HoldToInteract = true, Callback = function(v)
-        if v then
-            Players.LocalPlayer.Character.Humanoid.WalkSpeed = 100
-        else
-            Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+local function Http(url)
+    local req = (syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
+    if req then
+        local ok, res = pcall(req, { Url = url, Method = "GET" })
+        if ok and type(res) == "table" then
+            local code = res.StatusCode or res.Status_Code
+            if res.Body and res.Success ~= false and (code == nil or code == 200) then return res.Body end
+            return nil, "HTTP " .. tostring(code)
         end
-    end,})
-    local input = t2:CreateInput({Name = "test",ClearTextAfterFocusLost = false, Description = "Numbers only, 8 max characters and enter required.",MaxCharacters = 8 ,Numeric = true, Enter = true, Callback = ""})
-    t2:CreateInput({Callback = function(text) print(text) end})
-    local d = t1:CreateDropdown({Name = "test", Options = {"Apples", "Bananas", "Strawberries", "Elixir"}, Description = "MultiOptions", MultipleOptions = true, Callback = function(t) print(t) end, CurrentOption = {"Apples", "Elixir"}})
-    t1:CreateDropdown({Callback = function(t) print(unpack(t)) end})
-    t1:CreateDropdown({Description = "Special Type - Player", Callback = "", SpecialType = "Player"})
-end]]--
-return Nutriex
+    end
+    local ok, body = pcall(function() return game:HttpGet(url) end)
+    if ok and type(body) == "string" and body ~= "" then return body end
+    return nil, "no executor http function available"
+end
+NutriexLibrary.Http = Http
+
+local function AssetOf(path)
+    local fn = getcustomasset or getsynasset
+    if not fn then return nil end
+    local ok, id = pcall(fn, path)
+    return ok and id or nil
+end
+
+local function Hash(text)
+    local h = 5381
+    for i = 1, #text do h = (h * 33 + text:byte(i)) % 4294967296 end
+    return string.format("%x", h)
+end
+
+local function EnsureFolder(path)
+    if makefolder and isfolder and not isfolder(path) then pcall(makefolder, path) end
+end
+
+local FontSys = { Tracked = setmetatable({}, { __mode = "k" }), Active = false }
+local FontPresets = {
+    Gotham = "GothamSSm", ["Builder Sans"] = "BuilderSans", Montserrat = "Montserrat", Ubuntu = "Ubuntu",
+    Nunito = "Nunito", Roboto = "Roboto", ["Source Sans"] = "SourceSansPro", Arimo = "Arimo", ["Roboto Mono"] = "RobotoMono",
+}
+local BoldFonts = { [Enum.Font.GothamBold] = true, [Enum.Font.GothamBlack] = true, [Enum.Font.SourceSansBold] = true }
+
+local function FontFace(bold)
+    if FontSys.Family then
+        return Font.new(FontSys.Family, bold and Enum.FontWeight.Bold or Enum.FontWeight.Regular)
+    elseif FontSys.Preset then
+        return Font.fromName(FontSys.Preset, bold and Enum.FontWeight.Bold or Enum.FontWeight.Medium)
+    end
+end
+
+local function FontPaint(inst)
+    local bold = FontSys.Tracked[inst] == true
+    if FontSys.Active then
+        local ok, face = pcall(FontFace, bold)
+        if ok and face then pcall(function() inst.FontFace = face end) end
+    else
+        pcall(function() inst.Font = bold and Enum.Font.GothamBold or Enum.Font.GothamMedium end)
+    end
+end
+
+function FontSys.Track(inst)
+    if inst.Font ~= Enum.Font.Unknown then FontSys.Tracked[inst] = BoldFonts[inst.Font] == true end
+    if FontSys.Active then FontPaint(inst) end
+end
+
+function FontSys.Refresh()
+    for inst in pairs(FontSys.Tracked) do FontPaint(inst) end
+end
+
+function NutriexLibrary:LoadFont(name, source, bold)
+    name = tostring(name or "Custom")
+    if not (writefile and (getcustomasset or getsynasset)) then
+        return nil, "this executor has no writefile / getcustomasset"
+    end
+    local safe = name:gsub("[^%w_%-]", "_")
+    EnsureFolder("NutriexLibrary"); EnsureFolder("NutriexLibrary/fonts")
+    local function resolve(src, tag)
+        src = tostring(src)
+        if src:match("^https?://") then
+            local ext = src:lower():match("%.(otf)[%?#]?") or "ttf"
+            local path = ("NutriexLibrary/fonts/%s_%s_%s.%s"):format(safe, tag, Hash(src), ext)
+            if not (isfile and isfile(path)) then
+                local body, err = Http(src)
+                if not body then return nil, "download failed: " .. tostring(err) end
+                writefile(path, body)
+            end
+            return path
+        end
+        if isfile and isfile(src) then return src end
+        return nil, "file not found: " .. src
+    end
+    local regular, err = resolve(source, "r")
+    if not regular then return nil, err end
+    local heavy = regular
+    if bold then heavy, err = resolve(bold, "b"); if not heavy then return nil, err end end
+    local regularId, heavyId = AssetOf(regular), AssetOf(heavy)
+    if not regularId then return nil, "getcustomasset failed" end
+    local jsonPath = ("NutriexLibrary/fonts/%s_%s.json"):format(safe, Hash(tostring(source) .. tostring(bold)))
+    writefile(jsonPath, HttpService:JSONEncode({ name = name, faces = {
+        { name = "Regular", weight = 400, style = "normal", assetId = regularId },
+        { name = "Bold", weight = 700, style = "normal", assetId = heavyId or regularId },
+    } }))
+    local family = AssetOf(jsonPath)
+    if not family then return nil, "could not register font family" end
+    self.CustomFonts[name] = family
+    return family
+end
+
+function NutriexLibrary:SetFont(font, opts)
+    opts = opts or {}
+    font = font or "Default"
+    if font == "Default" then
+        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = false, nil, nil, "Default"
+    elseif FontPresets[font] then
+        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, nil, FontPresets[font], font
+    elseif self.CustomFonts[font] then
+        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, self.CustomFonts[font], nil, font
+    else
+        local name = opts.Name or tostring(font):match("([^/\\]+)%.%a+[%?#]?.*$") or "Custom"
+        local family, err = self:LoadFont(name, font, opts.Bold)
+        if not family then return false, err end
+        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, family, nil, name
+    end
+    FontSys.Refresh()
+    return true
+end
+
+function NutriexLibrary:GetFont() return FontSys.Name or "Default" end
+
+function NutriexLibrary:GetFonts()
+    local list = { "Default" }
+    for name in pairs(FontPresets) do list[#list + 1] = name end
+    for name in pairs(self.CustomFonts) do list[#list + 1] = name end
+    table.sort(list, function(a, b)
+        if a == "Default" then return true elseif b == "Default" then return false end
+        return a < b
+    end)
+    return list
+end
+
+local TEXT_CLASSES = { TextLabel = true, TextButton = true, TextBox = true }
+local TRANSPARENT_CLASSES = {
+    TextLabel = true, TextButton = true, TextBox = true,
+    ImageLabel = true, ImageButton = true, ScrollingFrame = true,
+}
+
+local function Create(class, props, children)
+    local inst = Instance.new(class)
+    if inst:IsA("GuiObject") then
+        inst.BorderSizePixel = 0
+        if TRANSPARENT_CLASSES[class] then inst.BackgroundTransparency = 1 end
+        if inst:IsA("GuiButton") then inst.AutoButtonColor = false end
+    end
+    if TEXT_CLASSES[class] then
+        inst.Text = ""
+        inst.Font = Enum.Font.GothamMedium
+        inst.TextSize = 14
+        inst.TextColor3 = Color3.new(1, 1, 1)
+        if class == "TextBox" then inst.ClearTextOnFocus = false end
+    end
+    local parent, fit, grow
+    if props then
+        for key, value in pairs(props) do
+            if key == "Parent" then parent = value
+            elseif key == "Fit" then fit = value
+            elseif key == "Grow" then grow = value
+            else inst[key] = value end
+        end
+
+        if fit == nil and props.TextTruncate == Enum.TextTruncate.AtEnd and not props.TextWrapped then fit = true end
+    end
+    if children then
+        for _, child in ipairs(children) do child.Parent = inst end
+    end
+    if TEXT_CLASSES[class] then FontSys.Track(inst) end
+    if fit and TEXT_CLASSES[class] and class ~= "TextBox" then
+        local max = inst.TextSize
+        inst.TextTruncate = Enum.TextTruncate.None
+        inst.TextScaled = true
+        Create("UITextSizeConstraint", { MaxTextSize = max, MinTextSize = 7, Parent = inst })
+
+        local busy = false
+        local function measure(size, width)
+            local ok, bounds = pcall(function()
+                local params = Instance.new("GetTextBoundsParams")
+                params.Text, params.Font, params.Size, params.Width = inst.Text, inst.FontFace, size, width
+                return TextService:GetTextBoundsAsync(params)
+            end)
+            return ok and bounds or nil
+        end
+        local function refit()
+            if busy or inst.RichText then return end
+            local width = inst.AbsoluteSize.X
+            if width < 8 or inst.Text == "" then return end
+            busy = true
+            local bounds = measure(max, 100000)
+            if bounds and bounds.X > 0 then
+                local ratio = math.min(1, width / bounds.X)
+                local wrap = max * ratio < math.min(10, max)
+                if wrap and grow then
+                    local size = math.max(10, max - 1)
+                    if inst.TextScaled then inst.TextScaled = false end
+                    if inst.TextSize ~= size then inst.TextSize = size end
+                    if not inst.TextWrapped then inst.TextWrapped = true end
+                    local tall = measure(size, width)
+                    grow(tall and math.ceil(tall.Y) or nil)
+                else
+                    if not inst.TextScaled then inst.TextScaled = true end
+                    if inst.TextWrapped then inst.TextWrapped = false end
+                    if grow then grow(nil) end
+                end
+            end
+            busy = false
+        end
+        inst:GetPropertyChangedSignal("Text"):Connect(refit)
+        inst:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+        inst:GetPropertyChangedSignal("FontFace"):Connect(refit)
+        task.defer(refit)
+    end
+    if parent then inst.Parent = parent end
+    return inst
+end
+
+local Motion = { Out = Enum.EasingStyle.Exponential, In = Enum.EasingStyle.Quart, Smooth = Enum.EasingStyle.Sine }
+NutriexLibrary.Motion = Motion
+
+local function Tween(inst, props, time, style, direction)
+    direction = direction or Enum.EasingDirection.Out
+    if style == nil or style == Enum.EasingStyle.Back or style == Enum.EasingStyle.Quint then
+        style = direction == Enum.EasingDirection.In and Motion.In or Motion.Out
+    end
+    local tween = TweenService:Create(inst, TweenInfo.new(time or 0.28, style, direction), props)
+    tween:Play()
+    return tween
+end
+
+local function Apply(inst, props, instant, time, style, direction)
+    if instant then
+        for key, value in pairs(props) do inst[key] = value end
+        return nil
+    end
+    return Tween(inst, props, time, style, direction)
+end
+
+local function Pad(parent, left, top, right, bottom)
+    return Create("UIPadding", {
+        PaddingLeft = UDim.new(0, left), PaddingTop = UDim.new(0, top),
+        PaddingRight = UDim.new(0, right or left), PaddingBottom = UDim.new(0, bottom or top),
+        Parent = parent,
+    })
+end
+
+local function IsPointerDown(input)
+    return input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch
+end
+
+local function IsPointerMove(input)
+    return input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch
+end
+
+local reporting = false
+local function Fire(label, name, fn, ...)
+    if not fn then return end
+    local ok, err = pcall(fn, ...)
+    if ok then return end
+    warn("[NutriexLibrary] " .. label .. " error in '" .. tostring(name) .. "': " .. tostring(err))
+    if reporting then return end
+    reporting = true
+    local message = tostring(err):gsub("^[^\n]-:%d+:%s*", "")
+    pcall(function()
+        local window = NutriexLibrary.Windows[#NutriexLibrary.Windows]
+        local opts = { Title = "Error in " .. tostring(name), Content = message, Type = "Error", Duration = 6 }
+        if window then window:Notify(opts) else NutriexLibrary:Notify(opts) end
+    end)
+    reporting = false
+end
+
+local function Decimals(step)
+    local d, s = 0, step
+    while math.abs(s - math.floor(s + 0.5)) > 1e-9 and d < 5 do s = s * 10; d = d + 1 end
+    return d
+end
+
+local function NewSpring(x, freq, damping)
+    return { x = x, v = 0, g = x, w = freq or 12, z = damping or 1 }
+end
+
+local function StepSpring(sp, dt)
+    local n = math.max(1, math.ceil(dt / (1 / 120)))
+    local h = dt / n
+    local k, c = sp.w * sp.w, 2 * sp.z * sp.w
+    for _ = 1, n do
+        sp.v = sp.v + (-k * (sp.x - sp.g) - c * sp.v) * h
+        sp.x = sp.x + sp.v * h
+    end
+end
+
+local function SpringRest(sp)
+    return math.abs(sp.x - sp.g) < 0.0006 and math.abs(sp.v) < 0.004
+end
+
+local function Smooth(t)
+    t = math.clamp(t, 0, 1)
+    return t * t * t * (t * (t * 6 - 15) + 10)
+end
+
+local Bar
+
+local Root = {}
+Root.__index = Root
+
+function Root.new(opts)
+    opts = opts or {}
+    local self = setmetatable({}, Root)
+
+    local defaults = NutriexLibrary.Defaults
+    self.ThemeName = Themes[opts.Theme] and opts.Theme or (Themes[defaults.Theme] and defaults.Theme or "Midnight")
+    self.Theme = Themes[self.ThemeName]
+    self.CornerName = Corners[opts.Corner] and opts.Corner or defaults.Corner
+    self.Animated = opts.Animated ~= false
+
+    self.Alpha = { Main = 0, Section = 0.35, Popup = 0 }
+
+    self.Mobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    if opts.Mobile ~= nil then self.Mobile = opts.Mobile end
+    if self.Mobile then
+        self.Metrics = { Row = 44, Field = 32, Item = 38, Text = 14, Title = 46, Pad = 12, Width = 276, Header = 36, Knob = 44 }
+    else
+        self.Metrics = { Row = 34, Field = 25, Item = 28, Text = 13, Title = 40, Pad = 10, Width = 280, Header = 28, Knob = 40 }
+    end
+
+    self.Bound = {}
+    self.Rounds = {}
+    self.Flows = {}
+    self.Anim = {}
+    self.Connections = {}
+    self.Elements = {}
+    self.OpenDropdown = nil
+    self.Time = 0
+    self.Animating = true
+
+    self.Gui = Create("ScreenGui", {
+        Name = RandomName(), ResetOnSpawn = false, IgnoreGuiInset = true,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling, DisplayOrder = 1000,
+    })
+    Mount(self.Gui)
+
+    self.Catcher = Create("TextButton", {
+        Name = "Catcher", Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 50, Parent = self.Gui,
+    })
+    self.Overlay = Create("Frame", {
+        Name = "Overlay", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 60, Parent = self.Gui,
+    })
+
+    self:Connect(self.Catcher.InputBegan, function(input)
+        if IsPointerDown(input) then self:CloseDropdown() end
+    end)
+    self:Connect(UserInputService.InputBegan, function(input)
+        if input.KeyCode == Enum.KeyCode.Escape then self:CloseDropdown() end
+    end)
+
+    self:Connect(RunService.RenderStepped, function(dt)
+        if not self.Animating then return end
+
+        self.Acc = (self.Acc or 0) + dt
+        if self.Acc < 0.025 then return end
+        dt, self.Acc = self.Acc, 0
+        self.Time = self.Time + dt
+        local t = self.Time
+        for entry in pairs(self.Anim) do
+            if entry.On then
+                local gradient = entry.G
+                if entry.Spin then gradient.Rotation = (entry.Base + t * entry.Spin) % 360 end
+                if entry.Sweep then
+                    local v = math.sin(t * entry.Sweep + entry.Phase) * entry.Range
+                    gradient.Offset = (entry.Axis == "Y") and Vector2.new(0, v) or Vector2.new(v, 0)
+                end
+            end
+        end
+        local blend = self.Blend
+        if blend then
+            blend.t = blend.t + dt / 0.4
+            local a = math.min(1, blend.t)
+            local theme = LerpTheme(blend.from, blend.to, a * a * (3 - 2 * a))
+            for gradient, kind in pairs(self.Flows) do gradient.Color = Builders[kind](theme) end
+            if a >= 1 then self.Blend = nil end
+        end
+    end)
+
+    NutriexLibrary.Roots[#NutriexLibrary.Roots + 1] = self
+    return self
+end
+
+function Root:Connect(signal, fn)
+    local connection = signal:Connect(fn)
+    self.Connections[#self.Connections + 1] = connection
+    return connection
+end
+
+function Root:CloseDropdown()
+    if self.OpenDropdown then self.OpenDropdown:Close() end
+end
+
+function Root:Bind(inst, map)
+    local entry = self.Bound[inst]
+    if not entry then
+        entry = {}
+        self.Bound[inst] = entry
+        inst.Destroying:Connect(function() self.Bound[inst] = nil end)
+    end
+    for prop, key in pairs(map) do
+        entry[prop] = key
+        inst[prop] = self.Theme[key]
+    end
+    return inst
+end
+
+function Root:Round(inst, mult)
+    mult = mult or 1
+    local corner = Create("UICorner", {
+        CornerRadius = UDim.new(0, math.max(0, math.floor(Corners[self.CornerName] * mult + 0.5))),
+        Parent = inst,
+    })
+    self.Rounds[corner] = mult
+    corner.Destroying:Connect(function() self.Rounds[corner] = nil end)
+    return corner
+end
+
+function Root:Stroke(inst, key, thickness, transparency)
+    local stroke = Create("UIStroke", {
+        Thickness = thickness or 1, Transparency = transparency or 0,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = inst,
+    })
+    self:Bind(stroke, { Color = key })
+    return stroke
+end
+
+function Root:Animate(gradient, o)
+    if not self.Animated then return { On = false } end
+    local entry = {
+        G = gradient, Spin = o.Spin, Sweep = o.Sweep, Range = o.Range or 1, Phase = o.Phase or 0,
+        Axis = o.Axis or "X", Base = o.Base or gradient.Rotation, On = o.On ~= false,
+    }
+    self.Anim[entry] = true
+    gradient.Destroying:Connect(function() self.Anim[entry] = nil end)
+    return entry
+end
+
+function Root:Gradient(parent, kind, props, anim)
+    local gradient = Create("UIGradient", { Color = Builders[kind](self.Theme), Parent = parent })
+    if props then
+        for key, value in pairs(props) do gradient[key] = value end
+    end
+    self.Flows[gradient] = kind
+    gradient.Destroying:Connect(function() self.Flows[gradient] = nil end)
+    local entry = anim and self:Animate(gradient, anim) or nil
+    return gradient, entry
+end
+
+function Root:Shadow(parent, transparency, spread)
+    spread = spread or 24
+    return Create("ImageLabel", {
+        Name = "Shadow", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 3),
+        Size = UDim2.new(1, spread * 2, 1, spread * 2), Image = "rbxassetid://6014261993",
+        ImageColor3 = Color3.new(0, 0, 0), ImageTransparency = transparency or 0.5,
+        ScaleType = Enum.ScaleType.Slice, SliceCenter = Rect.new(49, 49, 450, 450),
+        ZIndex = 0, Parent = parent,
+    })
+end
+
+function Root:SetTheme(name, instant)
+    local theme = Themes[name]
+    if not theme then return false end
+    local old = self.Theme
+    self.ThemeName, self.Theme = name, theme
+    for inst, map in pairs(self.Bound) do
+        local props = {}
+        for prop, key in pairs(map) do props[prop] = theme[key] end
+        Apply(inst, props, instant, 0.35)
+    end
+    if instant or not (self.Animating and self.Animated) then
+        self.Blend = nil
+        for gradient, kind in pairs(self.Flows) do gradient.Color = Builders[kind](theme) end
+    else
+        self.Blend = { from = old, to = theme, t = 0 }
+    end
+    for _, element in ipairs(self.Elements) do
+        if element._Restyle then element:_Restyle(instant) end
+    end
+    return true
+end
+
+function Root:SetCorner(name, instant)
+    if not Corners[name] then return false end
+    self.CornerName = name
+    for corner, mult in pairs(self.Rounds) do
+        Apply(corner, { CornerRadius = UDim.new(0, math.max(0, math.floor(Corners[name] * mult + 0.5))) }, instant, 0.3)
+    end
+    return true
+end
+
+function Root:Notify(opts)
+    if type(opts) == "string" then opts = { Content = opts } end
+    opts = opts or {}
+    local M = self.Metrics
+    local kind = opts.Type or "Info"
+    local duration = opts.Duration or 4
+    local sticky = duration <= 0
+    local semantic = ({ Success = "Success", Warning = "Warning", Error = "Danger", Danger = "Danger" })[kind]
+    local isInfo = semantic == nil
+    local key = semantic or "Accent"
+    local function ramp(...)
+        local points, args = {}, { ... }
+        for i = 1, #args, 2 do points[#points + 1] = NumberSequenceKeypoint.new(args[i], args[i + 1]) end
+        return NumberSequence.new(points)
+    end
+
+    if not self.Toasts then
+        local width = self.Mobile and 252 or 296
+        self.ToastList = {}
+        self.Toasts = Create("Frame", {
+            Name = "Toasts", BackgroundTransparency = 1, ZIndex = 70, AutomaticSize = Enum.AutomaticSize.Y,
+            AnchorPoint = self.Mobile and Vector2.new(0.5, 0) or Vector2.new(1, 0),
+            Position = self.Mobile and UDim2.new(0.5, 0, 0, 12) or UDim2.new(1, -16, 0, 16),
+            Size = UDim2.fromOffset(width, 0), Parent = self.Gui,
+        }, {
+            Create("UIListLayout", {
+                Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
+                HorizontalAlignment = self.Mobile and Enum.HorizontalAlignment.Center or Enum.HorizontalAlignment.Right,
+            }),
+        })
+    end
+    self.ToastCount = (self.ToastCount or 0) + 1
+
+    local slot = Create("Frame", {
+        Name = "Slot", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), LayoutOrder = self.ToastCount,
+        Parent = self.Toasts,
+    })
+
+    local shell = Create("Frame", {
+        Name = "Shell", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        Position = UDim2.fromOffset(40, 0), Parent = slot,
+    })
+    local toast = Create("CanvasGroup", {
+        Name = "Toast", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, GroupTransparency = 1,
+        Parent = shell,
+    })
+
+    self:Bind(toast, { BackgroundColor3 = "Surface" })
+    toast.BackgroundTransparency = 0.03
+    Create("UISizeConstraint", { MinSize = Vector2.new(0, 54), Parent = toast })
+    local scale = Create("UIScale", { Scale = 0.96, Parent = shell })
+    self:Round(shell, 0.8)
+    self:Round(toast, 0.8)
+    local stroke = self:Stroke(shell, key, 1, 1)
+    local STROKE_ON = 0.5
+
+    local wash = Create("Frame", { Name = "Wash", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = toast })
+    if isInfo then
+        self:Gradient(wash, "Soft", { Rotation = 0, Transparency = ramp(0, 0.8, 0.65, 1, 1, 1) })
+    else
+        self:Bind(wash, { BackgroundColor3 = semantic })
+        Create("UIGradient", { Rotation = 0, Transparency = ramp(0, 0.8, 0.65, 1, 1, 1), Parent = wash })
+    end
+
+    Create("Frame", { Name = "Sheen", Size = UDim2.new(1, 0, 0.6, 0), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = toast }, {
+        Create("UIGradient", { Rotation = 90, Transparency = ramp(0, 0.93, 1, 1) }),
+    })
+    Create("Frame", { Name = "Highlight", Size = UDim2.new(1, 0, 0, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 1, Parent = toast }, {
+        Create("UIGradient", { Transparency = ramp(0, 1, 0.5, 0.7, 1, 1) }),
+    })
+
+    local tile = Create("Frame", {
+        Name = "Icon", Position = UDim2.fromOffset(14, 13), Size = UDim2.fromOffset(28, 28), BackgroundTransparency = 0.8, ZIndex = 2, Parent = toast,
+    }, { Create("UICorner", { CornerRadius = UDim.new(0, 9) }) })
+    self:Bind(tile, { BackgroundColor3 = key })
+    if kind == "Success" then
+        Bar(self, tile, 11.5, 15.5, 6, 2.4, 45, key)
+        Bar(self, tile, 16.5, 13.5, 12, 2.4, -50, key)
+    elseif kind == "Error" or kind == "Danger" then
+        Bar(self, tile, 14, 14, 12, 2.4, 45, key)
+        Bar(self, tile, 14, 14, 12, 2.4, -45, key)
+    elseif kind == "Warning" then
+        Bar(self, tile, 14, 11.5, 9, 2.6, 90, key)
+        Bar(self, tile, 14, 19, 2.8, 2.8, 0, key)
+    else
+        Bar(self, tile, 14, 9, 2.8, 2.8, 0, key)
+        Bar(self, tile, 14, 16.5, 9, 2.6, 90, key)
+    end
+
+    local body = Create("Frame", {
+        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = toast,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }) })
+    Create("UIPadding", {
+        PaddingLeft = UDim.new(0, 54), PaddingRight = UDim.new(0, 34), PaddingTop = UDim.new(0, opts.Title and 12 or 17),
+        PaddingBottom = UDim.new(0, sticky and 14 or 19), Parent = body,
+    })
+    if opts.Title then
+        local t = Create("TextLabel", {
+            Text = opts.Title, Font = Enum.Font.GothamBold, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
+            TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = body,
+        })
+        self:Bind(t, { TextColor3 = "Text" })
+    end
+    local c = Create("TextLabel", {
+        Text = opts.Content or "", TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = 2, Parent = body,
+    })
+    self:Bind(c, { TextColor3 = opts.Title and "SubText" or "Text" })
+
+    local close = Create("TextButton", {
+        Name = "Close", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 8), Size = UDim2.fromOffset(20, 20),
+        BackgroundTransparency = 1, ZIndex = 8, Parent = toast,
+    })
+    self:Bind(close, { BackgroundColor3 = "Hover" })
+    self:Round(close, 0.5)
+    Bar(self, close, 10, 10, 8, 1.8, 45, "Muted")
+    Bar(self, close, 10, 10, 8, 1.8, -45, "Muted")
+    close.MouseEnter:Connect(function() Tween(close, { BackgroundTransparency = 0.3 }, 0.15) end)
+    close.MouseLeave:Connect(function() Tween(close, { BackgroundTransparency = 1 }, 0.2) end)
+
+    local track = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 14, 1, -8), Size = UDim2.new(1, -28, 0, 2), ZIndex = 3,
+        Visible = not sticky, BackgroundTransparency = 0.2, Parent = toast,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    self:Bind(track, { BackgroundColor3 = "Elevated" })
+    local fill = Create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 4, Parent = track },
+        { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    if isInfo then self:Gradient(fill, "Flow", nil, { Sweep = 1.4, Range = 0.5 }) else self:Bind(fill, { BackgroundColor3 = semantic }) end
+
+    local closed, hovered = false, false
+    local toasts = self.ToastList
+    local function dismiss()
+        if closed then return end
+        closed = true
+        for i, entry in ipairs(toasts) do if entry.Slot == slot then table.remove(toasts, i) break end end
+
+        Tween(stroke, { Transparency = 1 }, 0.16, Enum.EasingStyle.Quad)
+        Tween(toast, { GroupTransparency = 1 }, 0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+        Tween(shell, { Position = UDim2.fromOffset(40, 0) }, 0.32, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+        Tween(scale, { Scale = 0.96 }, 0.3)
+        task.delay(0.2, function()
+            if slot.Parent then Tween(slot, { Size = UDim2.new(1, 0, 0, 0) }, 0.36, Enum.EasingStyle.Quint) end
+        end)
+        task.delay(0.6, function() slot:Destroy() end)
+    end
+    close.Activated:Connect(dismiss)
+
+    local hit = Create("TextButton", { Size = UDim2.fromScale(1, 1), ZIndex = 6, Parent = toast })
+    hit.MouseEnter:Connect(function()
+        hovered = true
+        if closed then return end
+        Tween(stroke, { Transparency = 0.1 }, 0.2)
+    end)
+    hit.MouseLeave:Connect(function()
+        hovered = false
+        if closed then return end
+        Tween(stroke, { Transparency = STROKE_ON }, 0.25)
+    end)
+    hit.Activated:Connect(function()
+        Fire("toast", opts.Title or "toast", opts.Callback)
+        dismiss()
+    end)
+
+    toasts[#toasts + 1] = { Slot = slot, Dismiss = dismiss }
+    if #toasts > 5 then toasts[1].Dismiss() end
+
+    task.spawn(function()
+
+        local height = 0
+        for _ = 1, 12 do
+            RunService.RenderStepped:Wait()
+            height = shell.AbsoluteSize.Y / math.max(scale.Scale, 0.01)
+            if height > 4 then break end
+        end
+        if closed or not slot.Parent then return end
+        height = math.max(height, 40)
+        Tween(slot, { Size = UDim2.new(1, 0, 0, height) }, 0.45, Enum.EasingStyle.Quint)
+        Tween(toast, { GroupTransparency = 0 }, 0.45, Enum.EasingStyle.Quint)
+        Tween(stroke, { Transparency = STROKE_ON }, 0.45, Enum.EasingStyle.Quint)
+        Tween(shell, { Position = UDim2.fromOffset(0, 0) }, 0.55, Enum.EasingStyle.Quint)
+        Tween(scale, { Scale = 1 }, 0.55, Enum.EasingStyle.Quint)
+        if sticky then return end
+
+        local elapsed = 0
+        while not closed and elapsed < duration do
+            local dt = RunService.RenderStepped:Wait()
+            if not hovered then elapsed = elapsed + dt end
+            if fill.Parent then fill.Size = UDim2.fromScale(math.max(0, 1 - elapsed / duration), 1) end
+        end
+        dismiss()
+    end)
+end
+
+function Root:Destroy()
+    for _, connection in ipairs(self.Connections) do pcall(function() connection:Disconnect() end) end
+    self.Connections = {}
+    for _, element in ipairs(self.Elements) do
+        if element.Flag and NutriexLibrary.FlagObjects[element.Flag] == element then
+            NutriexLibrary.FlagObjects[element.Flag] = nil
+            NutriexLibrary.Flags[element.Flag] = nil
+        end
+        if element._Cleanup then pcall(element._Cleanup, element) end
+    end
+    if self.Gui then self.Gui:Destroy() end
+    for i, root in ipairs(NutriexLibrary.Roots) do
+        if root == self then table.remove(NutriexLibrary.Roots, i) break end
+    end
+end
+
+local function Register(root, element, flag)
+    root.Elements[#root.Elements + 1] = element
+    element.Flag = flag
+    if flag then
+        NutriexLibrary.FlagObjects[flag] = element
+        NutriexLibrary.Flags[flag] = element:Get()
+    end
+end
+
+local function Unregister(root, element)
+    for i, e in ipairs(root.Elements) do
+        if e == element then table.remove(root.Elements, i) break end
+    end
+    if element.Flag and NutriexLibrary.FlagObjects[element.Flag] == element then
+        NutriexLibrary.FlagObjects[element.Flag] = nil
+        NutriexLibrary.Flags[element.Flag] = nil
+    end
+end
+
+function Bar(root, parent, x, y, length, thickness, rotation, colorKey)
+    local bar = Create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(x, y),
+        Size = UDim2.fromOffset(length, thickness), Rotation = rotation, Parent = parent,
+    })
+    Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = bar })
+    root:Bind(bar, { BackgroundColor3 = colorKey })
+    return bar
+end
+
+local function MakeRow(root, parent, name, height, order, labelWidth)
+    local M = root.Metrics
+    local row = Create("Frame", {
+        Name = "Row_" .. name, BackgroundTransparency = 1, LayoutOrder = order or 0,
+        Size = UDim2.new(1, 0, 0, height or M.Row), Parent = parent,
+    })
+    local base = height or M.Row
+    local label = Create("TextLabel", {
+        Text = name, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 2, 0.5, 0), Size = UDim2.new(labelWidth or 0.42, -8, 1, 0), Parent = row,
+        Grow = function(h)
+            local target = h and math.max(base, h + 14) or base
+            if row.Size.Y.Offset ~= target then row.Size = UDim2.new(1, 0, 0, target) end
+        end,
+    })
+    root:Bind(label, { TextColor3 = "Text" })
+
+    local plate = Create("Frame", {
+        Name = "Plate", Size = UDim2.new(1, 8, 1, -2), Position = UDim2.fromOffset(-4, 1), ZIndex = 0,
+        BackgroundTransparency = 1, Parent = row,
+    })
+    root:Bind(plate, { BackgroundColor3 = "Hover" })
+    root:Round(plate, 0.6)
+    row.MouseEnter:Connect(function() Tween(plate, { BackgroundTransparency = 0.72 }, 0.18) end)
+    row.MouseLeave:Connect(function() Tween(plate, { BackgroundTransparency = 1 }, 0.25) end)
+    return row, label
+end
+
+local function MakeRim(root, parent, mult)
+    local rim = Create("Frame", {
+        Name = "Rim", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 3, Parent = parent,
+    })
+    root:Round(rim, mult or 0.6)
+    local stroke = Create("UIStroke", {
+        Thickness = 1.5, Transparency = 1, Color = Color3.new(1, 1, 1),
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = rim,
+    })
+    local _, entry = root:Gradient(stroke, "Rim", nil, { Spin = 150, On = false })
+    local control = {}
+    function control.Set(state)
+        control.State = state
+        if state then entry.On = true end
+        Tween(stroke, { Transparency = state and 0.05 or 1 }, 0.25)
+        if not state then
+            task.delay(0.3, function()
+                if not control.State then entry.On = false end
+            end)
+        end
+    end
+    return control
+end
+
+local function AccentFill(root, button, text, size, mult)
+    button.BackgroundTransparency = 1
+    button.Text = ""
+    local fill = Create("Frame", {
+        Name = "Fill", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 1, Parent = button,
+    })
+    root:Round(fill, mult or 0.6)
+    root:Gradient(fill, "Flow", nil, { Sweep = 1.1, Range = 0.6 })
+    local label = Create("TextLabel", {
+        Name = "Label", Text = text, Font = Enum.Font.GothamBold, TextSize = size, Size = UDim2.fromScale(1, 1), ZIndex = 3,
+        Fit = true, Parent = button,
+    })
+    root:Bind(label, { TextColor3 = "OnAccent" })
+    return label
+end
+
+function Root:Dialog(opts)
+    if type(opts) == "string" then opts = { Content = opts } end
+    opts = opts or {}
+    local M = self.Metrics
+    local kind = opts.Type or "Info"
+    local semantic = ({ Success = "Success", Warning = "Warning", Error = "Danger", Danger = "Danger" })[kind]
+    local key = semantic or "Accent"
+    local buttons = opts.Buttons
+    if type(buttons) ~= "table" or #buttons == 0 then buttons = { { Name = "OK", Style = "Accent" } } end
+    local dismissible = opts.Dismissible ~= false
+    local view = self.Gui.AbsoluteSize
+    if view.X < 10 then view = Vector2.new(1280, 720) end
+    local width = math.min(opts.Width or (self.Mobile and 280 or 330), view.X - 24)
+
+    self.DialogStack = self.DialogStack or {}
+    local dialog = { Closed = false }
+
+    local layer = Create("Frame", { Name = "Dialog", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 80, Parent = self.Gui })
+    local scrim = Create("TextButton", {
+        Name = "Scrim", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 1, ZIndex = 1, Parent = layer,
+    })
+    local shell = Create("Frame", {
+        Name = "Shell", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(width, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = layer,
+    })
+    local scale = Create("UIScale", { Scale = 0.93, Parent = shell })
+    self:Round(shell, 1)
+    local stroke = self:Stroke(shell, key, 1, 1)
+    local card = Create("CanvasGroup", {
+        Name = "Card", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, GroupTransparency = 1,
+        Active = true, Parent = shell,
+    })
+
+    self:Bind(card, { BackgroundColor3 = "Surface" })
+    card.BackgroundTransparency = 0
+    self:Round(card, 1)
+    Create("Frame", { Name = "Sheen", Size = UDim2.new(1, 0, 0.5, 0), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = card }, {
+        Create("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.93), NumberSequenceKeypoint.new(1, 1) }) }),
+    })
+    local wash = Create("Frame", { Name = "Wash", Size = UDim2.new(1, 0, 0, 90), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = card })
+    if semantic then
+        self:Bind(wash, { BackgroundColor3 = semantic })
+        Create("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.82), NumberSequenceKeypoint.new(1, 1) }), Parent = wash })
+    else
+        self:Gradient(wash, "Soft", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.84), NumberSequenceKeypoint.new(1, 1) }) })
+    end
+
+    local content = Create("Frame", {
+        Name = "Content", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = card,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder }) })
+    Pad(content, 18, 18, 18, 16)
+
+    local head = Create("Frame", { Name = "Head", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = content })
+    local tile = Create("Frame", {
+        Position = UDim2.fromOffset(0, 0), Size = UDim2.fromOffset(34, 34), BackgroundTransparency = 0.8, Parent = head,
+    }, { Create("UICorner", { CornerRadius = UDim.new(0, 11) }) })
+    self:Bind(tile, { BackgroundColor3 = key })
+    if kind == "Success" then
+        Bar(self, tile, 14, 19, 7, 2.6, 45, key)
+        Bar(self, tile, 20, 16.5, 14, 2.6, -50, key)
+    elseif kind == "Error" or kind == "Danger" then
+        Bar(self, tile, 17, 17, 14, 2.6, 45, key)
+        Bar(self, tile, 17, 17, 14, 2.6, -45, key)
+    elseif kind == "Warning" then
+        Bar(self, tile, 17, 14, 11, 3, 90, key)
+        Bar(self, tile, 17, 23, 3.2, 3.2, 0, key)
+    else
+        Bar(self, tile, 17, 11, 3.2, 3.2, 0, key)
+        Bar(self, tile, 17, 20, 11, 3, 90, key)
+    end
+    local text = Create("Frame", {
+        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = head,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }) })
+    Create("UIPadding", { PaddingLeft = UDim.new(0, 46), PaddingTop = UDim.new(0, 1), Parent = text })
+    Create("UISizeConstraint", { MinSize = Vector2.new(0, 34), Parent = head })
+    if opts.Title then
+        local t = Create("TextLabel", {
+            Text = tostring(opts.Title), Font = Enum.Font.GothamBold, TextSize = M.Text + 2, TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = text,
+        })
+        self:Bind(t, { TextColor3 = "Text" })
+    end
+    local body = Create("TextLabel", {
+        Text = tostring(opts.Content or ""), TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2,
+        RichText = opts.RichText == true, Parent = text,
+    })
+    self:Bind(body, { TextColor3 = opts.Title and "SubText" or "Text" })
+
+    local box
+    if opts.Input then
+        local io = type(opts.Input) == "table" and opts.Input or {}
+        local field = Create("Frame", { Name = "Input", Size = UDim2.new(1, 0, 0, M.Field + 8), LayoutOrder = 2, Parent = content })
+        self:Bind(field, { BackgroundColor3 = "Elevated" })
+        self:Round(field, 0.6)
+        local fieldStroke = self:Stroke(field, "Stroke", 1, 0.1)
+        box = Create("TextBox", {
+            Text = tostring(io.Default or ""), PlaceholderText = io.Placeholder or "Type here...", TextSize = M.Text,
+            TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(12, 0), Size = UDim2.new(1, -24, 1, 0),
+            ClearTextOnFocus = false, Parent = field,
+        })
+        self:Bind(box, { TextColor3 = "Text", PlaceholderColor3 = "Muted" })
+        box.Focused:Connect(function() Tween(fieldStroke, { Color = self.Theme.Accent }, 0.2) end)
+        box.FocusLost:Connect(function() Tween(fieldStroke, { Color = self.Theme.Stroke }, 0.25) end)
+    end
+
+    local n = #buttons
+    local stacked = n > 3
+    local row = Create("Frame", {
+        Name = "Buttons", BackgroundTransparency = 1, LayoutOrder = 3, Size = UDim2.new(1, 0, 0, stacked and 0 or (M.Field + 8)),
+        AutomaticSize = stacked and Enum.AutomaticSize.Y or Enum.AutomaticSize.None, Parent = content,
+    }, { Create("UIListLayout", {
+        Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
+        FillDirection = stacked and Enum.FillDirection.Vertical or Enum.FillDirection.Horizontal,
+    }) })
+
+    local primary
+    local function close(silent)
+        if dialog.Closed then return end
+        dialog.Closed = true
+        for i, d in ipairs(self.DialogStack) do if d == dialog then table.remove(self.DialogStack, i) break end end
+        if dialog.Esc then dialog.Esc:Disconnect() end
+        Tween(scrim, { BackgroundTransparency = 1 }, 0.22, Enum.EasingStyle.Quad)
+        Tween(stroke, { Transparency = 1 }, 0.12, Enum.EasingStyle.Quad)
+        Tween(card, { GroupTransparency = 1 }, 0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+        Tween(scale, { Scale = 0.95 }, 0.26)
+        task.delay(0.34, function() layer:Destroy() end)
+        if not silent then Fire("dialog", opts.Title or "dialog", opts.OnClose) end
+    end
+    dialog.Close = function(_, silent) close(silent) end
+
+    for i, spec in ipairs(buttons) do
+        if type(spec) == "string" then spec = { Name = spec } end
+        local style = spec.Style or (i == n and n > 1 and "Accent") or (n == 1 and "Accent") or "Default"
+        local btn = Create("TextButton", {
+            Name = "Button_" .. tostring(spec.Name), LayoutOrder = i, ClipsDescendants = true,
+            Size = stacked and UDim2.new(1, 0, 0, M.Field + 8) or UDim2.new(1 / n, -(8 * (n - 1)) / n, 1, 0), Parent = row,
+        })
+        self:Round(btn, 0.6)
+        local press = Create("UIScale", { Scale = 1, Parent = btn })
+        if style == "Accent" then
+            AccentFill(self, btn, tostring(spec.Name or "OK"), M.Text)
+            primary = primary or spec
+        elseif style == "Danger" then
+            btn.BackgroundTransparency = 0
+            self:Bind(btn, { BackgroundColor3 = "Danger" })
+            local label = Create("TextLabel", {
+                Text = tostring(spec.Name or "OK"), Font = Enum.Font.GothamBold, TextSize = M.Text, Size = UDim2.fromScale(1, 1),
+                TextColor3 = Color3.fromRGB(44, 10, 10), Fit = true, ZIndex = 3, Parent = btn,
+            })
+            primary = primary or spec
+        else
+            btn.BackgroundTransparency = 0
+            self:Bind(btn, { BackgroundColor3 = "Elevated" })
+            local btnStroke = self:Stroke(btn, "Stroke", 1, 0.1)
+            local label = Create("TextLabel", {
+                Text = tostring(spec.Name or "OK"), TextSize = M.Text, Size = UDim2.fromScale(1, 1), Fit = true, ZIndex = 3, Parent = btn,
+            })
+            self:Bind(label, { TextColor3 = "Text" })
+            btn.MouseEnter:Connect(function()
+                Tween(btn, { BackgroundColor3 = self.Theme.Hover }, 0.15)
+                Tween(btnStroke, { Color = self.Theme.Accent }, 0.2)
+            end)
+            btn.MouseLeave:Connect(function()
+                Tween(btn, { BackgroundColor3 = self.Theme.Elevated }, 0.2)
+                Tween(btnStroke, { Color = self.Theme.Stroke }, 0.2)
+            end)
+        end
+        btn.MouseButton1Down:Connect(function() Tween(press, { Scale = 0.96 }, 0.08) end)
+        btn.MouseButton1Up:Connect(function() Tween(press, { Scale = 1 }, 0.22) end)
+        btn.MouseLeave:Connect(function() Tween(press, { Scale = 1 }, 0.2) end)
+        spec._Fire = function()
+            Fire("dialog button", spec.Name, spec.Callback, box and box.Text or nil)
+            if not spec.Keep then close(true) end
+        end
+        btn.Activated:Connect(spec._Fire)
+    end
+
+    if box then box.FocusLost:Connect(function(enter) if enter and primary and primary._Fire then primary._Fire() end end) end
+    if dismissible then
+        scrim.Activated:Connect(function() close() end)
+    end
+    dialog.Esc = self:Connect(UserInputService.InputBegan, function(input)
+        if input.KeyCode == Enum.KeyCode.Escape and dismissible and self.DialogStack[#self.DialogStack] == dialog then close() end
+    end)
+    self.DialogStack[#self.DialogStack + 1] = dialog
+
+    function dialog:SetContent(value) body.Text = tostring(value) end
+    function dialog:GetInput() return box and box.Text or nil end
+
+    Tween(scrim, { BackgroundTransparency = 0.5 }, 0.28, Enum.EasingStyle.Quad)
+    Tween(card, { GroupTransparency = 0 }, 0.32, Enum.EasingStyle.Quint)
+    Tween(stroke, { Transparency = 0.45 }, 0.4, Enum.EasingStyle.Quint)
+    Tween(scale, { Scale = 1 }, 0.5, Enum.EasingStyle.Quint)
+    if box then task.delay(0.2, function() if not dialog.Closed and box.Parent then pcall(function() box:CaptureFocus() end) end end) end
+    return dialog
+end
+
+local Dropdown = {}
+Dropdown.__index = Dropdown
+
+local function Normalize(option)
+    if type(option) == "table" then
+        local text = option.Text or option.Name or tostring(option.Value)
+        local value = option.Value
+        if value == nil then value = text end
+        return { Text = tostring(text), Value = value, Disabled = option.Disabled == true }
+    end
+    return { Text = tostring(option), Value = option, Disabled = false }
+end
+
+function Dropdown.new(root, parent, opts, clip)
+    opts = opts or {}
+    local self = setmetatable({}, Dropdown)
+    local M, T = root.Metrics, root.Theme
+
+    self.Root, self.Clip = root, clip
+    self.Name = tostring(opts.Name or "Dropdown")
+    self.Multi = opts.Multi == true
+    self.Callback = opts.Callback
+    self.Placeholder = opts.Placeholder or "Select..."
+    self.MaxVisible = opts.MaxVisible or 5
+    self.Max = opts.Max
+    self.Search = opts.Search
+    self.SearchThreshold = opts.SearchThreshold or 7
+    if opts.AllowNone ~= nil then self.AllowNone = opts.AllowNone else self.AllowNone = self.Multi end
+    self.Options, self.Selected, self.Items, self.Listeners = {}, {}, {}, {}
+    self.IsOpen, self.Disabled, self.Tick = false, false, 0
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder)
+
+    local field = Create("TextButton", {
+        Name = "Field", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.new(0.58, 0, 0, M.Field), BackgroundTransparency = 0, Parent = self.Row,
+    })
+    Create("UISizeConstraint", { MinSize = Vector2.new(116, 0), Parent = field })
+    root:Bind(field, { BackgroundColor3 = "Elevated" })
+    root:Round(field, 0.6)
+    self.FieldStroke = root:Stroke(field, "Stroke", 1, 0.1)
+    self.Field = field
+    self.Rim = MakeRim(root, field, 0.6)
+
+    self.ValueLabel = Create("TextLabel", {
+        TextSize = M.Text - 1, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+        Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -32, 1, 0), Parent = field,
+    })
+
+    local chevron = Create("Frame", {
+        Name = "Chevron", BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 0.5),
+        Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.fromOffset(14, 14), Parent = field,
+    })
+    self.Chevron = chevron
+    self.ChevronBars = { Bar(root, chevron, 4.6, 7, 7, 2, 45, "SubText"), Bar(root, chevron, 9.4, 7, 7, 2, -45, "SubText") }
+
+    field.MouseEnter:Connect(function()
+        if not self.Disabled then Tween(field, { BackgroundColor3 = root.Theme.Hover }, 0.15) end
+    end)
+    field.MouseLeave:Connect(function()
+        Tween(field, { BackgroundColor3 = root.Theme.Elevated }, 0.2)
+    end)
+    field.MouseButton1Down:Connect(function()
+        if not self.Disabled then Tween(field, { BackgroundColor3 = root.Theme.Hover }, 0.08) end
+    end)
+    field.Activated:Connect(function() self:Toggle() end)
+
+    for _, option in ipairs(opts.Options or {}) do
+        self.Options[#self.Options + 1] = Normalize(option)
+    end
+    if opts.Default ~= nil then self:Set(opts.Default, true) end
+    self:_UpdateDisplay(true)
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Dropdown:_Count()
+    local n = 0
+    for _ in pairs(self.Selected) do n = n + 1 end
+    return n
+end
+
+function Dropdown:Get()
+    if self.Multi then
+        local out = {}
+        for _, option in ipairs(self.Options) do
+            if self.Selected[option.Value] then out[#out + 1] = option.Value end
+        end
+        return out
+    end
+    for _, option in ipairs(self.Options) do
+        if self.Selected[option.Value] then return option.Value end
+    end
+    return nil
+end
+
+function Dropdown:Set(value, silent)
+    local exists = {}
+    for _, option in ipairs(self.Options) do exists[option.Value] = true end
+    local selected = {}
+    if self.Multi then
+        if type(value) == "table" then
+            for key, v in pairs(value) do
+                if v == true and exists[key] then selected[key] = true
+                elseif exists[v] then selected[v] = true end
+            end
+        elseif value ~= nil and exists[value] then
+            selected[value] = true
+        end
+        if self.Max then
+            local kept = 0
+            for _, option in ipairs(self.Options) do
+                if selected[option.Value] then
+                    kept = kept + 1
+                    if kept > self.Max then selected[option.Value] = nil end
+                end
+            end
+        end
+    elseif value ~= nil and exists[value] then
+        selected[value] = true
+    end
+    self.Selected = selected
+    self:_Commit(silent)
+end
+
+function Dropdown:Clear(silent)
+    self.Selected = {}
+    self:_Commit(silent)
+end
+
+function Dropdown:_Commit(silent)
+    self:_UpdateDisplay()
+    for _, rec in ipairs(self.Items) do self:_StyleItem(rec) end
+    local value = self:Get()
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, value)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
+end
+
+function Dropdown:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Dropdown:_Pick(option)
+    if option.Disabled then return end
+    local value = option.Value
+    if self.Multi then
+        if self.Selected[value] then
+            if not self.AllowNone and self:_Count() <= 1 then return end
+            self.Selected[value] = nil
+        else
+            if self.Max and self:_Count() >= self.Max then
+                self.Root:Notify({
+                    Title = self.Name, Type = "Warning", Duration = 2.5,
+                    Content = "You can select up to " .. self.Max .. " options.",
+                })
+                return
+            end
+            self.Selected[value] = true
+        end
+        self:_Commit()
+    else
+        if self.Selected[value] then
+            if self.AllowNone then self.Selected = {} end
+        else
+            self.Selected = { [value] = true }
+        end
+        self:_Commit()
+        self:Close()
+    end
+end
+
+function Dropdown:_UpdateDisplay(instant)
+    local T = self.Root.Theme
+    local texts = {}
+    for _, option in ipairs(self.Options) do
+        if self.Selected[option.Value] then texts[#texts + 1] = option.Text end
+    end
+    local label
+    if #texts == 0 then
+        label = self.Placeholder
+    elseif #texts <= 2 then
+        label = table.concat(texts, ", ")
+    else
+        label = texts[1] .. ", " .. texts[2] .. "  +" .. (#texts - 2)
+    end
+    self.ValueLabel.Text = label
+    Apply(self.ValueLabel, { TextColor3 = (#texts == 0) and T.Muted or T.Text }, instant, 0.2)
+end
+
+function Dropdown:Refresh(options, keepSelection)
+    local before = self:_Count()
+    self.Options = {}
+    for _, option in ipairs(options or {}) do self.Options[#self.Options + 1] = Normalize(option) end
+
+    local exists, keep = {}, {}
+    for _, option in ipairs(self.Options) do exists[option.Value] = true end
+    if keepSelection ~= false then
+        for value in pairs(self.Selected) do
+            if exists[value] then keep[value] = true end
+        end
+    end
+    self.Selected = keep
+
+    if self.Popup and self:_WantsSearch() ~= self.HasSearch then
+        self:Close()
+        self:_DestroyPopup()
+    else
+        self:_Render()
+    end
+    self:_Commit(before == self:_Count())
+end
+
+function Dropdown:Add(option)
+    local list = {}
+    for _, o in ipairs(self.Options) do list[#list + 1] = o end
+    list[#list + 1] = option
+    self:Refresh(list, true)
+end
+
+function Dropdown:Remove(value)
+    local list = {}
+    for _, o in ipairs(self.Options) do
+        if o.Value ~= value then list[#list + 1] = o end
+    end
+    self:Refresh(list, true)
+end
+
+function Dropdown:SetName(name)
+    self.Name = tostring(name)
+    self.Label.Text = self.Name
+end
+
+function Dropdown:SetVisible(state) self.Row.Visible = state end
+
+function Dropdown:SetDisabled(state)
+    self.Disabled = state
+    if state then self:Close() end
+    self.Field.Active = not state
+    Tween(self.Field, { BackgroundTransparency = state and 0.5 or 0 }, 0.2)
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.ValueLabel, { TextTransparency = state and 0.55 or 0 }, 0.2)
+end
+
+function Dropdown:_WantsSearch()
+    if self.Search ~= nil then return self.Search == true end
+    return #self.Options > self.SearchThreshold
+end
+
+function Dropdown:_Top()
+    if self.HasSearch then return self.Root.Metrics.Item + 12 end
+    return 0
+end
+
+function Dropdown:_ListHeight()
+    local M = self.Root.Metrics
+    local n = self.Shown or #self.Options
+    local rows = math.max(1, math.min(n, self.MaxVisible))
+    return rows * (M.Item + 2) - 2 + 10
+end
+
+function Dropdown:_BuildPopup()
+    if self.Popup then return end
+    local root, M = self.Root, self.Root.Metrics
+    self.HasSearch = self:_WantsSearch()
+
+    local holder = Create("Frame", {
+        Name = "NutriexLibraryDropdown", BackgroundTransparency = 1, Visible = false,
+        Size = UDim2.fromOffset(200, 0), Parent = root.Overlay,
+    })
+    self.Holder = holder
+    self.Shadow = root:Shadow(holder, 1, 20)
+
+    local popup = Create("CanvasGroup", {
+        Name = "Popup", Size = UDim2.fromScale(1, 1), GroupTransparency = 1, ZIndex = 1, Parent = holder,
+    })
+    root:Bind(popup, { BackgroundColor3 = "Surface" })
+    popup.BackgroundTransparency = root.Alpha.Popup
+    root:Round(popup, 0.75)
+    self.Popup = popup
+
+    local border = Create("Frame", {
+        Name = "Border", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 3, Parent = holder,
+    })
+    root:Round(border, 0.75)
+    self.BorderStroke = root:Stroke(border, "Stroke", 1, 1)
+    self.Border = border
+
+    local content = Create("Frame", {
+        Name = "Content", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 100), Parent = popup,
+    })
+    self.Content = content
+
+    if self.HasSearch then
+        local box = Create("Frame", {
+            Name = "SearchBox", Position = UDim2.fromOffset(6, 6), Size = UDim2.new(1, -12, 0, M.Item), Parent = content,
+        })
+        root:Bind(box, { BackgroundColor3 = "Elevated" })
+        root:Round(box, 0.55)
+        root:Stroke(box, "Stroke", 1, 0.2)
+        local input = Create("TextBox", {
+            Name = "Input", PlaceholderText = "Search...", TextSize = M.Text - 1,
+            TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(10, 0),
+            Size = UDim2.new(1, -20, 1, 0), Parent = box,
+        })
+        root:Bind(input, { TextColor3 = "Text", PlaceholderColor3 = "Muted" })
+        input:GetPropertyChangedSignal("Text"):Connect(function() self:_Filter(input.Text) end)
+        self.SearchBox = input
+    end
+
+    local list = Create("ScrollingFrame", {
+        Name = "List", CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y,
+        ScrollBarThickness = 2, ScrollingDirection = Enum.ScrollingDirection.Y, Parent = content,
+    })
+    root:Bind(list, { ScrollBarImageColor3 = "Muted" })
+    Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder, Parent = list })
+    Pad(list, 5, 5, 5, 5)
+    self.List = list
+
+    self.Empty = Create("TextLabel", {
+        Text = "No results", TextSize = M.Text - 1, LayoutOrder = 1000000, Visible = false,
+        Size = UDim2.new(1, 0, 0, M.Item), Parent = list,
+    })
+    root:Bind(self.Empty, { TextColor3 = "Muted" })
+
+    self:_Render()
+end
+
+function Dropdown:_DestroyPopup()
+    if self.Holder then self.Holder:Destroy() end
+    self.Holder, self.Popup, self.Content, self.List, self.SearchBox, self.Empty = nil, nil, nil, nil, nil, nil
+    self.Shadow, self.Border, self.BorderStroke = nil, nil, nil
+    self.Items, self.Shown = {}, nil
+end
+
+function Dropdown:_Render()
+    if not self.List then return end
+    local root, M, T = self.Root, self.Root.Metrics, self.Root.Theme
+
+    for _, rec in ipairs(self.Items) do rec.Button:Destroy() end
+    self.Items = {}
+
+    for i, option in ipairs(self.Options) do
+        local rec = { Opt = option, Hover = false }
+        local button = Create("TextButton", {
+            Name = "Item", BackgroundColor3 = T.Hover, BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, M.Item), LayoutOrder = i, Parent = self.List,
+        })
+        root:Round(button, 0.55)
+        rec.Button = button
+
+        rec.Fill = Create("Frame", {
+            Name = "Fill", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1),
+            BackgroundTransparency = 1, Parent = button,
+        })
+        root:Round(rec.Fill, 0.55)
+        local _, fillAnim = root:Gradient(rec.Fill, "Soft", {
+            Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.74), NumberSequenceKeypoint.new(1, 0.9) }),
+        }, { Sweep = 1.4, Range = 0.5, Phase = i * 0.6, On = false })
+        rec.FillAnim = fillAnim
+
+        rec.Bar = Create("Frame", {
+            Name = "Bar", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0),
+            Size = UDim2.fromOffset(3, 0), BackgroundColor3 = Color3.new(1, 1, 1), Parent = button,
+        }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+        root:Gradient(rec.Bar, "Soft", { Rotation = 90 })
+
+        rec.Text = Create("TextLabel", {
+            Text = option.Text, TextSize = M.Text - 1, TextXAlignment = Enum.TextXAlignment.Left,
+            TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(12, 0),
+            Size = UDim2.new(1, -42, 1, 0), Parent = button,
+        })
+
+        local mark = Create("Frame", {
+            Name = "Mark", BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 0.5),
+            Position = UDim2.new(1, -9, 0.5, 0), Size = UDim2.fromOffset(18, 18), Parent = button,
+        })
+        if self.Multi then
+            rec.Box = Create("Frame", {
+                Name = "Box", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1),
+                BackgroundTransparency = 1, Parent = mark,
+            })
+            root:Round(rec.Box, 0.35)
+            root:Gradient(rec.Box, "Soft", { Rotation = 45 })
+            rec.BoxStroke = Create("UIStroke", {
+                Color = T.Stroke, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = rec.Box,
+            })
+        end
+        local tickA = Create("Frame", {
+            AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(6, 10.75),
+            Size = UDim2.fromOffset(4.5, 2), Rotation = 45, BackgroundTransparency = 1, ZIndex = 2, Parent = mark,
+        }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+        local tickB = Create("Frame", {
+            AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(10.5, 9.25),
+            Size = UDim2.fromOffset(8.5, 2), Rotation = -45, BackgroundTransparency = 1, ZIndex = 2, Parent = mark,
+        }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+        rec.Ticks = { tickA, tickB }
+
+        button.MouseEnter:Connect(function() rec.Hover = true; self:_StyleItem(rec) end)
+        button.MouseLeave:Connect(function() rec.Hover = false; self:_StyleItem(rec) end)
+        button.Activated:Connect(function() self:_Pick(option) end)
+
+        self.Items[i] = rec
+        self:_StyleItem(rec, true)
+    end
+
+    self:_Filter(self.SearchBox and self.SearchBox.Text or "")
+end
+
+function Dropdown:_StyleItem(rec, instant)
+    local root, M, T = self.Root, self.Root.Metrics, self.Root.Theme
+    local selected = self.Selected[rec.Opt.Value] == true
+    local hovered = rec.Hover and not rec.Opt.Disabled
+
+    local textColor = T.SubText
+    if rec.Opt.Disabled then textColor = T.Muted
+    elseif selected or hovered then textColor = T.Text end
+
+    Apply(rec.Button, {
+        BackgroundColor3 = T.Hover, BackgroundTransparency = hovered and (selected and 0.55 or 0) or 1,
+    }, instant, 0.18)
+    Apply(rec.Fill, { BackgroundTransparency = selected and 0 or 1 }, instant, 0.22)
+    rec.FillAnim.On = selected
+    Apply(rec.Text, { TextColor3 = textColor }, instant, 0.18)
+    Apply(rec.Bar, {
+        Size = UDim2.fromOffset(3, (selected and not self.Multi) and math.floor(M.Item * 0.5) or 0),
+    }, instant, 0.25)
+
+    local tickColor = self.Multi and T.OnAccent or T.Accent
+    for _, tick in ipairs(rec.Ticks) do
+        Apply(tick, { BackgroundTransparency = selected and 0 or 1, BackgroundColor3 = tickColor }, instant, 0.18)
+    end
+    if rec.Box then
+        Apply(rec.Box, { BackgroundTransparency = selected and 0 or 1 }, instant, 0.18)
+        Apply(rec.BoxStroke, { Color = selected and T.Accent or T.Stroke }, instant, 0.18)
+    end
+end
+
+function Dropdown:_Filter(query)
+    if not self.List then return end
+    query = (query or ""):lower()
+    local shown = 0
+    for _, rec in ipairs(self.Items) do
+        local visible = query == "" or rec.Opt.Text:lower():find(query, 1, true) ~= nil
+        rec.Button.Visible = visible
+        if visible then shown = shown + 1 end
+    end
+    self.Shown = shown
+    self.Empty.Text = (#self.Options == 0) and "No options" or "No results"
+    self.Empty.Visible = shown == 0
+    self:_Layout(true)
+end
+
+function Dropdown:_Layout(animate)
+    if not self.Popup then return end
+    local top = self:_Top()
+    local wanted = top + self:_ListHeight()
+    local height = math.max(top + 36, math.min(wanted, self.MaxH or wanted))
+    self.TargetH = height
+    self.Content.Size = UDim2.new(1, 0, 0, height)
+    self.List.Position = UDim2.fromOffset(0, top)
+    self.List.Size = UDim2.new(1, 0, 0, height - top)
+    if self.IsOpen then
+        Apply(self.Holder, { Size = UDim2.fromOffset(self.PopupWidth, height) }, not animate, 0.34)
+    end
+end
+
+function Dropdown:_Restyle(instant)
+    self:_UpdateDisplay(instant)
+    for _, rec in ipairs(self.Items) do self:_StyleItem(rec, instant) end
+    local T = self.Root.Theme
+    for _, bar in ipairs(self.ChevronBars) do
+        Apply(bar, { BackgroundColor3 = self.IsOpen and T.Accent or T.SubText }, instant, 0.25)
+    end
+end
+
+function Dropdown:_UpdatePosition()
+    local field = self.Field
+    if not field.Parent or not self.Holder then return self:Close() end
+    local pos, size = field.AbsolutePosition, field.AbsoluteSize
+    local viewport = self.Root.Gui.AbsoluteSize
+    local x = math.clamp(pos.X + size.X - self.PopupWidth, 8, math.max(8, viewport.X - self.PopupWidth - 8))
+    local y = self.Flip and (pos.Y - 5) or (pos.Y + size.Y + 5)
+    self.Holder.Position = UDim2.fromOffset(x, y)
+
+    if self.Clip then
+        local clipPos, clipSize = self.Clip.AbsolutePosition, self.Clip.AbsoluteSize
+        local centerY = pos.Y + size.Y / 2
+        if centerY < clipPos.Y or centerY > clipPos.Y + clipSize.Y then self:Close() end
+    end
+end
+
+function Dropdown:Open()
+    if self.IsOpen or self.Disabled then return end
+    local root = self.Root
+    root:CloseDropdown()
+    self:_BuildPopup()
+
+    self.Tick = self.Tick + 1
+    self.IsOpen = true
+    root.OpenDropdown = self
+    root.Catcher.Visible = true
+
+    local pos, size = self.Field.AbsolutePosition, self.Field.AbsoluteSize
+    local viewport = root.Gui.AbsoluteSize
+    self.PopupWidth = math.min(math.max(size.X, 170), viewport.X - 16)
+
+    local below = viewport.Y - (pos.Y + size.Y) - 16
+    local above = pos.Y - 16
+    local natural = self:_Top() + self:_ListHeight()
+    self.Flip = natural > below and above > below
+    self.MaxH = math.max(100, self.Flip and above or below)
+
+    local anchorY = self.Flip and 1 or 0
+    self.Holder.AnchorPoint = Vector2.new(0, anchorY)
+    self.Content.AnchorPoint = Vector2.new(0, anchorY)
+    self.Content.Position = UDim2.new(0, 0, anchorY, 0)
+    self.Holder.Size = UDim2.fromOffset(self.PopupWidth, 0)
+    self.Holder.Visible = true
+
+    self:_Layout(true)
+    self:_UpdatePosition()
+    self.PosConn = RunService.RenderStepped:Connect(function() self:_UpdatePosition() end)
+
+    Tween(self.Popup, { GroupTransparency = 0 }, 0.26)
+    Tween(self.Shadow, { ImageTransparency = 0.55 }, 0.38)
+    Tween(self.BorderStroke, { Transparency = 0.05 }, 0.25)
+    Tween(self.Chevron, { Rotation = 180 }, 0.4)
+    self.Rim.Set(true)
+    for _, bar in ipairs(self.ChevronBars) do Tween(bar, { BackgroundColor3 = root.Theme.Accent }, 0.25) end
+
+    if self.SearchBox and not root.Mobile then
+        task.defer(function()
+            if self.IsOpen and self.SearchBox then self.SearchBox:CaptureFocus() end
+        end)
+    end
+end
+
+function Dropdown:Close()
+    if not self.IsOpen then return end
+    local root, T = self.Root, self.Root.Theme
+    self.IsOpen = false
+    self.Tick = self.Tick + 1
+    local tick = self.Tick
+
+    if root.OpenDropdown == self then
+        root.OpenDropdown = nil
+        root.Catcher.Visible = false
+    end
+    if self.PosConn then self.PosConn:Disconnect() self.PosConn = nil end
+    if self.SearchBox then
+        self.SearchBox:ReleaseFocus()
+        self.SearchBox.Text = ""
+    end
+
+    if self.Holder then
+            Tween(self.Holder, { Size = UDim2.fromOffset(self.PopupWidth, 0) }, 0.26, Motion.In, Enum.EasingDirection.In)
+        Tween(self.Popup, { GroupTransparency = 1 }, 0.22, Motion.Smooth)
+        Tween(self.Shadow, { ImageTransparency = 1 }, 0.2)
+        Tween(self.BorderStroke, { Transparency = 1 }, 0.18)
+        task.delay(0.28, function()
+            if self.Tick == tick and self.Holder then self.Holder.Visible = false end
+        end)
+    end
+    Tween(self.Chevron, { Rotation = 0 }, 0.4)
+    self.Rim.Set(false)
+    for _, bar in ipairs(self.ChevronBars) do Tween(bar, { BackgroundColor3 = T.SubText }, 0.25) end
+end
+
+function Dropdown:Toggle()
+    if self.IsOpen then self:Close() else self:Open() end
+end
+
+function Dropdown:_Cleanup()
+    if self.PosConn then self.PosConn:Disconnect() self.PosConn = nil end
+end
+
+function Dropdown:Destroy()
+    self:Close()
+    self:_Cleanup()
+    Unregister(self.Root, self)
+    if self.Holder then self.Holder:Destroy() end
+    self.Row:Destroy()
+end
+
+local Toggle = {}
+Toggle.__index = Toggle
+
+function Toggle.new(root, parent, opts)
+    opts = opts or {}
+    local self = setmetatable({}, Toggle)
+    local M, T = root.Metrics, root.Theme
+    self.Root = root
+    self.Name = tostring(opts.Name or "Toggle")
+    self.Callback = opts.Callback
+    self.Value = opts.Default == true
+    self.Listeners, self.Disabled = {}, false
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder, 0.72)
+
+    local w, h = (root.Mobile and 44 or 36), (root.Mobile and 24 or 20)
+    self.W, self.H = w, h
+    local track = Create("Frame", {
+        Name = "Track", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -1, 0.5, 0),
+        Size = UDim2.fromOffset(w, h), Parent = self.Row,
+    })
+    root:Bind(track, { BackgroundColor3 = "Elevated" })
+    Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = track })
+    self.TrackStroke = root:Stroke(track, "Stroke", 1, 0.1)
+
+    self.OnFill = Create("Frame", {
+        Name = "On", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1, Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    local _, anim = root:Gradient(self.OnFill, "Flow", nil, { Sweep = 1.6, Range = 0.6, On = false })
+    self.Anim = anim
+
+    local k = h - 6
+    self.K = k
+    self.Knob = Create("Frame", {
+        Name = "Knob", AnchorPoint = Vector2.new(0, 0.5), Size = UDim2.fromOffset(k, k),
+        Position = UDim2.new(0, 3, 0.5, 0), BackgroundColor3 = T.SubText, ZIndex = 2, Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+
+    local hit = Create("TextButton", { Size = UDim2.fromScale(1, 1), ZIndex = 5, Parent = self.Row })
+    self.Hit = hit
+    hit.MouseEnter:Connect(function()
+        if not self.Disabled then Tween(self.TrackStroke, { Color = root.Theme.Accent }, 0.2) end
+    end)
+    hit.MouseLeave:Connect(function()
+        Tween(self.Knob, { Size = UDim2.fromOffset(self.K, self.K) }, 0.15)
+        Tween(self.TrackStroke, { Color = root.Theme.Stroke }, 0.2)
+    end)
+    hit.MouseButton1Down:Connect(function()
+        if not self.Disabled then Tween(self.Knob, { Size = UDim2.fromOffset(self.K + 4, self.K) }, 0.1) end
+    end)
+    hit.MouseButton1Up:Connect(function()
+        Tween(self.Knob, { Size = UDim2.fromOffset(self.K, self.K) }, 0.15)
+    end)
+    hit.Activated:Connect(function()
+        if not self.Disabled then self:Set(not self.Value) end
+    end)
+
+    self:_Paint(true)
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Toggle:_Paint(instant)
+    local T = self.Root.Theme
+    local on = self.Value
+    local x = on and (self.W - self.K - 3) or 3
+    Apply(self.Knob, {
+        Position = UDim2.new(0, x, 0.5, 0), BackgroundColor3 = on and Color3.new(1, 1, 1) or T.SubText,
+    }, instant, 0.3, Enum.EasingStyle.Back)
+    Apply(self.OnFill, { BackgroundTransparency = on and 0 or 1 }, instant, 0.25)
+    self.Anim.On = on
+end
+
+function Toggle:_Restyle(instant) self:_Paint(instant) end
+
+function Toggle:Get() return self.Value end
+
+function Toggle:Set(value, silent)
+    value = value == true
+    if value == self.Value then return end
+    self.Value = value
+    self:_Paint()
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, value)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
+end
+
+function Toggle:Toggle() self:Set(not self.Value) end
+
+function Toggle:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Toggle:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Toggle:SetVisible(state) self.Row.Visible = state end
+function Toggle:SetDisabled(state)
+    self.Disabled = state
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.Knob, { BackgroundTransparency = state and 0.5 or 0 }, 0.2)
+end
+function Toggle:Destroy() Unregister(self.Root, self); self.Row:Destroy() end
+
+local Slider = {}
+Slider.__index = Slider
+
+function Slider.new(root, parent, opts, scroll)
+    opts = opts or {}
+    local self = setmetatable({}, Slider)
+    local M, T = root.Metrics, root.Theme
+    self.Root, self.Scroll = root, scroll
+    self.Name = tostring(opts.Name or "Slider")
+    self.Callback = opts.Callback
+    self.Min, self.Max = opts.Min or 0, opts.Max or 100
+    if self.Max <= self.Min then self.Max = self.Min + 1 end
+    self.Step = opts.Step or opts.Increment or 1
+    if self.Step <= 0 then self.Step = 1 end
+    self.Suffix = opts.Suffix or ""
+    self.Digits = Decimals(self.Step)
+    self.Listeners, self.Disabled, self.Dragging = {}, false, false
+
+    local height = M.Row + (root.Mobile and 20 or 16)
+    self.Row = Create("Frame", {
+        Name = "Row_" .. self.Name, BackgroundTransparency = 1, LayoutOrder = opts.LayoutOrder or 0,
+        Size = UDim2.new(1, 0, 0, height), Parent = parent,
+    })
+    self.Label = Create("TextLabel", {
+        Text = self.Name, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(2, 2), Size = UDim2.new(0.62, -8, 0, 20),
+        Parent = self.Row,
+        Grow = function(h)
+            local lh = h and math.max(20, h + 2) or 20
+            if self.Label.Size.Y.Offset ~= lh then
+                self.Label.Size = UDim2.new(0.62, -8, 0, lh)
+                self.Row.Size = UDim2.new(1, 0, 0, height + lh - 20)
+            end
+        end,
+    })
+    root:Bind(self.Label, { TextColor3 = "Text" })
+    self.ValueLabel = Create("TextLabel", {
+        Font = Enum.Font.GothamBold, TextSize = M.Text - 1, TextXAlignment = Enum.TextXAlignment.Right,
+        AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -2, 0, 2), Size = UDim2.new(0.38, 0, 0, 20),
+        Parent = self.Row,
+    })
+    root:Bind(self.ValueLabel, { TextColor3 = "SubText" })
+
+    local hitHeight = root.Mobile and 28 or 20
+    local hit = Create("TextButton", {
+        Name = "Hit", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -2),
+        Size = UDim2.new(1, 0, 0, hitHeight), Parent = self.Row,
+    })
+    self.Hit = hit
+    local track = Create("Frame", {
+        Name = "Track", AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 2, 0.5, 0),
+        Size = UDim2.new(1, -4, 0, 5), Parent = hit,
+    })
+    root:Bind(track, { BackgroundColor3 = "Elevated" })
+    Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = track })
+    root:Stroke(track, "Stroke", 1, 0.4)
+    self.Track = track
+
+    self.Ticks = {}
+    local steps = math.floor((self.Max - self.Min) / self.Step + 0.5)
+    if opts.Ticks == true or (opts.Ticks ~= false and steps >= 2 and steps <= 20) then
+        for i = 0, steps do
+            local alpha = i * self.Step / (self.Max - self.Min)
+            local tick = Create("Frame", {
+                Name = "Tick", AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(alpha, 0, 1, 4),
+                Size = UDim2.fromOffset(1, (i == 0 or i == steps) and 4 or 3), BackgroundTransparency = 0.5, Parent = track,
+            })
+            root:Bind(tick, { BackgroundColor3 = "Muted" })
+            self.Ticks[#self.Ticks + 1] = { Frame = tick, Alpha = alpha, On = false }
+        end
+    end
+
+    self.Fill = Create("Frame", {
+        Name = "Fill", Size = UDim2.fromScale(0, 1), BackgroundColor3 = Color3.new(1, 1, 1), Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Gradient(self.Fill, "Flow", nil, { Sweep = 1.3, Range = 0.5 })
+
+    self.Knob = Create("Frame", {
+        Name = "Knob", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0, 0.5),
+        Size = UDim2.fromOffset(12, 12), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    self.KnobStroke = Create("UIStroke", { Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = self.Knob })
+    root:Bind(self.KnobStroke, { Color = "Accent" })
+
+    local function fromInput(position)
+        local alpha = math.clamp((position.X - track.AbsolutePosition.X) / math.max(1, track.AbsoluteSize.X), 0, 1)
+        self:Set(self.Min + alpha * (self.Max - self.Min), false, true)
+    end
+    hit.InputBegan:Connect(function(input)
+        if self.Disabled or not IsPointerDown(input) then return end
+        self.Dragging = true
+        if self.Scroll then self.Scroll.ScrollingEnabled = false end
+        Tween(self.Knob, { Size = UDim2.fromOffset(16, 16) }, 0.12)
+        fromInput(input.Position)
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                connection:Disconnect()
+                self.Dragging = false
+                if self.Scroll then self.Scroll.ScrollingEnabled = true end
+                Tween(self.Knob, { Size = UDim2.fromOffset(12, 12) }, 0.15)
+            end
+        end)
+    end)
+    self.MoveConn = UserInputService.InputChanged:Connect(function(input)
+        if self.Dragging and IsPointerMove(input) then fromInput(input.Position) end
+    end)
+
+    local default = opts.Default
+    if default == nil then default = self.Min end
+    self.Value = self:_Snap(default)
+    self:_Paint(true)
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Slider:_Snap(value)
+    local snapped = self.Min + math.floor((value - self.Min) / self.Step + 0.5) * self.Step
+    snapped = math.clamp(snapped, self.Min, self.Max)
+    return tonumber(string.format("%." .. self.Digits .. "f", snapped))
+end
+
+function Slider:_Paint(instant, quick)
+    local alpha = (self.Value - self.Min) / (self.Max - self.Min)
+    self.ValueLabel.Text = string.format("%." .. self.Digits .. "f", self.Value) .. self.Suffix
+
+    local time = quick and 0.12 or 0.25
+    Apply(self.Fill, { Size = UDim2.new(alpha, 0, 1, 0) }, instant, time)
+    Apply(self.Knob, { Position = UDim2.new(alpha, 0, 0.5, 0) }, instant, time)
+    for _, t in ipairs(self.Ticks) do
+        local on = t.Alpha <= alpha + 1e-6
+        if on ~= t.On then
+            t.On = on
+            Apply(t.Frame, { BackgroundColor3 = on and self.Root.Theme.Accent or self.Root.Theme.Muted, BackgroundTransparency = on and 0.1 or 0.5 }, instant, 0.18)
+        end
+    end
+end
+
+function Slider:_Restyle()
+    for _, t in ipairs(self.Ticks) do
+        t.Frame.BackgroundColor3 = t.On and self.Root.Theme.Accent or self.Root.Theme.Muted
+    end
+end
+
+function Slider:Get() return self.Value end
+
+function Slider:Set(value, silent, quick)
+    if type(value) ~= "number" then return end
+    value = self:_Snap(value)
+    if value == self.Value then return end
+    self.Value = value
+    self:_Paint(false, quick)
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, value)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
+end
+
+function Slider:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Slider:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Slider:SetVisible(state) self.Row.Visible = state end
+function Slider:SetDisabled(state)
+    self.Disabled = state
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.ValueLabel, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.Fill, { BackgroundTransparency = state and 0.6 or 0 }, 0.2)
+end
+function Slider:_Cleanup() if self.MoveConn then self.MoveConn:Disconnect() self.MoveConn = nil end end
+function Slider:Destroy() self:_Cleanup(); Unregister(self.Root, self); self.Row:Destroy() end
+
+local Input = {}
+Input.__index = Input
+
+function Input.new(root, parent, opts)
+    opts = opts or {}
+    local self = setmetatable({}, Input)
+    local M = root.Metrics
+    self.Root = root
+    self.Name = tostring(opts.Name or "Input")
+    self.Callback = opts.Callback
+    self.Numeric = opts.Numeric == true
+    self.Listeners, self.Disabled = {}, false
+    self.Value = tostring(opts.Default or "")
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder)
+
+    local field = Create("Frame", {
+        Name = "Field", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.new(0.58, 0, 0, M.Field), Parent = self.Row,
+    })
+    Create("UISizeConstraint", { MinSize = Vector2.new(116, 0), Parent = field })
+    root:Bind(field, { BackgroundColor3 = "Elevated" })
+    root:Round(field, 0.6)
+    root:Stroke(field, "Stroke", 1, 0.1)
+    self.Field = field
+    self.Rim = MakeRim(root, field, 0.6)
+
+    local box = Create("TextBox", {
+        Name = "Box", PlaceholderText = opts.Placeholder or "Type here...", Text = self.Value, TextSize = M.Text - 1,
+        TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+        ClearTextOnFocus = false, Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -20, 1, 0), Parent = field,
+    })
+    root:Bind(box, { TextColor3 = "Text", PlaceholderColor3 = "Muted" })
+    self.Box = box
+
+    box:GetPropertyChangedSignal("Text"):Connect(function()
+        if self.Numeric then
+            local cleaned = box.Text:gsub("[^%d%.%-]", "")
+            if cleaned ~= box.Text then box.Text = cleaned end
+        end
+    end)
+    box.Focused:Connect(function()
+        if self.Disabled then box:ReleaseFocus() return end
+        self.Rim.Set(true)
+    end)
+    box.FocusLost:Connect(function(enter)
+        self.Rim.Set(false)
+        self:_Commit(box.Text, enter)
+    end)
+
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Input:_Commit(text, enter, silent)
+    if self.Numeric and text ~= "" and tonumber(text) == nil then text = self.Value end
+    self.Box.Text = text
+    if text == self.Value and not enter then return end
+    self.Value = text
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = self:Get() end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, self:Get(), enter)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, self:Get()) end
+end
+
+function Input:Get()
+    if self.Numeric then return tonumber(self.Value) end
+    return self.Value
+end
+
+function Input:Set(value, silent)
+    self:_Commit(value == nil and "" or tostring(value), false, silent)
+end
+
+function Input:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Input:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Input:SetVisible(state) self.Row.Visible = state end
+function Input:SetDisabled(state)
+    self.Disabled = state
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.Box, { TextTransparency = state and 0.55 or 0 }, 0.2)
+end
+function Input:Destroy() Unregister(self.Root, self); self.Row:Destroy() end
+
+local Keybind = {}
+Keybind.__index = Keybind
+
+local function KeyName(key)
+    return key and key.Name or "None"
+end
+
+function Keybind.new(root, parent, opts)
+    opts = opts or {}
+    local self = setmetatable({}, Keybind)
+    local M = root.Metrics
+    self.Root = root
+    self.Name = tostring(opts.Name or "Keybind")
+    self.Callback = opts.Callback
+    self.OnPress = opts.OnPress
+    self.Listeners, self.Disabled, self.Listening = {}, false, false
+    self.Key = nil
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder)
+
+    local field = Create("TextButton", {
+        Name = "Field", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.new(0, root.Mobile and 112 or 100, 0, M.Field), BackgroundTransparency = 0,
+        TextSize = M.Text - 1, Parent = self.Row,
+    })
+    root:Bind(field, { BackgroundColor3 = "Elevated", TextColor3 = "Text" })
+    root:Round(field, 0.6)
+    root:Stroke(field, "Stroke", 1, 0.1)
+    self.Field = field
+    self.Rim = MakeRim(root, field, 0.6)
+
+    field.MouseEnter:Connect(function()
+        if not self.Disabled then Tween(field, { BackgroundColor3 = root.Theme.Hover }, 0.15) end
+    end)
+    field.MouseLeave:Connect(function() Tween(field, { BackgroundColor3 = root.Theme.Elevated }, 0.2) end)
+    field.Activated:Connect(function()
+        if self.Disabled then return end
+        self:_Listen(not self.Listening)
+    end)
+
+    self.InputConn = root:Connect(UserInputService.InputBegan, function(input, processed)
+        if self.Listening then
+            if input.UserInputType ~= Enum.UserInputType.Keyboard then return end
+            if input.KeyCode == Enum.KeyCode.Escape then
+                self:_Listen(false)
+            elseif input.KeyCode == Enum.KeyCode.Backspace then
+                self:Set(nil)
+                self:_Listen(false)
+            else
+                self:Set(input.KeyCode)
+                self:_Listen(false)
+            end
+        elseif not processed and self.Key and input.KeyCode == self.Key then
+            Fire("press", self.Name, self.OnPress, self.Key)
+        end
+    end)
+
+    local default = opts.Default
+    if type(default) == "string" then default = Enum.KeyCode[default] end
+    self.Key = default
+    self:_Paint()
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Keybind:_Listen(state)
+    self.Listening = state
+    self.Rim.Set(state)
+    self:_Paint()
+end
+
+function Keybind:_Paint()
+    self.Field.Text = self.Listening and "Press a key..." or KeyName(self.Key)
+    Tween(self.Field, { TextTransparency = (not self.Listening and not self.Key) and 0.45 or 0 }, 0.15)
+end
+
+function Keybind:_Restyle() end
+
+function Keybind:Get() return self.Key end
+
+function Keybind:Set(key, silent)
+    if type(key) == "string" then key = Enum.KeyCode[key] end
+    self.Key = key
+    self:_Paint()
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = key and key.Name or nil end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, key)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, key) end
+end
+
+function Keybind:Save() return self.Key and self.Key.Name or nil end
+function Keybind:Load(value) self:Set(value) end
+
+function Keybind:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Keybind:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Keybind:SetVisible(state) self.Row.Visible = state end
+function Keybind:SetDisabled(state)
+    self.Disabled = state
+    if state then self:_Listen(false) end
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+end
+function Keybind:_Cleanup() if self.InputConn then self.InputConn:Disconnect() self.InputConn = nil end end
+function Keybind:Destroy() self:_Cleanup(); Unregister(self.Root, self); self.Row:Destroy() end
+
+local ColorPicker = {}
+ColorPicker.__index = ColorPicker
+
+local function ToHex(c)
+    return string.format("#%02X%02X%02X", math.floor(c.R * 255 + 0.5), math.floor(c.G * 255 + 0.5), math.floor(c.B * 255 + 0.5))
+end
+
+local function FromHex(text)
+    text = tostring(text):gsub("#", "")
+    if #text ~= 6 then return nil end
+    local r, g, b = tonumber(text:sub(1, 2), 16), tonumber(text:sub(3, 4), 16), tonumber(text:sub(5, 6), 16)
+    if not (r and g and b) then return nil end
+    return Color3.fromRGB(r, g, b)
+end
+
+function ColorPicker.new(root, parent, opts, scroll)
+    opts = opts or {}
+    local self = setmetatable({}, ColorPicker)
+    local M = root.Metrics
+    self.Root, self.Scroll = root, scroll
+    self.Name = tostring(opts.Name or "Color")
+    self.Callback = opts.Callback
+    self.Listeners, self.Disabled, self.Expanded = {}, false, false
+    self.PickerH = root.Mobile and 136 or 120
+
+    self.Holder = Create("Frame", {
+        Name = "ColorPicker", BackgroundTransparency = 1, ClipsDescendants = true, LayoutOrder = opts.LayoutOrder or 0,
+        Size = UDim2.new(1, 0, 0, M.Row), Parent = parent,
+    })
+    self.Row, self.Label = MakeRow(root, self.Holder, self.Name, M.Row, 0, 0.5)
+
+    local swatchW = root.Mobile and 46 or 40
+    local swatch = Create("TextButton", {
+        Name = "Swatch", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.fromOffset(swatchW, M.Field - 4), BackgroundTransparency = 0, ZIndex = 2, Parent = self.Row,
+    })
+    root:Round(swatch, 0.6)
+    self.SwatchStroke = root:Stroke(swatch, "Stroke", 1, 0.1)
+    self.Swatch = swatch
+    self.HexLabel = Create("TextLabel", {
+        Font = Enum.Font.Code, TextSize = M.Text - 2, TextXAlignment = Enum.TextXAlignment.Right,
+        AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -(swatchW + 8), 0.5, 0),
+        Size = UDim2.fromOffset(62, M.Row), Parent = self.Row,
+    })
+    root:Bind(self.HexLabel, { TextColor3 = "SubText" })
+
+    local area = Create("Frame", {
+        Name = "Area", BackgroundTransparency = 1, Position = UDim2.fromOffset(0, M.Row + 2),
+        Size = UDim2.new(1, 0, 0, self.PickerH - 8), Parent = self.Holder,
+    })
+    local sv = Create("TextButton", { Name = "SV", Size = UDim2.new(1, 0, 1, -20), BackgroundTransparency = 0, Parent = area })
+    root:Round(sv, 0.6)
+    root:Stroke(sv, "Stroke", 1, 0.2)
+    local white = Create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = sv }, {
+        Create("UIGradient", { Transparency = NumberSequence.new(0, 1) }),
+    })
+    root:Round(white, 0.6)
+    local black = Create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), ZIndex = 3, Parent = sv }, {
+        Create("UIGradient", { Rotation = 90, Transparency = NumberSequence.new(1, 0) }),
+    })
+    root:Round(black, 0.6)
+    local cursor = Create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(12, 12), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 5,
+        Parent = sv,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }), Create("UIStroke", { Thickness = 2, Color = Color3.new(0, 0, 0), Transparency = 0.35 }) })
+
+    local hue = Create("TextButton", {
+        Name = "Hue", AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Size = UDim2.new(1, 0, 0, 12),
+        BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0, Parent = area,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    local stops = {}
+    for i = 0, 6 do stops[#stops + 1] = KP(i / 6, Color3.fromHSV(i / 6 % 1 == 0 and (i == 6 and 0.9999 or 0) or i / 6, 1, 1)) end
+    Create("UIGradient", { Color = ColorSequence.new(stops), Parent = hue })
+    local hueCursor = Create("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0, 0.5), Size = UDim2.fromOffset(6, 16),
+        BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 3, Parent = hue,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }), Create("UIStroke", { Thickness = 1.5, Color = Color3.new(0, 0, 0), Transparency = 0.4 }) })
+    self.SV, self.Hue, self.Cursor, self.HueCursor = sv, hue, cursor, hueCursor
+
+    local function begin(kind, input)
+        if self.Disabled or not IsPointerDown(input) then return end
+        self.Drag = kind
+        if self.Scroll then self.Scroll.ScrollingEnabled = false end
+        self:_FromInput(input.Position)
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                connection:Disconnect()
+                self.Drag = nil
+                if self.Scroll then self.Scroll.ScrollingEnabled = true end
+            end
+        end)
+    end
+    sv.InputBegan:Connect(function(input) begin("SV", input) end)
+    hue.InputBegan:Connect(function(input) begin("Hue", input) end)
+    self.MoveConn = UserInputService.InputChanged:Connect(function(input)
+        if self.Drag and IsPointerMove(input) then self:_FromInput(input.Position) end
+    end)
+
+    swatch.MouseEnter:Connect(function() Tween(self.SwatchStroke, { Color = root.Theme.Accent }, 0.2) end)
+    swatch.MouseLeave:Connect(function()
+        if not self.Expanded then Tween(self.SwatchStroke, { Color = root.Theme.Stroke }, 0.2) end
+    end)
+    swatch.Activated:Connect(function() if not self.Disabled then self:SetExpanded(not self.Expanded) end end)
+
+    local default = opts.Default
+    if type(default) == "string" then default = FromHex(default) end
+    self.H, self.S, self.V = (default or Color3.fromRGB(139, 108, 255)):ToHSV()
+    self.Value = Color3.fromHSV(self.H, self.S, self.V)
+    self:_Paint(true)
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function ColorPicker:_FromInput(position)
+    if self.Drag == "SV" then
+        local p, s = self.SV.AbsolutePosition, self.SV.AbsoluteSize
+        local x = math.clamp((position.X - p.X) / math.max(1, s.X), 0, 1)
+        local y = math.clamp((position.Y - p.Y) / math.max(1, s.Y), 0, 1)
+        self:_SetHSV(self.H, x, 1 - y)
+    elseif self.Drag == "Hue" then
+        local p, s = self.Hue.AbsolutePosition, self.Hue.AbsoluteSize
+        self:_SetHSV(math.clamp((position.X - p.X) / math.max(1, s.X), 0, 0.9999), self.S, self.V)
+    end
+end
+
+function ColorPicker:_SetHSV(h, s, v, silent)
+    self.H, self.S, self.V = h, s, v
+    self.Value = Color3.fromHSV(h, s, v)
+    self:_Paint(false)
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = self.Value end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, self.Value)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, self.Value) end
+end
+
+function ColorPicker:_Paint(instant)
+    Apply(self.Swatch, { BackgroundColor3 = self.Value }, instant or self.Drag ~= nil, 0.12)
+    self.HexLabel.Text = ToHex(self.Value)
+    self.SV.BackgroundColor3 = Color3.fromHSV(self.H, 1, 1)
+    self.Cursor.Position = UDim2.fromScale(self.S, 1 - self.V)
+    self.HueCursor.Position = UDim2.fromScale(self.H, 0.5)
+end
+
+function ColorPicker:_Restyle() end
+
+function ColorPicker:SetExpanded(state)
+    self.Expanded = state
+    local M = self.Root.Metrics
+    Tween(self.Holder, { Size = UDim2.new(1, 0, 0, M.Row + (state and self.PickerH or 0)) }, 0.35, Enum.EasingStyle.Quint)
+    Tween(self.SwatchStroke, { Color = state and self.Root.Theme.Accent or self.Root.Theme.Stroke }, 0.2)
+end
+
+function ColorPicker:Get() return self.Value end
+
+function ColorPicker:Set(value, silent)
+    if type(value) == "string" then value = FromHex(value) end
+    if typeof(value) ~= "Color3" then return end
+    local h, s, v = value:ToHSV()
+    self:_SetHSV(h, s, v, silent)
+end
+
+function ColorPicker:Save() return ToHex(self.Value) end
+function ColorPicker:Load(value) self:Set(value) end
+
+function ColorPicker:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function ColorPicker:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function ColorPicker:SetVisible(state) self.Holder.Visible = state end
+function ColorPicker:SetDisabled(state)
+    self.Disabled = state
+    if state and self.Expanded then self:SetExpanded(false) end
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+end
+function ColorPicker:_Cleanup() if self.MoveConn then self.MoveConn:Disconnect() self.MoveConn = nil end end
+function ColorPicker:Destroy() self:_Cleanup(); Unregister(self.Root, self); self.Holder:Destroy() end
+
+local Segmented = {}
+Segmented.__index = Segmented
+
+local function TextWidth(text, size, font)
+    local ok, bounds = pcall(function()
+        local params = Instance.new("GetTextBoundsParams")
+        params.Text, params.Font, params.Size, params.Width = text, font, size, 100000
+        return TextService:GetTextBoundsAsync(params)
+    end)
+    return ok and bounds.X or (#text * size * 0.62)
+end
+
+function Segmented.new(root, parent, opts)
+    opts = opts or {}
+    local self = setmetatable({}, Segmented)
+    local M = root.Metrics
+    self.Root = root
+    self.Name = tostring(opts.Name or "Mode")
+    self.Callback = opts.Callback
+    self.Listeners, self.Disabled = {}, false
+    self.Options = {}
+    for _, option in ipairs(opts.Options or {}) do self.Options[#self.Options + 1] = Normalize(option) end
+    local n = math.max(1, #self.Options)
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder, 0.34)
+    self.Base = M.Row
+    local bar = Create("Frame", {
+        Name = "Bar", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0),
+        Size = UDim2.new(0.66, 0, 0, M.Field + 2), Parent = self.Row,
+    })
+    root:Bind(bar, { BackgroundColor3 = "Elevated" })
+    root:Round(bar, 0.7)
+    root:Stroke(bar, "Stroke", 1, 0.1)
+    self.Bar = bar
+
+    self.Pill = Create("Frame", {
+        Name = "Pill", Size = UDim2.new(1 / n, -4, 1, -4), Position = UDim2.new(0, 2, 0, 2),
+        BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = bar,
+    })
+    root:Round(self.Pill, 0.5)
+    root:Gradient(self.Pill, "Flow", nil, { Sweep = 1.3, Range = 0.5 })
+
+    self.Buttons = {}
+    for i, option in ipairs(self.Options) do
+        local button = Create("TextButton", {
+            Text = option.Text, TextSize = M.Text - 2, Font = Enum.Font.GothamBold,
+            Size = UDim2.new(1 / n, 0, 1, 0), Position = UDim2.new((i - 1) / n, 0, 0, 0), ZIndex = 3, Parent = bar,
+        })
+        Create("UITextSizeConstraint", { MaxTextSize = M.Text - 2, MinTextSize = 6, Parent = button })
+        button.Activated:Connect(function() if not self.Disabled then self:Set(option.Value) end end)
+        button:GetPropertyChangedSignal("FontFace"):Connect(function() self:_Layout() end)
+        self.Buttons[i] = button
+    end
+
+    local default = opts.Default
+    self.Index = 1
+    for i, option in ipairs(self.Options) do if option.Value == default then self.Index = i end end
+    self:_Paint(true)
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+
+    local lastWidth
+    self.Row:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        local width = self.Row.AbsoluteSize.X
+        if width ~= lastWidth then lastWidth = width; self:_Layout() end
+    end)
+    self.Row:GetPropertyChangedSignal("Size"):Connect(function()
+        local h = self.WantH
+        if h and self.Row.Size.Y.Offset ~= h then self.Row.Size = UDim2.new(1, 0, 0, h) end
+    end)
+    self.Label:GetPropertyChangedSignal("Text"):Connect(function() self:_Layout() end)
+    task.defer(function() self:_Layout() end)
+    return self
+end
+
+function Segmented:_Layout()
+    local row, bar, label, M = self.Row, self.Bar, self.Label, self.Root.Metrics
+    local width = row.AbsoluteSize.X
+    if width < 40 or #self.Buttons == 0 then return end
+    local size = M.Text - 2
+    local widths, total = {}, 0
+    for i, button in ipairs(self.Buttons) do
+        widths[i] = math.ceil(TextWidth(button.Text, size, button.FontFace)) + 18
+        total = total + widths[i]
+    end
+    local labelWidth = math.ceil(TextWidth(label.Text, M.Text, label.FontFace)) + 12
+    local room = width - math.min(labelWidth, width * 0.4) - 6
+    local stacked = total + 4 > room
+    self.WantH = stacked and (self.Base + M.Field + 4) or nil
+    local barWidth = stacked and width or math.min(room, math.max(total + 4, width * 0.5))
+
+    if stacked then
+        label.AnchorPoint, label.Position, label.Size = Vector2.new(0, 0), UDim2.fromOffset(2, 0), UDim2.new(1, -8, 0, self.Base)
+        bar.AnchorPoint, bar.Position = Vector2.new(0, 0), UDim2.fromOffset(0, self.Base - 2)
+        bar.Size = UDim2.new(1, 0, 0, M.Field + 2)
+        row.Size = UDim2.new(1, 0, 0, self.Base + M.Field + 4)
+    else
+        label.AnchorPoint, label.Position = Vector2.new(0, 0.5), UDim2.new(0, 2, 0.5, 0)
+        label.Size = UDim2.new(1, -(barWidth + 10), 1, 0)
+        bar.AnchorPoint, bar.Position = Vector2.new(1, 0.5), UDim2.new(1, 0, 0.5, 0)
+        bar.Size = UDim2.new(0, barWidth, 0, M.Field + 2)
+        if self.Stacked then row.Size = UDim2.new(1, 0, 0, self.Base) end
+    end
+    self.Stacked = stacked
+
+    local scaled = total > barWidth
+    local geo, x = {}, 0
+    for i, button in ipairs(self.Buttons) do
+        local w = widths[i] * barWidth / total
+        geo[i] = { x = x, w = w }
+        button.Position, button.Size = UDim2.fromOffset(x, 0), UDim2.new(0, w, 1, 0)
+        button.TextScaled = scaled
+        if not scaled then button.TextSize = size end
+        x = x + w
+    end
+    self.Geo = geo
+    self:_Paint(true)
+end
+
+function Segmented:_Paint(instant)
+    local n = math.max(1, #self.Options)
+    local T = self.Root.Theme
+    local g = self.Geo and self.Geo[self.Index]
+    if g then
+        Apply(self.Pill, { Position = UDim2.fromOffset(g.x + 2, 2), Size = UDim2.new(0, math.max(2, g.w - 4), 1, -4) }, instant, 0.4)
+    else
+        Apply(self.Pill, { Position = UDim2.new((self.Index - 1) / n, 2, 0, 2) }, instant, 0.4)
+    end
+    for i, button in ipairs(self.Buttons) do
+        Apply(button, { TextColor3 = i == self.Index and T.OnAccent or T.SubText }, instant, 0.25)
+    end
+end
+
+function Segmented:_Restyle(instant) self:_Paint(instant) end
+
+function Segmented:Get()
+    local option = self.Options[self.Index]
+    return option and option.Value
+end
+
+function Segmented:Set(value, silent)
+    for i, option in ipairs(self.Options) do
+        if option.Value == value then
+            if i == self.Index then return end
+            self.Index = i
+            self:_Paint()
+            if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+            if silent then return end
+            Fire("callback", self.Name, self.Callback, value)
+            for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
+            return
+        end
+    end
+end
+
+function Segmented:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Segmented:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Segmented:SetVisible(state) self.Row.Visible = state end
+function Segmented:SetDisabled(state)
+    self.Disabled = state
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.Bar, { BackgroundTransparency = state and 0.5 or 0 }, 0.2)
+end
+function Segmented:Destroy() Unregister(self.Root, self); self.Row:Destroy() end
+
+local Progress = {}
+Progress.__index = Progress
+
+function Progress.new(root, parent, opts)
+    local self = setmetatable({}, Progress)
+    local M = root.Metrics
+    self.Root, self.Name = root, tostring(opts.Name or "Progress")
+    self.Min, self.Max = opts.Min or 0, opts.Max or 100
+    self.Format = opts.Format
+    self.Suffix = opts.Suffix
+    self.Value = math.clamp(opts.Default or opts.Value or self.Min, self.Min, self.Max)
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row + 8, opts.LayoutOrder, 0.6)
+    self.Label.AnchorPoint = Vector2.new(0, 0)
+    self.Label.Position = UDim2.fromOffset(2, 3)
+    self.Label.Size = UDim2.new(0.62, -8, 0, M.Row - 8)
+
+    self.ValueLabel = Create("TextLabel", {
+        AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -2, 0, 3), Size = UDim2.new(0.38, -4, 0, M.Row - 8),
+        TextSize = M.Text - 1, TextXAlignment = Enum.TextXAlignment.Right, Fit = true, Parent = self.Row,
+    })
+    root:Bind(self.ValueLabel, { TextColor3 = "SubText" })
+
+    local track = Create("Frame", {
+        Name = "Track", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 2, 1, -5), Size = UDim2.new(1, -4, 0, 5),
+        ClipsDescendants = true, Parent = self.Row,
+    })
+    root:Bind(track, { BackgroundColor3 = "Elevated" })
+    Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = track })
+    root:Stroke(track, "Stroke", 1, 0.3)
+    self.Fill = Create("Frame", {
+        Name = "Fill", Size = UDim2.fromScale(0, 1), BackgroundColor3 = Color3.new(1, 1, 1), Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Gradient(self.Fill, "Flow", nil, { Sweep = 1.3, Range = 0.5 })
+
+    self:_Paint(true)
+    Register(root, self, opts.Flag)
+    return self
+end
+
+function Progress:_Fraction()
+    local span = self.Max - self.Min
+    return span > 0 and (self.Value - self.Min) / span or 0
+end
+
+function Progress:_Paint(instant)
+    local text
+    if self.Format then
+        local ok, result = pcall(self.Format, self.Value, self:_Fraction())
+        text = ok and tostring(result) or tostring(self.Value)
+    elseif self.Min == 0 and self.Max == 100 and not self.Suffix then
+        text = string.format("%d%%", math.floor(self.Value + 0.5))
+    else
+        local d = Decimals(self.Max - self.Min > 1 and 1 or 0.01)
+        text = string.format("%." .. d .. "f", self.Value) .. (self.Suffix or "")
+    end
+    self.ValueLabel.Text = text
+    Apply(self.Fill, { Size = UDim2.fromScale(self:_Fraction(), 1) }, instant, 0.45, Enum.EasingStyle.Quint)
+end
+
+function Progress:_Restyle() end
+function Progress:Get() return self.Value end
+
+function Progress:Set(value, silent)
+    value = math.clamp(tonumber(value) or self.Min, self.Min, self.Max)
+    if value == self.Value then return end
+    self.Value = value
+    self:_Paint()
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+end
+
+function Progress:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Progress:SetVisible(state) self.Row.Visible = state end
+function Progress:SetDisabled() end
+function Progress:Destroy() Unregister(self.Root, self); self.Row:Destroy() end
+
+local Stepper = {}
+Stepper.__index = Stepper
+
+function Stepper.new(root, parent, opts)
+    local self = setmetatable({}, Stepper)
+    local M = root.Metrics
+    self.Root, self.Name, self.Callback = root, tostring(opts.Name or "Stepper"), opts.Callback
+    self.Min, self.Max, self.Step = opts.Min or 0, opts.Max or 100, opts.Step or 1
+    self.Suffix, self.Listeners, self.Disabled = opts.Suffix or "", {}, false
+    self.Decimals = Decimals(self.Step)
+    self.Value = self:_Clean(opts.Default or self.Min)
+
+    self.Row, self.Label = MakeRow(root, parent, self.Name, M.Row, opts.LayoutOrder, 0.5)
+
+    local h = M.Field
+    local group = Create("Frame", {
+        Name = "Group", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -1, 0.5, 0),
+        Size = UDim2.new(0.5, -4, 0, h), Parent = self.Row,
+    })
+    root:Bind(group, { BackgroundColor3 = "Elevated" })
+    root:Round(group, 0.6)
+    root:Stroke(group, "Stroke", 1, 0.1)
+
+    local function makeButton(symbol, side, direction)
+        local button = Create("TextButton", {
+            Text = symbol, Font = Enum.Font.GothamBold, TextSize = M.Text + 3,
+            AnchorPoint = Vector2.new(side, 0), Position = UDim2.fromScale(side, 0), Size = UDim2.new(0, h, 1, 0), Parent = group,
+        })
+        root:Bind(button, { TextColor3 = "SubText" })
+        button.MouseEnter:Connect(function() if not self.Disabled then Tween(button, { TextColor3 = root.Theme.Accent }, 0.15) end end)
+        button.MouseLeave:Connect(function() Tween(button, { TextColor3 = root.Theme.SubText }, 0.2) end)
+        button.MouseButton1Down:Connect(function()
+            if self.Disabled then return end
+            self.Hold = (self.Hold or 0) + 1
+            local id = self.Hold
+            self:Set(self.Value + direction * self.Step)
+            task.spawn(function()
+                task.wait(0.4)
+                local wait = 0.12
+                while self.Hold == id and group.Parent do
+                    self:Set(self.Value + direction * self.Step)
+                    task.wait(wait)
+                    wait = math.max(0.03, wait * 0.9)
+                end
+            end)
+        end)
+        local function release() self.Hold = (self.Hold or 0) + 1 end
+        button.MouseButton1Up:Connect(release)
+        button.MouseLeave:Connect(release)
+        return button
+    end
+    makeButton("-", 0, -1)
+    makeButton("+", 1, 1)
+
+    self.ValueLabel = Create("TextLabel", {
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.new(1, -h * 2, 1, 0),
+        TextSize = M.Text, Fit = true, Parent = group,
+    })
+    root:Bind(self.ValueLabel, { TextColor3 = "Text" })
+
+    self:_Paint()
+    Register(root, self, opts.Flag)
+    if opts.Disabled then self:SetDisabled(true) end
+    return self
+end
+
+function Stepper:_Clean(value)
+    value = math.clamp(tonumber(value) or self.Min, self.Min, self.Max)
+    local steps = math.floor((value - self.Min) / self.Step + 0.5)
+    return math.clamp(tonumber(string.format("%." .. self.Decimals .. "f", self.Min + steps * self.Step)), self.Min, self.Max)
+end
+
+function Stepper:_Paint()
+    self.ValueLabel.Text = string.format("%." .. self.Decimals .. "f", self.Value) .. self.Suffix
+end
+
+function Stepper:_Restyle() end
+function Stepper:Get() return self.Value end
+
+function Stepper:Set(value, silent)
+    value = self:_Clean(value)
+    if value == self.Value then return end
+    self.Value = value
+    self:_Paint()
+    if self.Flag then NutriexLibrary.Flags[self.Flag] = value end
+    if silent then return end
+    Fire("callback", self.Name, self.Callback, value)
+    for _, fn in ipairs(self.Listeners) do Fire("callback", self.Name, fn, value) end
+end
+
+function Stepper:OnChanged(fn)
+    self.Listeners[#self.Listeners + 1] = fn
+    return function()
+        for i, listener in ipairs(self.Listeners) do
+            if listener == fn then table.remove(self.Listeners, i) break end
+        end
+    end
+end
+
+function Stepper:SetName(name) self.Name = tostring(name); self.Label.Text = self.Name end
+function Stepper:SetVisible(state) self.Row.Visible = state end
+function Stepper:SetDisabled(state)
+    self.Disabled = state
+    Tween(self.Label, { TextTransparency = state and 0.55 or 0 }, 0.2)
+    Tween(self.ValueLabel, { TextTransparency = state and 0.55 or 0 }, 0.2)
+end
+function Stepper:Destroy() self.Hold = (self.Hold or 0) + 1; Unregister(self.Root, self); self.Row:Destroy() end
+
+NutriexLibrary.ImageCache = {}
+local ImageWaiting = {}
+
+local function ImageKind(bytes)
+    if bytes:sub(1, 8) == "\137PNG\r\n\26\n" then return "png" end
+    if bytes:sub(1, 3) == "\255\216\255" then return "jpg" end
+    if bytes:sub(1, 4) == "RIFF" and bytes:sub(9, 12) == "WEBP" then return nil, "WEBP is not supported by Roblox, use PNG or JPG" end
+    if bytes:sub(1, 3) == "GIF" then return nil, "GIF is not supported by Roblox, use PNG or JPG" end
+    return nil, "not a PNG or JPG image"
+end
+
+function NutriexLibrary:LoadImage(source, done)
+    local cached = self.ImageCache[tostring(source)]
+    if cached then done(cached) return end
+    if type(source) == "number" then done("rbxassetid://" .. source) return end
+    source = tostring(source or "")
+    if source:match("^rbxassetid://") or source:match("^rbxasset://") or source:match("^https?://[%w%.]*roblox%.com/asset") then
+        done(source) return
+    end
+    if source == "" then done(nil, "no image set") return end
+
+    local waiting = ImageWaiting[source]
+    if waiting then waiting[#waiting + 1] = done return end
+    waiting = { done }
+    ImageWaiting[source] = waiting
+    local function finish(content, reason)
+        ImageWaiting[source] = nil
+        if content then self.ImageCache[source] = content end
+        for _, fn in ipairs(waiting) do pcall(fn, content, reason) end
+    end
+
+    task.spawn(function()
+        if not (writefile and (getcustomasset or getsynasset)) then
+            return finish(nil, "this executor has no writefile / getcustomasset")
+        end
+        EnsureFolder("NutriexLibrary"); EnsureFolder("NutriexLibrary/cache")
+        if not source:match("^https?://") then
+            if isfile and isfile(source) then
+                local asset = AssetOf(source)
+                return finish(asset, asset == nil and "getcustomasset failed" or nil)
+            end
+            return finish(nil, "file not found")
+        end
+        local base = "NutriexLibrary/cache/img_" .. Hash(source)
+        for _, ext in ipairs({ "png", "jpg" }) do
+            if isfile and isfile(base .. "." .. ext) then
+                local asset = AssetOf(base .. "." .. ext)
+                if asset then return finish(asset) end
+            end
+        end
+        local body, err = Http(source)
+        if not body then return finish(nil, "download failed: " .. tostring(err)) end
+        local ext, why = ImageKind(body)
+        if not ext then return finish(nil, why) end
+        local ok = pcall(writefile, base .. "." .. ext, body)
+        if not ok then return finish(nil, "could not save the image") end
+        local asset = AssetOf(base .. "." .. ext)
+        finish(asset, asset == nil and "getcustomasset failed" or nil)
+    end)
+end
+
+local Section = {}
+Section.__index = Section
+
+function Section:_Next()
+    self.Order = self.Order + 1
+    return self.Order
+end
+
+function Section:AddDropdown(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Dropdown.new(self.Root, self.Body, opts, self.Clip)
+end
+
+function Section:AddToggle(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Toggle.new(self.Root, self.Body, opts)
+end
+
+function Section:AddSlider(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Slider.new(self.Root, self.Body, opts, self.Clip)
+end
+
+function Section:AddInput(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Input.new(self.Root, self.Body, opts)
+end
+
+function Section:AddKeybind(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Keybind.new(self.Root, self.Body, opts)
+end
+
+function Section:AddColorPicker(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return ColorPicker.new(self.Root, self.Body, opts, self.Clip)
+end
+
+function Section:AddSegmented(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Segmented.new(self.Root, self.Body, opts)
+end
+
+function Section:AddProgress(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Progress.new(self.Root, self.Body, opts)
+end
+
+function Section:AddStepper(opts)
+    opts = opts or {}
+    opts.LayoutOrder = self:_Next()
+    return Stepper.new(self.Root, self.Body, opts)
+end
+
+function Section:AddCallout(opts)
+    if type(opts) == "string" then opts = { Content = opts } end
+    opts = opts or {}
+    local root, M = self.Root, self.Root.Metrics
+    local key = ({ Success = "Success", Warning = "Warning", Error = "Danger" })[opts.Type or "Info"] or "Accent"
+    local card = Create("Frame", {
+        Name = "Callout", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = self:_Next(),
+        BackgroundTransparency = 0.45, Parent = self.Body,
+    })
+    root:Bind(card, { BackgroundColor3 = "Elevated" })
+    root:Round(card, 0.6)
+    local stroke = root:Stroke(card, key, 1, 0.55)
+    local tint = Create("Frame", {
+        Name = "Tint", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 0.9, ZIndex = 0, Parent = card,
+    })
+    root:Bind(tint, { BackgroundColor3 = key })
+    root:Round(tint, 0.6)
+    local content = Create("Frame", {
+        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = card,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder }) })
+    Pad(content, 13, 10, 12, 11)
+    local title = Create("TextLabel", {
+        Text = tostring(opts.Title or ""), Font = Enum.Font.GothamBold, TextSize = M.Text, TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Visible = opts.Title ~= nil, Parent = content,
+    })
+    root:Bind(title, { TextColor3 = key })
+    local text = Create("TextLabel", {
+        Text = tostring(opts.Content or ""), TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = 2, RichText = opts.RichText == true, Parent = content,
+    })
+    root:Bind(text, { TextColor3 = "Text" })
+    return {
+        Instance = card,
+        Set = function(_, newTitle, newContent)
+            if newContent == nil then newContent, newTitle = newTitle, nil end
+            if newTitle ~= nil then title.Text, title.Visible = tostring(newTitle), true end
+            text.Text = tostring(newContent or "")
+        end,
+    }
+end
+
+function Section:AddParagraph(opts)
+    if type(opts) == "string" then opts = { Content = opts } end
+    opts = opts or {}
+    local root, M = self.Root, self.Root.Metrics
+
+    local card = Create("Frame", {
+        Name = "Paragraph", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = self:_Next(),
+        BackgroundTransparency = 0.4, Parent = self.Body,
+    })
+    root:Bind(card, { BackgroundColor3 = "Elevated" })
+    root:Round(card, 0.6)
+    root:Stroke(card, "Stroke", 1, 0.35)
+    local content = Create("Frame", {
+        Name = "Content", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        Parent = card,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder }) })
+    Pad(content, 13, 10, 12, 11)
+    local bar = Create("Frame", {
+        Name = "Accent", Position = UDim2.fromOffset(5, 10), Size = UDim2.fromOffset(2, 16), BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 2, Parent = card,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Gradient(bar, "Soft", { Rotation = 90 })
+    content:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+
+        local h = math.max(10, math.floor(content.AbsoluteSize.Y - 20))
+        if bar.Size.Y.Offset ~= h then bar.Size = UDim2.fromOffset(2, h) end
+    end)
+    local title = Create("TextLabel", {
+        Text = tostring(opts.Title or ""), Font = Enum.Font.GothamBold, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Visible = opts.Title ~= nil, Parent = content,
+    })
+    root:Bind(title, { TextColor3 = "Text" })
+    local text = Create("TextLabel", {
+        Text = tostring(opts.Content or ""), TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2,
+        RichText = opts.RichText == true, Parent = content,
+    })
+    root:Bind(text, { TextColor3 = "SubText" })
+    return {
+        Instance = card,
+        Set = function(_, newTitle, newContent)
+            if newContent == nil then newContent, newTitle = newTitle, nil end
+            if newTitle ~= nil then title.Text, title.Visible = tostring(newTitle), true end
+            text.Text = tostring(newContent or "")
+        end,
+    }
+end
+
+function Section:AddDivider()
+    local root = self.Root
+    local holder = Create("Frame", {
+        Name = "Divider", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 9), LayoutOrder = self:_Next(), Parent = self.Body,
+    })
+    local line = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5), Size = UDim2.new(1, 0, 0, 1),
+        BackgroundTransparency = 0.2, Parent = holder,
+    })
+    root:Bind(line, { BackgroundColor3 = "Stroke" })
+    Create("UIGradient", {
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, 0), NumberSequenceKeypoint.new(0.8, 0),
+            NumberSequenceKeypoint.new(1, 1),
+        }), Parent = line,
+    })
+    return holder
+end
+
+function Section:AddLabel(text)
+    local root, M = self.Root, self.Root.Metrics
+    local label = Create("TextLabel", {
+        Text = tostring(text), TextSize = M.Text - 1, TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top,
+        Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = self:_Next(), Parent = self.Body,
+    })
+    root:Bind(label, { TextColor3 = "SubText" })
+    Pad(label, 4, 5, 4, 5)
+    return { Set = function(_, value) label.Text = tostring(value) end, Instance = label }
+end
+
+function Section:AddButton(opts)
+    opts = opts or {}
+    local root, M = self.Root, self.Root.Metrics
+    local accent = opts.Style == "Accent" or opts.Accent == true
+    local height = M.Field + 4
+
+    local holder = Create("Frame", {
+        Name = "Button", BackgroundTransparency = 1, LayoutOrder = self:_Next(),
+        Size = UDim2.new(1, 0, 0, height + 6), Parent = self.Body,
+    })
+    local button = Create("TextButton", {
+        Text = tostring(opts.Name or "Button"), TextSize = M.Text, BackgroundTransparency = 0, ClipsDescendants = true, Fit = true,
+        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.new(1, 0, 0, height), Parent = holder,
+    })
+    root:Round(button, 0.6)
+    local stroke = root:Stroke(button, "Stroke", 1, 0.1)
+    if accent then
+        AccentFill(root, button, tostring(opts.Name or "Button"), M.Text)
+        stroke.Transparency = 1
+    else
+        root:Bind(button, { BackgroundColor3 = "Elevated", TextColor3 = "Text" })
+    end
+
+    local shine = Create("Frame", {
+        Name = "Shine", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = button,
+    })
+    root:Round(shine, 0.6)
+    local shineGradient = Create("UIGradient", {
+        Rotation = 20, Offset = Vector2.new(-1, 0), Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.86), NumberSequenceKeypoint.new(1, 1),
+        }), Parent = shine,
+    })
+
+    button.MouseEnter:Connect(function()
+        if not accent then
+            Tween(button, { BackgroundColor3 = root.Theme.Hover }, 0.22)
+            Tween(stroke, { Color = root.Theme.Accent }, 0.2)
+        end
+        shineGradient.Offset = Vector2.new(-1, 0)
+        Tween(shineGradient, { Offset = Vector2.new(1, 0) }, 0.8)
+    end)
+    button.MouseLeave:Connect(function()
+        if not accent then
+            Tween(button, { BackgroundColor3 = root.Theme.Elevated }, 0.2)
+            Tween(stroke, { Color = root.Theme.Stroke }, 0.2)
+        end
+        Tween(button, { Size = UDim2.new(1, 0, 0, height) }, 0.3)
+    end)
+    button.MouseButton1Down:Connect(function()
+        Tween(button, { Size = UDim2.new(1, -6, 0, height - 2) }, 0.12)
+    end)
+    button.MouseButton1Up:Connect(function()
+        Tween(button, { Size = UDim2.new(1, 0, 0, height) }, 0.4)
+    end)
+    button.Activated:Connect(function()
+        Fire("button", opts.Name or "Button", opts.Callback)
+    end)
+    return button
+end
+
+local ImageFormats = {
+    horizontal = { ratio = 16 / 9, width = 1 }, vertical = { ratio = 3 / 4, width = 0.6 }, square = { ratio = 1, width = 0.72 },
+}
+local FormatAlias = {
+    horizontal = "horizontal", wide = "horizontal", banner = "horizontal", landscape = "horizontal", ["16:9"] = "horizontal",
+    vertical = "vertical", tall = "vertical", portrait = "vertical", ["3:4"] = "vertical", ["9:16"] = "vertical",
+    square = "square", ["1:1"] = "square",
+}
+
+local function CollageLayout(n, aspect)
+    local rects = {}
+    local wide, tall = aspect > 1.2, aspect < 0.85
+    if n <= 1 then return { { 0, 0, 1, 1 } } end
+    if n == 2 then
+        if tall then return { { 0, 0, 1, 0.5 }, { 0, 0.5, 1, 0.5 } } end
+        return { { 0, 0, 0.5, 1 }, { 0.5, 0, 0.5, 1 } }
+    end
+    if n == 3 then
+        if tall then return { { 0, 0, 1, 0.56 }, { 0, 0.56, 0.5, 0.44 }, { 0.5, 0.56, 0.5, 0.44 } } end
+        return { { 0, 0, 0.56, 1 }, { 0.56, 0, 0.44, 0.5 }, { 0.56, 0.5, 0.44, 0.5 } }
+    end
+    if n == 5 then
+        if wide then
+            return { { 0, 0, 0.4, 1 }, { 0.4, 0, 0.3, 0.5 }, { 0.7, 0, 0.3, 0.5 }, { 0.4, 0.5, 0.3, 0.5 }, { 0.7, 0.5, 0.3, 0.5 } }
+        elseif tall then
+            return { { 0, 0, 1, 0.4 }, { 0, 0.4, 0.5, 0.3 }, { 0.5, 0.4, 0.5, 0.3 }, { 0, 0.7, 0.5, 0.3 }, { 0.5, 0.7, 0.5, 0.3 } }
+        end
+        return { { 0, 0, 0.5, 0.5 }, { 0.5, 0, 0.5, 0.5 }, { 0, 0.5, 1 / 3, 0.5 }, { 1 / 3, 0.5, 1 / 3, 0.5 }, { 2 / 3, 0.5, 1 / 3, 0.5 } }
+    end
+
+    local rows = math.max(1, math.min(n, math.floor(math.sqrt(n / aspect) + 0.5)))
+    local base, extra = math.floor(n / rows), n % rows
+    local index = 0
+    for r = 1, rows do
+        local count = base + ((r > rows - extra) and 1 or 0)
+        for c = 1, count do
+            index = index + 1
+            rects[index] = { (c - 1) / count, (r - 1) / rows, 1 / count, 1 / rows }
+        end
+    end
+    return rects
+end
+
+local MAX_TILES = 9
+
+local function ImageTile(root, parent, mult)
+    local M = root.Metrics
+    local tile = Create("TextButton", { Name = "Tile", BackgroundTransparency = 0, ClipsDescendants = true, Parent = parent })
+    root:Bind(tile, { BackgroundColor3 = "Elevated" })
+    if mult and mult > 0 then root:Round(tile, mult) end
+    local stroke = root:Stroke(tile, "Stroke", 1, 0.65)
+    local shimmer = Create("Frame", { Name = "Shimmer", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 1, Parent = tile })
+    local shimmerGradient = Create("UIGradient", {
+        Rotation = 20, Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.88), NumberSequenceKeypoint.new(1, 1),
+        }), Parent = shimmer,
+    })
+    local shimmerEntry = root:Animate(shimmerGradient, { Sweep = 2.2, Range = 1 })
+    local image = Create("ImageLabel", { Name = "Image", Size = UDim2.fromScale(1, 1), ImageTransparency = 1, ScaleType = Enum.ScaleType.Crop, ZIndex = 2, Parent = tile })
+    local note = Create("TextLabel", {
+        Name = "Note", Text = "", TextSize = M.Text - 2, TextWrapped = true, Visible = false, ZIndex = 3,
+        Size = UDim2.new(1, -16, 1, -8), Position = UDim2.fromOffset(8, 4), Parent = tile,
+    })
+    root:Bind(note, { TextColor3 = "Muted" })
+    local over = Create("TextLabel", {
+        Name = "More", Text = "", Font = Enum.Font.GothamBold, TextSize = M.Text + 4, TextColor3 = Color3.new(1, 1, 1), Visible = false,
+        BackgroundTransparency = 0.45, BackgroundColor3 = Color3.new(0, 0, 0), Size = UDim2.fromScale(1, 1), ZIndex = 4, Parent = tile,
+    })
+    local control = { Tile = tile, Image = image, Stroke = stroke, Source = nil, Token = 0 }
+    function control:Load(source, scaleType)
+        self.Source = source
+        self.Token = self.Token + 1
+        local token = self.Token
+        image.ScaleType = scaleType or image.ScaleType
+        note.Visible = false
+        shimmer.Visible = true
+        shimmerEntry.On = true
+        Tween(image, { ImageTransparency = 1 }, 0.1)
+        NutriexLibrary:LoadImage(source, function(content, reason)
+            if token ~= self.Token or not tile.Parent then return end
+            shimmerEntry.On = false
+            if content then
+                image.Image = content
+                shimmer.Visible = false
+                Tween(image, { ImageTransparency = 0 }, 0.6)
+            else
+                shimmer.Visible = false
+                note.Text = "Couldn't load image\n" .. tostring(reason or "")
+                note.Visible = true
+                self.Failed = true
+            end
+        end)
+    end
+    function control:SetMore(count)
+        over.Visible = count and count > 0
+        over.Text = count and ("+" .. count) or ""
+    end
+    tile.MouseEnter:Connect(function() Tween(stroke, { Transparency = 0.2 }, 0.2) end)
+    tile.MouseLeave:Connect(function() Tween(stroke, { Transparency = 0.65 }, 0.25) end)
+    return control
+end
+
+function Section:AddImage(source, format)
+    local opts
+    if type(source) == "table" and (source.Url or source.Urls or source.Image or source.Format or source.Caption or source.Ratio) then
+        opts = source
+    else
+        opts = { Url = source, Format = format }
+        if type(source) == "table" then opts.Urls, opts.Url = source, nil end
+    end
+    if opts.Image and not opts.Url then opts.Url = opts.Image end
+    local root, M = self.Root, self.Root.Metrics
+    local fitMap = { crop = Enum.ScaleType.Crop, fit = Enum.ScaleType.Fit, stretch = Enum.ScaleType.Stretch }
+
+    local holder = Create("Frame", {
+        Name = "Image", BackgroundTransparency = 1, LayoutOrder = self:_Next(), Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        Parent = self.Body,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, HorizontalAlignment = Enum.HorizontalAlignment.Center }) })
+    Pad(holder, 0, 3, 0, 3)
+    local row = Create("Frame", { Name = "Row", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 120), LayoutOrder = 1, Parent = holder })
+    local frame = Create("Frame", { Name = "Frame", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0), Parent = row })
+    local gap = 3
+    local tilesHolder = Create("Frame", {
+        Name = "Tiles", BackgroundTransparency = 1, Position = UDim2.fromOffset(-gap / 2, -gap / 2), Size = UDim2.new(1, gap, 1, gap), Parent = frame,
+    })
+
+    local cornerMult = tonumber(opts.Corner) or 0
+    local border = Create("Frame", { Name = "Border", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 8, Active = false, Parent = frame })
+    if cornerMult > 0 then root:Round(border, cornerMult) end
+    local borderStroke = Create("UIStroke", {
+        Thickness = 1.75, Transparency = 0.15, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = border,
+    })
+    root:Gradient(borderStroke, "Rim", nil, { Spin = 30 })
+    local caption = Create("TextLabel", {
+        Name = "Caption", Text = tostring(opts.Caption or ""), TextSize = M.Text - 2, TextWrapped = true, Visible = opts.Caption ~= nil,
+        Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2, Parent = holder,
+    })
+    root:Bind(caption, { TextColor3 = "SubText" })
+
+    local object = { Instance = holder, Tiles = {}, Opts = opts }
+    local state = { format = "horizontal", ratio = 16 / 9, width = 1, urls = {}, fit = Enum.ScaleType.Crop, callback = opts.Callback }
+
+    local function resolveFormat(name)
+        local f = FormatAlias[tostring(name or "horizontal"):lower()] or "horizontal"
+        local spec = ImageFormats[f]
+        state.format, state.ratio, state.width = f, opts.Ratio or spec.ratio, opts.Width or spec.width
+    end
+
+    local function layout()
+        local available = row.AbsoluteSize.X
+        if available < 20 then available = M.Width - 2 * (M.Pad + 10) end
+        local w = math.floor(available * state.width)
+        local h = math.floor(w / state.ratio + 0.5)
+        frame.Size = UDim2.fromOffset(w, h)
+        if row.Size.Y.Offset ~= h then row.Size = UDim2.new(1, 0, 0, h) end
+    end
+    row:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout)
+
+    local function place()
+        local count = math.min(#state.urls, MAX_TILES)
+        local rects = CollageLayout(math.max(count, 1), state.ratio)
+        local hidden = #state.urls - count
+        for i = 1, math.max(count, 1) do
+            local tile = object.Tiles[i]
+            if not tile then
+                tile = ImageTile(root, tilesHolder, cornerMult)
+                tile.Tile.Activated:Connect(function()
+                    if state.callback then Fire("image", "AddImage", state.callback, tile.Source, i) end
+                end)
+                object.Tiles[i] = tile
+            end
+            local r = rects[i]
+            tile.Tile.Visible = true
+            tile.Tile.Position = UDim2.new(r[1], gap / 2, r[2], gap / 2)
+            tile.Tile.Size = UDim2.new(r[3], -gap, r[4], -gap)
+            if tile.Source ~= state.urls[i] or tile.Fit ~= state.fit then
+                tile.Fit = state.fit
+                tile:Load(state.urls[i], state.fit)
+            end
+            tile:SetMore((i == count and hidden > 0) and hidden or nil)
+        end
+        for i = math.max(count, 1) + 1, #object.Tiles do
+            object.Tiles[i].Tile.Visible = false
+            object.Tiles[i].Source = nil
+        end
+        layout()
+    end
+
+    function object:Set(url, newFormat)
+        state.urls = { url }
+        if newFormat then resolveFormat(newFormat) end
+        place()
+        return self
+    end
+
+    function object:Collage(urls, newFormat)
+        if type(urls) ~= "table" then urls = { urls } end
+        state.urls = {}
+        for _, u in ipairs(urls) do state.urls[#state.urls + 1] = u end
+        if newFormat then resolveFormat(newFormat) end
+        place()
+        return self
+    end
+    function object:SetFormat(newFormat) resolveFormat(newFormat); place(); return self end
+    function object:SetCaption(text)
+        caption.Text, caption.Visible = tostring(text or ""), text ~= nil and text ~= ""
+        return self
+    end
+    function object:OnClick(fn) state.callback = fn return self end
+    function object:SetVisible(on) holder.Visible = on end
+    function object:Destroy() holder:Destroy() end
+
+    resolveFormat(opts.Format)
+    local fit = tostring(opts.Fit or "crop"):lower()
+    state.fit = fitMap[fit] or Enum.ScaleType.Crop
+    state.urls = {}
+    if opts.Urls then for _, u in ipairs(opts.Urls) do state.urls[#state.urls + 1] = u end
+    elseif opts.Url ~= nil then state.urls[1] = opts.Url end
+    place()
+    return object
+end
+
+function Section:AddCollage(urls, format)
+    if type(urls) == "table" and (urls.Urls or urls.Url or urls.Format) then return self:AddImage(urls) end
+    return self:AddImage({ Urls = type(urls) == "table" and urls or { urls }, Format = format })
+end
+
+function Section:SetCollapsed(state, instant)
+    if not self.Collapsible and state then return end
+    self.Expanded = not state
+    self.Root:CloseDropdown()
+    Tween(self.ChevronHolder, { Rotation = self.Expanded and 180 or 0 }, instant and 0 or 0.3)
+    self:_Sync(not instant)
+end
+
+function Section:Toggle() self:SetCollapsed(self.Expanded) end
+
+function Section:_Sync(animate)
+    local target = self.Expanded and self.Body.AbsoluteSize.Y or 0
+    if animate then
+        self.Animating = os.clock() + 0.44
+        Tween(self.Clipper, { Size = UDim2.new(1, 0, 0, target) }, 0.4, Enum.EasingStyle.Quint)
+        task.delay(0.46, function()
+            if self.Clipper.Parent then self:_Sync(false) end
+        end)
+    else
+        self.Clipper.Size = UDim2.new(1, 0, 0, target)
+    end
+end
+
+local Dock = {}
+Dock.__index = Dock
+
+local EdgeInward = {
+    Left = Vector2.new(1, 0), Right = Vector2.new(-1, 0), Top = Vector2.new(0, 1), Bottom = Vector2.new(0, -1),
+}
+local EdgeList = { "Left", "Right", "Top", "Bottom" }
+
+local function ScreenSize(root)
+    local size = root.Gui.AbsoluteSize
+    if size.X < 10 or size.Y < 10 then
+        local camera = workspace.CurrentCamera
+        return camera and camera.ViewportSize or Vector2.new(1280, 720)
+    end
+    return size
+end
+
+function Dock.new(seed)
+    local self = setmetatable({}, Dock)
+    local root = Root.new({
+        Theme = seed.Root.ThemeName, Corner = seed.Root.CornerName,
+        Mobile = seed.Root.Mobile, Animated = seed.Root.Animated,
+    })
+    root.Gui.DisplayOrder = 1001
+    local M = root.Metrics
+    local cfg = seed.SwipeCfg or {}
+    self.Root, self.Rows, self.Open, self.Tick = root, {}, false, 0
+    self.RowH = M.Item + 6
+    self.PW = root.Mobile and 216 or 204
+
+    self.T, self.TH = 5, 7
+    self.L = 134
+    self.LH = self.L + 14
+    self.Pad = root.Mobile and 20 or 12
+    self.Gap = 7
+    self.Peel, self.PeelTarget, self.PeelVel = 0, 0, 0
+    self.TopExtra = root.Mobile and 34 or 48
+    self.Edge = EdgeInward[cfg.Edge] and cfg.Edge or "Bottom"
+    self.Along = math.clamp(tonumber(cfg.Along) or 0.5, 0, 1)
+    self.Vertical = self.Edge == "Left" or self.Edge == "Right"
+
+    local hit = Create("TextButton", {
+        Name = "Swipebar", AnchorPoint = Vector2.new(0.5, 0.5), BackgroundTransparency = 1, ZIndex = 40, Visible = false,
+        Parent = root.Gui,
+    })
+    self.Fab = hit
+    local holder = Create("Frame", {
+        Name = "Handle", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+        ZIndex = 41, Parent = hit,
+    })
+    self.PillHolder = holder
+    self.Shadow = root:Shadow(holder, 0.9, 9)
+    local pill = Create("Frame", {
+        Name = "Pill", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 0.4, ZIndex = 42, Parent = holder,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Bind(pill, { BackgroundColor3 = "Background" })
+    self.Pill = pill
+    self.PillStroke = Create("UIStroke", {
+        Thickness = 1.25, Transparency = 0.5, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = pill,
+    })
+    root:Gradient(self.PillStroke, "Metal", nil, { Spin = 24 })
+    local glow = Create("Frame", {
+        Name = "Glow", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.82,
+        ZIndex = 43, Parent = pill,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    self.Glow = glow
+    self.GlowGradient, self.GlowEntry = root:Gradient(glow, "Flow", { Rotation = 90 }, { Sweep = 1.1, Range = 0.5, Axis = "Y" })
+
+    local panel = Create("CanvasGroup", {
+        Name = "Panel", Size = UDim2.fromOffset(self.PW, 80), GroupTransparency = 1, Visible = false, ZIndex = 62, Parent = root.Gui,
+    })
+    root:Bind(panel, { BackgroundColor3 = "Background" })
+    panel.BackgroundTransparency = math.min(root.Alpha.Popup, 0.1)
+    root:Round(panel, 0.9)
+    self.PanelScale = Create("UIScale", { Scale = 0.94, Parent = panel })
+
+    self.PanelStroke = Create("UIStroke", {
+        Thickness = 1.25, Transparency = 1, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = panel,
+    })
+    root:Gradient(self.PanelStroke, "Metal", nil, { Spin = 30 })
+    self.Panel = panel
+
+    local head = Create("TextLabel", {
+        Text = "WINDOWS", Font = Enum.Font.GothamBold, TextSize = M.Text - 3, TextXAlignment = Enum.TextXAlignment.Left,
+        Position = UDim2.fromOffset(14, 6), Size = UDim2.new(1, -28, 0, 18), Parent = panel,
+    })
+    root:Bind(head, { TextColor3 = "SubText" })
+    self.List = Create("Frame", {
+        Name = "List", BackgroundTransparency = 1, Position = UDim2.fromOffset(6, 26), Size = UDim2.new(1, -12, 0, 0), Parent = panel,
+    }, { Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }) })
+
+    local footer = Create("TextButton", {
+        Name = "Footer", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -6), Size = UDim2.new(1, -12, 0, 26),
+        BackgroundTransparency = 0, Font = Enum.Font.GothamBold, TextSize = M.Text - 2, Parent = panel,
+    })
+    root:Bind(footer, { BackgroundColor3 = "Elevated", TextColor3 = "Accent" })
+    root:Round(footer, 0.6)
+    root:Stroke(footer, "Stroke", 1, 0.2)
+    footer.MouseEnter:Connect(function() Tween(footer, { BackgroundColor3 = root.Theme.Hover }, 0.15) end)
+    footer.MouseLeave:Connect(function() Tween(footer, { BackgroundColor3 = root.Theme.Elevated }, 0.2) end)
+    footer.Activated:Connect(function()
+        local anyHidden = false
+        for _, w in ipairs(NutriexLibrary.Windows) do if not w.Visible then anyHidden = true end end
+        for _, w in ipairs(NutriexLibrary.Windows) do
+            if anyHidden then w:Show() else w:Hide() end
+        end
+    end)
+    self.Footer = footer
+
+    root:Connect(root.Catcher.InputBegan, function(input)
+        if IsPointerDown(input) and self.Open then self:SetOpen(false) end
+    end)
+    root:Connect(UserInputService.InputBegan, function(input)
+        if input.KeyCode == Enum.KeyCode.Escape and self.Open then self:SetOpen(false) end
+    end)
+
+    self:_OrientHit()
+    self.Goal = self:_Anchor(self.Edge, self.Along)
+    self.Pos = self.Goal
+    hit.Position = UDim2.fromOffset(self.Goal.X, self.Goal.Y)
+    self:_PaintPill(true)
+
+    self.SX = NewSpring(self.Goal.X, 26, 1)
+    self.SY = NewSpring(self.Goal.Y, 26, 1)
+    root:Connect(RunService.RenderStepped, function(dt)
+        dt = math.min(dt, 1 / 20)
+        if self.SpringOn then self:_Spring(dt) end
+        local sx, sy = self.SX, self.SY
+        sx.g, sy.g = self.Goal.X, self.Goal.Y
+        local w = self.Dragging and 34 or 17
+        sx.w, sy.w = w, w
+        if math.abs(sx.x - sx.g) < 0.05 and math.abs(sy.x - sy.g) < 0.05 and math.abs(sx.v) + math.abs(sy.v) < 1.5 then
+            sx.x, sy.x, sx.v, sy.v = sx.g, sy.g, 0, 0
+            if self.Pos == self.Goal then return end
+            self.Pos = self.Goal
+        else
+            StepSpring(sx, dt); StepSpring(sy, dt)
+        end
+        if self.Pos ~= self.Goal then self.Pos = Vector2.new(sx.x, sy.x) end
+        hit.Position = UDim2.fromOffset(math.floor(sx.x * 2 + 0.5) / 2, math.floor(sy.x * 2 + 0.5) / 2)
+    end)
+    root:Connect(root.Gui:GetPropertyChangedSignal("AbsoluteSize"), function()
+        self.Goal = self:_Anchor(self.Edge, self.Along)
+        if self.Open then self:_Place() end
+    end)
+
+    local drag = { active = false }
+    local COMMIT = root.Mobile and 34 or 28
+    local FLICK = 520
+    hit.MouseEnter:Connect(function()
+        self.Hover = true
+        self:_PaintPill(false)
+        self:_PaintState()
+    end)
+    hit.MouseLeave:Connect(function()
+        self.Hover = false
+        self:_PaintPill(false)
+        self:_Wake()
+    end)
+    hit.InputBegan:Connect(function(input)
+        if not IsPointerDown(input) then return end
+        local now = os.clock()
+        drag.active, drag.mode, drag.n, drag.vel = true, nil, 0, 0
+        drag.start, drag.grab, drag.t = input.Position, self.Pos, now
+        drag.s0, drag.t0 = 0, now
+        self.Held = true
+        self:_PaintPill(false)
+        self:_PaintState()
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState ~= Enum.UserInputState.End then return end
+            connection:Disconnect()
+            drag.active = false
+            self.Held, self.Dragging = false, false
+            if drag.mode == nil then
+                self:_Click()
+            elseif drag.mode == "swipe" then
+                if drag.n >= COMMIT or drag.vel >= FLICK then
+                    self:_Reveal(true)
+                elseif drag.n <= -COMMIT * 0.6 or drag.vel <= -FLICK then
+                    self:_Reveal(false)
+                end
+            end
+            self.PeelTarget = 0
+            self.SpringOn = true
+            self.Goal = self:_Anchor(self.Edge, self.Along)
+            self:_PaintPill(false)
+            self:_Wake()
+        end)
+    end)
+    root:Connect(UserInputService.InputChanged, function(input)
+        if not (drag.active and IsPointerMove(input)) then return end
+        local delta = Vector2.new(input.Position.X - drag.start.X, input.Position.Y - drag.start.Y)
+        local inward = EdgeInward[self.Edge]
+        local n = delta.X * inward.X + delta.Y * inward.Y
+        local a = self.Vertical and delta.Y or delta.X
+        if not drag.mode and delta.Magnitude > 6 then
+            local lifted = os.clock() - drag.t >= 0.3
+            drag.mode = (lifted or math.abs(a) > math.abs(n) * 1.3) and "slide" or "swipe"
+            if drag.mode == "slide" then
+                self.Dragging = true
+                if self.Open then self:SetOpen(false) end
+            else
+                self.SpringOn = true
+            end
+        end
+        if drag.mode == "slide" then
+            local edge, along = self:_Resolve(drag.grab + delta)
+            if edge ~= self.Edge then
+                self.Edge = edge
+                self:_OrientHit()
+                self:_PaintPill(false)
+            end
+            self.Along = along
+            self.Goal = self:_Anchor(edge, along)
+        elseif drag.mode == "swipe" then
+            local now = os.clock()
+            if now - drag.t0 >= 0.04 then
+                drag.vel = drag.vel * 0.5 + ((n - drag.s0) / (now - drag.t0)) * 0.5
+                drag.s0, drag.t0 = n, now
+            end
+            drag.n = n
+            local R = n >= 0 and 40 or 12
+            self.PeelTarget = (n >= 0 and 1 or -1) * R * (1 - math.exp(-math.abs(n) / R))
+            self.Glow.BackgroundTransparency = 0.6 - 0.5 * math.clamp(n / COMMIT, 0, 1)
+        end
+    end)
+    self:_Wake()
+    return self
+end
+
+function Dock:_Anchor(edge, along)
+    local vp = ScreenSize(self.Root)
+    local half = self.LH / 2 + 12
+    local inset = self.Gap + self.TH / 2
+    along = math.clamp(along, 0, 1)
+    if edge == "Left" or edge == "Right" then
+        local top = half + (self.TopExtra or 0)
+        local y = top + along * math.max(0, vp.Y - half - top)
+        return Vector2.new(edge == "Left" and inset or vp.X - inset, y)
+    end
+    local x = half + along * math.max(0, vp.X - half * 2)
+    local y = edge == "Top" and (inset + self.TopExtra) or (vp.Y - inset)
+    return Vector2.new(x, y)
+end
+
+function Dock:_Resolve(p)
+    local vp = ScreenSize(self.Root)
+    local d = { Left = p.X, Right = vp.X - p.X, Top = p.Y - self.TopExtra, Bottom = vp.Y - p.Y }
+    d[self.Edge] = d[self.Edge] - 80
+    local best, bestD = self.Edge, math.huge
+    for _, edge in ipairs(EdgeList) do
+        if d[edge] < bestD then best, bestD = edge, d[edge] end
+    end
+    local half = self.LH / 2 + 12
+    local along
+    if best == "Left" or best == "Right" then
+        local top = half + self.TopExtra
+        along = (p.Y - top) / math.max(1, vp.Y - half - top)
+    else
+        along = (p.X - half) / math.max(1, vp.X - half * 2)
+    end
+    return best, math.clamp(along, 0, 1)
+end
+
+function Dock:_OrientHit()
+    self.Vertical = self.Edge == "Left" or self.Edge == "Right"
+    local w, h = self.TH + self.Pad * 2, self.LH + self.Pad * 2
+    self.Fab.Size = self.Vertical and UDim2.fromOffset(w, h) or UDim2.fromOffset(h, w)
+    self.GlowGradient.Rotation = self.Vertical and 90 or 0
+    if self.GlowEntry then self.GlowEntry.Axis = self.Vertical and "Y" or "X" end
+end
+
+function Dock:_PaintPill(instant)
+    local big = self.Hover or self.Held or self.Open
+    local peel = self.Peel or 0
+    local T, L = big and self.TH or self.T, (big and self.LH or self.L) + math.abs(peel) * 0.6
+    local size = self.Vertical and Vector2.new(T, L) or Vector2.new(L, T)
+    local off = EdgeInward[self.Edge] * (-(self.TH - T) / 2 + peel)
+    Apply(self.PillHolder, {
+        Size = UDim2.fromOffset(size.X, size.Y), Position = UDim2.new(0.5, off.X, 0.5, off.Y),
+    }, instant or self.SpringOn, 0.45)
+end
+
+function Dock:_Spring(dt)
+    local sp = self.PeelSpring
+    if not sp then sp = NewSpring(0, 20, 0.7); self.PeelSpring = sp end
+    sp.x, sp.v, sp.g = self.Peel or 0, self.PeelVel or 0, self.PeelTarget or 0
+    if self.Held then sp.w, sp.z = 36, 1 else sp.w, sp.z = 19, 0.66 end
+    local n = math.max(1, math.ceil(dt / (1 / 240)))
+    local h, k, c = dt / n, sp.w * sp.w, 2 * sp.z * sp.w
+    for _ = 1, n do
+        sp.v = sp.v + (-k * (sp.x - sp.g) - c * sp.v) * h
+        sp.x = sp.x + sp.v * h
+    end
+    local settled = not self.Held and math.abs(sp.x - sp.g) < 0.04 and math.abs(sp.v) < 0.4
+    if settled then sp.x, sp.v, self.SpringOn = sp.g, 0, false end
+    self.Peel, self.PeelVel = sp.x, sp.v
+    self:_PaintPill(true)
+    if settled then
+        self:_PaintPill(false)
+        self:_PaintState()
+    end
+end
+
+function Dock:_PaintState()
+    local lit = self.Open
+    for _, window in ipairs(NutriexLibrary.Windows) do if window.Visible then lit = true end end
+    local awake = self.Hover or self.Held or self.Open or self.Awake
+    Tween(self.Glow, { BackgroundTransparency = lit and 0.1 or (awake and 0.55 or 0.84) }, 0.5)
+    Tween(self.Pill, { BackgroundTransparency = awake and 0.12 or 0.42 }, 0.35)
+    Tween(self.PillStroke, { Transparency = awake and 0.05 or 0.55 }, 0.35)
+    Tween(self.Shadow, { ImageTransparency = awake and 0.62 or 0.92 }, 0.35)
+end
+
+function Dock:_Wake()
+    self.Awake = true
+    self.WakeTick = (self.WakeTick or 0) + 1
+    local tick = self.WakeTick
+    self:_PaintState()
+    task.delay(2.4, function()
+        if self.WakeTick == tick and self.Awake then
+            self.Awake = false
+            if self.Root.Gui.Parent then self:_PaintState() end
+        end
+    end)
+end
+
+function Dock:SetEdge(edge, along)
+    if not EdgeInward[edge] then return false end
+    self.Edge = edge
+    if along ~= nil then self.Along = math.clamp(tonumber(along) or 0.5, 0, 1) end
+    self:_OrientHit()
+    self.Goal = self:_Anchor(self.Edge, self.Along)
+    self:_PaintPill(false)
+    if self.Open then self:SetOpen(false) end
+    self:_Wake()
+    return true
+end
+
+function Dock:_Click()
+    local wins = NutriexLibrary.Windows
+    if #wins == 0 then return end
+    if #wins == 1 then wins[1]:Toggle() else self:SetOpen(not self.Open) end
+end
+
+function Dock:_Reveal(state)
+    local wins = NutriexLibrary.Windows
+    if #wins == 0 then return end
+    if #wins == 1 then
+        if state then wins[1]:Show() else wins[1]:Hide() end
+    else
+        self:SetOpen(state)
+    end
+end
+
+function Dock:_MakeRow(window)
+    local root = self.Root
+    local M = root.Metrics
+    local frame = Create("TextButton", {
+        Name = "Row", Size = UDim2.new(1, 0, 0, self.RowH), BackgroundTransparency = 1, Parent = self.List,
+    })
+    root:Bind(frame, { BackgroundColor3 = "Hover" })
+    root:Round(frame, 0.7)
+    local label = Create("TextLabel", {
+        Font = Enum.Font.GothamMedium, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+        Position = UDim2.fromOffset(10, 0), Size = UDim2.new(1, -60, 1, 0), Parent = frame,
+    })
+    local track = Create("Frame", {
+        AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -8, 0.5, 0), Size = UDim2.fromOffset(30, 16), Parent = frame,
+    })
+    root:Bind(track, { BackgroundColor3 = "Elevated" })
+    Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = track })
+    root:Stroke(track, "Stroke", 1, 0.2)
+    local fill = Create("Frame", {
+        Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 1, Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Gradient(fill, "Flow", nil, { Sweep = 1.6, Range = 0.6 })
+    local knob = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 3, 0.5, 0), Size = UDim2.fromOffset(10, 10),
+        BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+
+    frame.MouseEnter:Connect(function() Tween(frame, { BackgroundTransparency = 0.6 }, 0.15) end)
+    frame.MouseLeave:Connect(function() Tween(frame, { BackgroundTransparency = 1 }, 0.2) end)
+    frame.Activated:Connect(function() window:Toggle() end)
+
+    local record = { Frame = frame, Label = label, Fill = fill, Knob = knob }
+    self.Rows[window] = record
+    return record
+end
+
+function Dock:Update()
+    local wins = NutriexLibrary.Windows
+    local T = self.Root.Theme
+    self.Fab.Visible = true
+
+    for window, record in pairs(self.Rows) do
+        if not table.find(wins, window) then
+            record.Frame:Destroy()
+            self.Rows[window] = nil
+        end
+    end
+    local anyHidden = false
+    for i, window in ipairs(wins) do
+        local record = self.Rows[window] or self:_MakeRow(window)
+        record.Frame.LayoutOrder = i
+        record.Label.Text = window.TitleLabel.Text
+        local on = window.Visible
+        if not on then anyHidden = true end
+        Tween(record.Label, { TextColor3 = on and T.Text or T.SubText }, 0.2)
+        Tween(record.Fill, { BackgroundTransparency = on and 0 or 1 }, 0.25)
+        Tween(record.Knob, { Position = UDim2.new(0, on and 17 or 3, 0.5, 0) }, 0.3)
+    end
+    self.Footer.Text = anyHidden and "Show all" or "Hide all"
+
+    if #wins < 2 and self.Open then self:SetOpen(false) end
+    self.PH = 26 + #wins * (self.RowH + 2) + 40
+    self.List.Size = UDim2.new(1, -12, 0, #wins * (self.RowH + 2))
+    if self.Open then
+        Tween(self.Panel, { Size = UDim2.fromOffset(self.PW, self.PH) }, 0.3)
+        self:_Place()
+    else
+        self.Panel.Size = UDim2.fromOffset(self.PW, self.PH)
+    end
+    self:_PaintState()
+end
+
+function Dock:_Place()
+    local vp = ScreenSize(self.Root)
+    local pw, ph = self.PW, self.PH or 80
+    local c = self.Goal
+    local gap = self.TH / 2 + self.Gap + 12
+    local x, y
+    if self.Edge == "Left" then
+        x, y = c.X + gap, c.Y - ph / 2
+    elseif self.Edge == "Right" then
+        x, y = c.X - gap - pw, c.Y - ph / 2
+    elseif self.Edge == "Top" then
+        x, y = c.X - pw / 2, c.Y + gap
+    else
+        x, y = c.X - pw / 2, c.Y - gap - ph
+    end
+    self.Panel.AnchorPoint = Vector2.new(0, 0)
+    self.Panel.Position = UDim2.fromOffset(
+        math.clamp(x, 8, math.max(8, vp.X - pw - 8)), math.clamp(y, 8, math.max(8, vp.Y - ph - 8))
+    )
+end
+
+function Dock:SetOpen(state)
+    if state == self.Open then return end
+    if state and #NutriexLibrary.Windows < 2 then return end
+    self.Open = state
+    self.Tick = self.Tick + 1
+    local tick = self.Tick
+    self.Root.Catcher.Visible = state
+    if state then
+        self:Update()
+        self.Panel.Visible = true
+        self:_Place()
+        Tween(self.Panel, { GroupTransparency = 0 }, 0.28)
+        Tween(self.PanelStroke, { Transparency = 0.15 }, 0.28)
+        Tween(self.PanelScale, { Scale = 1 }, 0.45, Enum.EasingStyle.Quint)
+    else
+        Tween(self.Panel, { GroupTransparency = 1 }, 0.2)
+        Tween(self.PanelStroke, { Transparency = 1 }, 0.12)
+        Tween(self.PanelScale, { Scale = 0.94 }, 0.25)
+        task.delay(0.28, function()
+            if self.Tick == tick and not self.Open then self.Panel.Visible = false end
+        end)
+    end
+    self:_PaintPill(false)
+    self:_PaintState()
+end
+
+function NutriexLibrary._DockRefresh(seed)
+    local wins = NutriexLibrary.Windows
+    local want = false
+    for _, w in ipairs(wins) do if w.WantsButton then want = true end end
+    local dock = NutriexLibrary.DockObj
+    if not want or #wins == 0 then
+        if dock and dock.Root.Gui.Parent then
+            dock.Fab.Visible = false
+            if dock.Open then dock:SetOpen(false) end
+        end
+        return
+    end
+    if not dock or not dock.Root.Gui.Parent then
+        dock = Dock.new(seed or wins[1])
+        NutriexLibrary.DockObj = dock
+    end
+    dock:Update()
+end
+
+local Window = {}
+Window.__index = Window
+
+local function Viewport(root)
+    local size = root.Gui.AbsoluteSize
+    if size.X < 10 or size.Y < 10 then
+        local camera = workspace.CurrentCamera
+        return camera and camera.ViewportSize or Vector2.new(1280, 720)
+    end
+    return size
+end
+
+local function IconButton(root, parent, position, size, draw, callback)
+    local button = Create("TextButton", {
+        AnchorPoint = Vector2.new(1, 0.5), Position = position, Size = UDim2.fromOffset(size, size),
+        BackgroundTransparency = 1, Parent = parent,
+    })
+    root:Bind(button, { BackgroundColor3 = "Elevated" })
+    root:Round(button, 0.6)
+    draw(button)
+    button.MouseEnter:Connect(function() Tween(button, { BackgroundTransparency = 0 }, 0.15) end)
+    button.MouseLeave:Connect(function() Tween(button, { BackgroundTransparency = 1 }, 0.2) end)
+    button.Activated:Connect(callback)
+    return button
+end
+
+local Transitions = {
+    Drop  = { scale = 0.976, drop = -10, reveal = true,  freq = 9.5,  damp = 0.92 },
+    Scale = { scale = 0.9,   drop = 0,   reveal = false, freq = 10.5, damp = 0.84 },
+    Slide = { scale = 0.99,  drop = -44, reveal = false, freq = 9,    damp = 0.94 },
+    Fade  = { scale = 1,     drop = 0,   reveal = false, freq = 12,   damp = 1 },
+}
+NutriexLibrary.Transitions = Transitions
+
+function NutriexLibrary._Arrange(fresh)
+    local auto = {}
+    for _, w in ipairs(NutriexLibrary.Windows) do
+        if not w.Moved and w.Move and w.Holder then auto[#auto + 1] = w end
+    end
+    local n = #auto
+    if n == 0 then return end
+    local first = auto[1]
+    local vp = Viewport(first.Root)
+    local gap = first.Root.Mobile and 8 or 16
+    local avail = vp.X - 16
+    local gaps = gap * (n - 1)
+    local base = 0
+    for _, w in ipairs(auto) do base = base + w.DefaultW end
+    local fit = base + gaps > avail and math.max(0, (avail - gaps) / base) or 1
+    local widths, sum, widest = {}, gaps, 0
+    for i, w in ipairs(auto) do
+        widths[i] = math.max(w.MinW, math.floor(w.DefaultW * fit))
+        sum = sum + widths[i]
+        widest = math.max(widest, widths[i])
+    end
+    local centers = {}
+    if sum <= avail then
+        local x = -sum / 2
+        for i = 1, n do centers[i] = x + widths[i] / 2; x = x + widths[i] + gap end
+    else
+        local span = avail - widest
+        for i = 1, n do centers[i] = n == 1 and 0 or (-span / 2 + span * (i - 1) / (n - 1)) end
+    end
+    for i, w in ipairs(auto) do
+        w.Width = widths[i]
+        w.Holder.Size = UDim2.fromOffset(widths[i], w.Holder.Size.Y.Offset)
+        w.Move.gx = centers[i]
+        if w == fresh then w.Move.x = centers[i] end
+    end
+end
+
+function NutriexLibrary:CreateWindow(opts)
+    opts = opts or {}
+    local root = Root.new(opts)
+    local M, T = root.Metrics, root.Theme
+    local self = setmetatable({}, Window)
+    self.Root, self.Order, self.Tick = root, 0, 0
+    self.Visible, self.Collapsed = false, false
+    self.ToggleKey = opts.ToggleKey or Enum.KeyCode.RightShift
+    root.Animating = false
+    if opts.Font then
+        local ok, err = NutriexLibrary:SetFont(opts.Font, { Name = opts.FontName, Bold = opts.FontBold })
+        if not ok then warn("[NutriexLibrary] font: " .. tostring(err)) end
+    end
+
+    local viewport = Viewport(root)
+    local width = math.min(opts.Width or (opts.Size and opts.Size.X) or M.Width, viewport.X - 16)
+    local maxHeight = opts.MaxHeight or (root.Mobile and math.min(380, viewport.Y - 120) or 420)
+    self.Width, self.MaxHeight = width, math.max(120, maxHeight)
+    self.BaseY = root.Mobile and 58 or 64
+    self.H, self.ContentH = M.Title, 0
+
+    local holder = Create("Frame", {
+        Name = "Window", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0),
+        Position = UDim2.new(0.5, 0, 0, self.BaseY), Size = UDim2.fromOffset(width, M.Title + 1), Visible = false,
+        ZIndex = 1, Parent = root.Gui,
+    })
+    self.Holder = holder
+    self.TransitionName = Transitions[opts.Transition] and opts.Transition or "Drop"
+    self.Scale = Create("UIScale", { Scale = Transitions[self.TransitionName].scale, Parent = holder })
+
+    local main = Create("CanvasGroup", {
+        Name = "Main", Size = UDim2.fromScale(1, 1), GroupTransparency = 1, ZIndex = 1, Parent = holder,
+    })
+    root:Bind(main, { BackgroundColor3 = "Background" })
+    main.BackgroundTransparency = root.Alpha.Main
+    root:Round(main, 1)
+    self.Main = main
+
+    self.Glare = Create("Frame", {
+        Name = "Glare", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 2, Parent = main,
+    })
+    self.GlareGradient = Create("UIGradient", { Rotation = 28, Parent = self.Glare })
+    root:Animate(self.GlareGradient, { Sweep = 0.22, Range = 0.95 })
+    self.Reflective, self.ReflectStrength = true, 1
+
+    do
+        local function layer(name, kind, rotation, fade, anim)
+            local frame = Create("Frame", {
+                Name = name, Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = main,
+            })
+            root:Gradient(frame, kind, {
+                Rotation = rotation, Transparency = NumberSequence.new({
+                    NumberSequenceKeypoint.new(0, fade[1]), NumberSequenceKeypoint.new(0.5, fade[2]), NumberSequenceKeypoint.new(1, fade[3]),
+                }),
+            }, anim)
+        end
+        layer("AuroraA", "Flow", 115, { 0.8, 0.92, 0.86 }, { Sweep = 0.7, Range = 0.7, Spin = 12, Base = 115 })
+        layer("AuroraB", "Soft", 65, { 0.9, 0.84, 0.94 }, { Sweep = -0.45, Range = 0.9, Phase = 1.7, Spin = -8, Base = 65 })
+        layer("AuroraC", "Flow", 200, { 0.93, 0.88, 0.8 }, { Sweep = 0.3, Range = 0.8, Phase = 3.1, Spin = 5, Base = 200 })
+    end
+
+    self.FrameLayers = {}
+    local function frameLayer(name, inset, mult, thickness, on, kind, anim, props)
+        local holderFrame = Create("Frame", {
+            Name = name, BackgroundTransparency = 1, Position = UDim2.fromOffset(inset, inset),
+            Size = UDim2.new(1, -inset * 2, 1, -inset * 2), ZIndex = 4, Parent = holder,
+        })
+        root:Round(holderFrame, mult)
+        local stroke = Create("UIStroke", {
+            Thickness = thickness, Transparency = 1, Color = Color3.new(1, 1, 1),
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = holderFrame,
+        })
+        local gradient
+        if kind then
+            gradient = root:Gradient(stroke, kind, props, anim)
+        else
+            gradient = Create("UIGradient", { Parent = stroke })
+            for key, value in pairs(props or {}) do gradient[key] = value end
+            if anim then root:Animate(gradient, anim) end
+        end
+        local layer = { Frame = holderFrame, Stroke = stroke, Gradient = gradient, On = on, Base = on }
+        self.FrameLayers[#self.FrameLayers + 1] = layer
+        return layer
+    end
+    local function ramp(...)
+        local points, args = {}, { ... }
+        for i = 1, #args, 2 do points[#points + 1] = NumberSequenceKeypoint.new(args[i], args[i + 1]) end
+        return NumberSequence.new(points)
+    end
+
+    self.BorderStroke = frameLayer("Border", 0, 1, 1.5, 0.04, "Metal", { Spin = 16 }).Stroke
+
+    self.RimStroke = frameLayer("Rim", 2, 0.86, 1, 0.55, "Rim", { Spin = 40 }).Stroke
+
+    self.FrameGlare = frameLayer("FrameGlare", 0, 1, 2.25, 0.08, nil, { Spin = 52, Base = 20 }, {
+        Rotation = 20, Transparency = ramp(0, 1, 0.38, 1, 0.47, 0.5, 0.5, 0.08, 0.53, 0.5, 0.62, 1, 1, 1),
+    })
+    self.FrameGlare2 = frameLayer("FrameGlare2", 0, 1, 1.5, 0.4, nil, { Spin = -31, Base = 200 }, {
+        Rotation = 200, Transparency = ramp(0, 1, 0.42, 1, 0.5, 0.35, 0.58, 1, 1, 1),
+    })
+
+    self.FrameGlints = frameLayer("FrameGlints", 0, 1, 2, 0.1, nil, nil, {
+        Rotation = 45, Transparency = ramp(0, 0, 0.14, 0.7, 0.3, 1, 0.7, 1, 0.86, 0.8, 1, 0.3),
+    })
+
+    self.FrameBevel = frameLayer("FrameBevel", 2.5, 0.84, 1, 0.35, nil, nil, {
+        Rotation = 90,
+        Color = ColorSequence.new({ KP(0, Color3.new(1, 1, 1)), KP(0.45, Color3.new(1, 1, 1)), KP(0.55, Color3.fromRGB(20, 20, 28)), KP(1, Color3.fromRGB(20, 20, 28)) }),
+        Transparency = ramp(0, 0, 0.3, 0.7, 0.5, 1, 0.75, 0.82, 1, 0.5),
+    })
+    local inner = Create("Frame", {
+        Name = "InnerEdge", BackgroundTransparency = 1, Position = UDim2.fromOffset(3, 3), Size = UDim2.new(1, -6, 1, -6), ZIndex = 1, Parent = main,
+    })
+    root:Round(inner, 0.8)
+    Create("UIStroke", { Thickness = 1, Transparency = 0.9, Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = inner })
+
+    local titlebar = Create("Frame", {
+        Name = "TitleBar", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, M.Title), Active = true, Parent = main,
+    })
+    local strip = Create("Frame", {
+        Name = "SteelStrip", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.9, ZIndex = 0, Parent = titlebar,
+    })
+    root:Gradient(strip, "Metal", { Rotation = 0, Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.55), NumberSequenceKeypoint.new(0.5, 0.8), NumberSequenceKeypoint.new(1, 0.6),
+    }) }, { Sweep = 0.35, Range = 0.25 })
+    local logo = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 14, 0.5, 0), Size = UDim2.fromOffset(12, 12),
+        BackgroundColor3 = Color3.new(1, 1, 1), Parent = titlebar,
+    })
+    root:Round(logo, 0.4)
+    root:Gradient(logo, "Soft", nil, { Spin = 90, Base = 0 })
+    local logoRing = Create("UIStroke", { Thickness = 3, Transparency = 0.78, Color = Color3.new(1, 1, 1), Parent = logo })
+    root:Gradient(logoRing, "Soft", nil, { Spin = -90, Base = 0 })
+
+    local hasSubtitle = opts.Subtitle ~= nil and opts.Subtitle ~= ""
+    self.TitleLabel = Create("TextLabel", {
+        Text = tostring(opts.Title or "Vélor"), Font = Enum.Font.GothamBold, TextSize = M.Text + 1,
+        TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.new(0, 34, 0, hasSubtitle and 6 or 0),
+        Size = UDim2.new(1, -112, 0, hasSubtitle and 18 or M.Title), Fit = true, Parent = titlebar,
+    })
+    root:Bind(self.TitleLabel, { TextColor3 = "Text" })
+    if hasSubtitle then
+        local sub = Create("TextLabel", {
+            Text = tostring(opts.Subtitle), TextSize = M.Text - 3, TextXAlignment = Enum.TextXAlignment.Left,
+            Position = UDim2.new(0, 34, 0, M.Title - 19), Size = UDim2.new(1, -112, 0, 14), Fit = true, Parent = titlebar,
+        })
+        root:Bind(sub, { TextColor3 = "SubText" })
+    end
+
+    local btn = M.Title - 14
+    IconButton(root, titlebar, UDim2.new(1, -8, 0.5, 0), btn, function(b)
+        Bar(root, b, btn / 2, btn / 2, 11, 2, 45, "SubText")
+        Bar(root, b, btn / 2, btn / 2, 11, 2, -45, "SubText")
+    end, function() self:Hide() end)
+    self.CollapseBtn = IconButton(root, titlebar, UDim2.new(1, -8 - btn - 4, 0.5, 0), btn, function(b)
+        local holderC = Create("Frame", {
+            BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+            Size = UDim2.fromOffset(14, 14), Parent = b,
+        })
+        self.CollapseIcon = holderC
+        Bar(root, holderC, 4.6, 7, 7, 2, 45, "SubText")
+        Bar(root, holderC, 9.4, 7, 7, 2, -45, "SubText")
+        holderC.Rotation = 180
+    end, function() self:SetCollapsed(not self.Collapsed) end)
+
+    local divider = Create("Frame", {
+        Name = "Divider", Position = UDim2.new(0, 0, 0, M.Title), Size = UDim2.new(1, 0, 0, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1), Parent = main,
+    })
+    root:Gradient(divider, "Flow", {
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 1),
+        }),
+    }, { Sweep = 0.9, Range = 0.55 })
+
+    local content = Create("ScrollingFrame", {
+        Name = "Content", Position = UDim2.fromOffset(0, M.Title + 1), Size = UDim2.new(1, 0, 1, -(M.Title + 1)),
+        CanvasSize = UDim2.new(), AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollBarThickness = 2,
+        ScrollingDirection = Enum.ScrollingDirection.Y, Parent = main,
+    })
+    root:Bind(content, { ScrollBarImageColor3 = "Muted" })
+    local layout = Create("UIListLayout", { Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = content })
+    Pad(content, 10, 10, 10, 12)
+    self.Content = content
+    local function measure()
+        self.ContentH = layout.AbsoluteContentSize.Y + 18
+    end
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(measure)
+
+    local tr = Transitions[self.TransitionName]
+    self.Spring = NewSpring(0, tr.freq, tr.damp)
+    local move = { x = 0, y = 0, gx = 0, gy = 0 }
+    local drop = { v = tr.drop }
+    self.Move, self.Drop = move, drop
+    local first = true
+    local function clampMove(gx, gy)
+        local vp = Viewport(root)
+        local w = holder.Size.X.Offset
+        gx = math.clamp(gx, 60 - w / 2 - vp.X / 2, vp.X / 2 - 60 + w / 2)
+        gy = math.clamp(gy, -self.BaseY, vp.Y - self.BaseY - M.Title)
+        return gx, gy
+    end
+    root:Connect(RunService.RenderStepped, function(dt)
+        local sp = self.Spring
+        local active = self.Visible or not SpringRest(sp) or sp.x > 0.0006
+        if not active and not first then return end
+        dt = math.min(dt, 1 / 20)
+        measure()
+
+        local settled = SpringRest(sp)
+        if not settled then
+            StepSpring(sp, dt)
+            if sp.g == 0 and sp.x < 0.004 then sp.x, sp.v = 0, 0 end
+            if SpringRest(sp) then sp.x, sp.v = sp.g, 0 end
+        end
+        local p = sp.x
+        local reach = math.clamp(p, 0, 1)
+        local fade = Smooth(reach / 0.55)
+
+        if not self.Visible and p <= 0 and holder.Visible and not first then
+            holder.Visible = false
+            root.Animating = false
+            return
+        end
+
+        local target = self.Collapsed and M.Title or (self.FixedH or (M.Title + 1 + math.min(self.ContentH, self.MaxHeight)))
+        if first and self.ContentH > 18 then self.H, first = target, false end
+        local hs = self.HSpring
+        if not hs then hs = NewSpring(self.H, 15, 1); self.HSpring = hs end
+        hs.x, hs.g = self.H, target
+        if math.abs(target - self.H) < 0.25 and math.abs(hs.v) < 3 then
+            self.H, hs.v = target, 0
+        else
+            StepSpring(hs, dt)
+            self.H = hs.x
+        end
+        local reveal = Transitions[self.TransitionName].reveal and math.clamp(p, 0, 1.025) or 1
+        local h = math.floor(M.Title + (self.H - M.Title) * reveal + 0.5)
+        if holder.Size.Y.Offset ~= h then holder.Size = UDim2.fromOffset(holder.Size.X.Offset, h) end
+
+        local style = Transitions[self.TransitionName]
+        local scale = style.scale + (1 - style.scale) * p
+        if self.Scale.Scale ~= scale then self.Scale.Scale = scale end
+        drop.v = style.drop * (1 - p)
+        local want = 1 - fade
+        if self.Main.GroupTransparency ~= want then self.Main.GroupTransparency = want end
+        for _, layer in ipairs(self.FrameLayers) do
+            local t = 1 - (1 - layer.On) * fade
+            if layer.Frame.Visible and layer.Stroke.Transparency ~= t then layer.Stroke.Transparency = t end
+        end
+
+        local alpha = 1 - math.exp(-dt * 30)
+        move.x = move.x + (move.gx - move.x) * alpha
+        move.y = move.y + (move.gy - move.y) * alpha
+        if math.abs(move.gx - move.x) < 0.05 then move.x = move.gx end
+        if math.abs(move.gy - move.y) < 0.05 then move.y = move.gy end
+        holder.Position = UDim2.new(0.5, move.x, 0, self.BaseY + move.y + drop.v)
+    end)
+
+    local drag = { active = false }
+    titlebar.InputBegan:Connect(function(input)
+        if not IsPointerDown(input) then return end
+        drag.active, drag.start, drag.gx, drag.gy = true, input.Position, move.gx, move.gy
+        self.Moved = true
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                drag.active = false
+                connection:Disconnect()
+            end
+        end)
+    end)
+    root:Connect(UserInputService.InputChanged, function(input)
+        if drag.active and IsPointerMove(input) then
+            local delta = input.Position - drag.start
+            move.gx, move.gy = clampMove(drag.gx + delta.X, drag.gy + delta.Y)
+        end
+    end)
+
+    self.Resizable = opts.Resizable ~= false
+    self.MinW, self.MinH = opts.MinWidth or 220, opts.MinHeight or (M.Title + 90)
+    self.DefaultW = width
+    local gripSize = M.Knob - 14
+    local grip = Create("TextButton", {
+        Name = "Grip", AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -4, 1, -4), Size = UDim2.fromOffset(gripSize, gripSize),
+        ZIndex = 8, Visible = self.Resizable, Parent = holder,
+    })
+    Bar(root, grip, gripSize - 4, gripSize - 4, 4, 1.5, -45, "Muted")
+    Bar(root, grip, gripSize - 8, gripSize - 8, 9, 1.5, -45, "Muted")
+    Bar(root, grip, gripSize - 12, gripSize - 12, 14, 1.5, -45, "Muted")
+    self.Grip = grip
+    local rs = { active = false, last = 0 }
+    grip.InputBegan:Connect(function(input)
+        if not IsPointerDown(input) then return end
+        if os.clock() - rs.last < 0.35 then self:ResetSize() rs.last = 0 return end
+        rs.last = os.clock()
+        rs.active, rs.start, rs.w, rs.h = true, input.Position, self.Width, holder.Size.Y.Offset
+        local connection
+        connection = input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                rs.active = false
+                connection:Disconnect()
+            end
+        end)
+    end)
+    root:Connect(UserInputService.InputChanged, function(input)
+        if rs.active and IsPointerMove(input) then
+            local delta = input.Position - rs.start
+            self:SetSize(rs.w + delta.X, rs.h + delta.Y)
+        end
+    end)
+
+    root:Connect(UserInputService.InputBegan, function(input, processed)
+        if processed then return end
+        if input.KeyCode == self.ToggleKey then self:Toggle() end
+    end)
+
+    local want = opts.Swipebar
+    if want == nil then want = opts.ToggleButton end
+    if want == nil and opts.MobileButton == false then want = false end
+    if want == nil then want = true end
+    if type(want) == "table" then self.SwipeCfg, want = want, true end
+    self.WantsButton = want == true
+    NutriexLibrary.Windows[#NutriexLibrary.Windows + 1] = self
+    root.Gui.Destroying:Connect(function()
+        local list = NutriexLibrary.Windows
+        for i = #list, 1, -1 do if list[i] == self then table.remove(list, i) end end
+        pcall(NutriexLibrary._DockRefresh)
+        pcall(NutriexLibrary._Arrange)
+    end)
+    root.Gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function() NutriexLibrary._Arrange() end)
+
+    self:SetReflective(opts.Reflective ~= false, opts.ReflectStrength)
+    NutriexLibrary._Arrange(self)
+    if not opts.Hidden then self:Show() end
+    NutriexLibrary._DockRefresh(self)
+    return self
+end
+
+function Window:Show()
+    if self.Visible then return end
+    self.Visible = true
+    local style = Transitions[self.TransitionName]
+    local sp = self.Spring
+    sp.g, sp.w, sp.z = 1, style.freq, style.damp
+    self.Root.Animating = true
+    self.Holder.Visible = true
+    if NutriexLibrary._DockRefresh then pcall(NutriexLibrary._DockRefresh) end
+end
+
+function Window:Hide()
+    if not self.Visible then return end
+    self.Visible = false
+    self.Root:CloseDropdown()
+
+    local sp = self.Spring
+    sp.g, sp.w, sp.z = 0, 15, 1
+    if NutriexLibrary._DockRefresh then pcall(NutriexLibrary._DockRefresh) end
+end
+
+function Window:SetTransition(name)
+    if not Transitions[name] then return false end
+    self.TransitionName = name
+    local style = Transitions[name]
+    if self.Visible then self.Spring.w, self.Spring.z = style.freq, style.damp end
+    return true
+end
+
+function Window:Toggle()
+    if self.Visible then self:Hide() else self:Show() end
+end
+
+function Window:SetCollapsed(state)
+    if state == self.Collapsed then return end
+    self.Collapsed = state
+    self.Grip.Visible = self.Resizable and not state
+    self.Root:CloseDropdown()
+    Tween(self.CollapseIcon, { Rotation = state and 0 or 180 }, 0.45)
+end
+
+function Window:SetSize(w, h)
+    local vp = Viewport(self.Root)
+    local M = self.Root.Metrics
+    w = math.clamp(w or self.Width, self.MinW, vp.X - 16)
+    h = math.clamp(h or self.Holder.Size.Y.Offset, self.MinH, math.max(self.MinH, vp.Y - self.BaseY - 12))
+    local dw = w - self.Width
+    self.Width, self.FixedH = w, h
+    self.Move.gx, self.Move.x = self.Move.gx + dw / 2, self.Move.x + dw / 2
+    self.Holder.Position = UDim2.new(0.5, self.Move.x, 0, self.BaseY + self.Move.y + self.Drop.v)
+    self.Holder.Size = UDim2.fromOffset(w, math.floor(h + 0.5))
+    self.H = h
+end
+
+function Window:ResetSize()
+    local dw = self.DefaultW - self.Width
+    self.FixedH = nil
+    self.Width = self.DefaultW
+    self.Move.gx, self.Move.x = self.Move.gx + dw / 2, self.Move.x + dw / 2
+    self.Holder.Position = UDim2.new(0.5, self.Move.x, 0, self.BaseY + self.Move.y + self.Drop.v)
+    self.Holder.Size = UDim2.fromOffset(self.Width, self.Holder.Size.Y.Offset)
+    NutriexLibrary._Arrange()
+end
+
+function Window:SetResizable(state)
+    self.Resizable = state ~= false
+    self.Grip.Visible = self.Resizable and not self.Collapsed
+end
+
+function Window:SetFont(font, opts) return NutriexLibrary:SetFont(font, opts) end
+
+function Window:SetToggleKey(key) self.ToggleKey = key end
+function Window:SetTitle(text)
+    self.TitleLabel.Text = tostring(text)
+    pcall(NutriexLibrary._DockRefresh)
+end
+
+function Window:SetSwipebar(state)
+    if type(state) == "table" then
+        self.SwipeCfg = state
+        local dock = NutriexLibrary.DockObj
+        if dock and dock.Root.Gui.Parent and state.Edge then dock:SetEdge(state.Edge, state.Along) end
+        state = true
+    end
+    self.WantsButton = state == true
+    pcall(NutriexLibrary._DockRefresh, self)
+end
+Window.SetToggleButton = Window.SetSwipebar
+
+function Window:SetReflective(state, strength)
+    self.Reflective = state ~= false
+    if strength then self.ReflectStrength = math.clamp(strength, 0, 1.5) end
+    local k = self.ReflectStrength
+    local function t(v) return math.clamp(1 - (1 - v) * k, 0, 1) end
+
+    self.GlareGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 1), NumberSequenceKeypoint.new(0.4, t(0.95)),
+        NumberSequenceKeypoint.new(0.47, t(0.9)), NumberSequenceKeypoint.new(0.5, t(0.93)), NumberSequenceKeypoint.new(0.535, t(0.8)),
+        NumberSequenceKeypoint.new(0.55, t(0.93)), NumberSequenceKeypoint.new(0.575, t(0.88)), NumberSequenceKeypoint.new(0.6, 1),
+        NumberSequenceKeypoint.new(1, 1),
+    })
+    self.Glare.Visible = self.Reflective and k > 0
+
+    for _, layer in ipairs({ self.FrameGlare, self.FrameGlare2, self.FrameGlints, self.FrameBevel }) do
+        layer.Frame.Visible = self.Reflective and k > 0
+        layer.On = math.clamp(1 - (1 - layer.Base) * math.min(k, 1.5), 0, 1)
+    end
+    if self.Spring and SpringRest(self.Spring) then
+        local fade = Smooth(math.clamp(self.Spring.x, 0, 1) / 0.55)
+        for _, layer in ipairs(self.FrameLayers) do layer.Stroke.Transparency = 1 - (1 - layer.On) * fade end
+    end
+end
+
+function Window:SetTheme(name)
+    if NutriexLibrary.DockObj then NutriexLibrary.DockObj.Root:SetTheme(name) end
+    return self.Root:SetTheme(name)
+end
+function Window:SetCorner(name)
+    if NutriexLibrary.DockObj then NutriexLibrary.DockObj.Root:SetCorner(name) end
+    return self.Root:SetCorner(name)
+end
+function Window:Notify(opts) self.Root:Notify(opts) end
+
+function Window:Dialog(opts) return self.Root:Dialog(opts) end
+
+function Window:Confirm(title, content, callback, opts)
+    opts = opts or {}
+    local done = false
+    local function answer(value) if not done then done = true Fire("confirm", title, callback, value) end end
+    return self.Root:Dialog({
+        Title = title, Content = content, Type = opts.Type or "Warning", RichText = opts.RichText,
+        Buttons = {
+            { Name = opts.Cancel or "Cancel", Callback = function() answer(false) end },
+            { Name = opts.Confirm or "Confirm", Style = opts.Danger and "Danger" or "Accent", Callback = function() answer(true) end },
+        },
+        OnClose = function() answer(false) end,
+    })
+end
+
+function Window:Prompt(title, content, callback, opts)
+    opts = opts or {}
+    local done = false
+    local function answer(value) if not done then done = true Fire("prompt", title, callback, value) end end
+    return self.Root:Dialog({
+        Title = title, Content = content, Type = opts.Type or "Info", Input = { Placeholder = opts.Placeholder, Default = opts.Default },
+        Buttons = {
+            { Name = opts.Cancel or "Cancel", Callback = function() answer(nil) end },
+            { Name = opts.Confirm or "OK", Style = "Accent", Callback = function(text) answer(text) end },
+        },
+        OnClose = function() answer(nil) end,
+    })
+end
+function Window:Destroy() self.Root:Destroy() end
+
+function Window:AddConfigSection(opts)
+    opts = opts or {}
+    local section = self:AddSection(opts.Title or "Configuration", { Collapsed = opts.Collapsed })
+    local autoload = NutriexLibrary:GetAutoload()
+    local input = section:AddInput({ Name = "Name", Placeholder = "config name", Default = autoload or "default" })
+    local list
+    local function refresh() list:Refresh(NutriexLibrary:ListConfigs(), true) end
+    list = section:AddDropdown({
+        Name = "Saved", Options = NutriexLibrary:ListConfigs(), Placeholder = "Select a config", Search = true,
+        Callback = function(value) if value then input:Set(value, true) end end,
+    })
+    local function report(ok, err, good)
+        self:Notify({
+            Title = "Config", Content = ok and good or tostring(err), Type = ok and "Success" or "Error", Duration = 3,
+        })
+    end
+    section:AddButton({ Name = "Save config", Style = "Accent", Callback = function()
+        local ok, err = NutriexLibrary:SaveConfig(input:Get())
+        report(ok, err, "Saved '" .. tostring(input:Get()) .. "'")
+        if ok then refresh() end
+    end })
+    section:AddButton({ Name = "Load config", Callback = function()
+        local ok, err = NutriexLibrary:LoadConfig(input:Get())
+        report(ok, err, "Loaded '" .. tostring(input:Get()) .. "'")
+    end })
+    section:AddButton({ Name = "Delete config", Callback = function()
+        local ok, err = NutriexLibrary:DeleteConfig(input:Get())
+        report(ok, err, "Deleted '" .. tostring(input:Get()) .. "'")
+        if ok then refresh() end
+    end })
+    section:AddButton({ Name = "Refresh list", Callback = refresh })
+    section:AddToggle({ Name = "Autoload this config", Default = autoload ~= nil, Callback = function(on)
+        local ok, err = NutriexLibrary:SetAutoload(on and input:Get() or nil)
+        if not ok then report(false, err) end
+    end })
+    return section
+end
+
+function Window:AddInterfaceSection(opts)
+    opts = opts or {}
+    local section = self:AddSection(opts.Title or "Interface", { Collapsed = opts.Collapsed })
+    local themes = {}
+    for name in pairs(NutriexLibrary.Themes) do themes[#themes + 1] = name end
+    table.sort(themes)
+    section:AddDropdown({ Name = "Theme", Options = themes, Default = self.Root.ThemeName, Flag = opts.ThemeFlag or "UI_Theme",
+        Callback = function(name) NutriexLibrary:SetTheme(name) end })
+    section:AddSegmented({ Name = "Corners", Options = { "Rounded", "Soft", "Sharp", "Square" }, Default = self.Root.CornerName,
+        Flag = opts.CornerFlag or "UI_Corner", Callback = function(name) NutriexLibrary:SetCorner(name) end })
+    section:AddSegmented({ Name = "Transition", Options = { "Drop", "Scale", "Slide", "Fade" }, Default = self.TransitionName,
+        Flag = opts.TransitionFlag or "UI_Transition", Callback = function(name) self:SetTransition(name) end })
+    local fontDropdown = section:AddDropdown({ Name = "Font", Options = NutriexLibrary:GetFonts(), Default = NutriexLibrary:GetFont(),
+        Callback = function(name)
+            local ok, err = NutriexLibrary:SetFont(name)
+            if not ok then self:Notify({ Title = "Font", Content = tostring(err), Type = "Error" }) end
+        end })
+    local fontUrl = ""
+    section:AddInput({ Name = "Custom font", Placeholder = "URL to a .ttf / .otf", Callback = function(text) fontUrl = tostring(text or "") end })
+    section:AddButton({ Name = "Apply custom font", Callback = function()
+        if fontUrl == "" then return end
+        local name = fontUrl:match("([^/\\]+)%.%a+[%?#]?.*$") or "Custom"
+        local ok, err = NutriexLibrary:SetFont(fontUrl, { Name = name })
+        if ok then
+            fontDropdown:Refresh(NutriexLibrary:GetFonts(), true)
+            fontDropdown:Set(name, true)
+        end
+        self:Notify({ Title = "Font", Content = ok and ("Applied " .. name) or tostring(err), Type = ok and "Success" or "Error" })
+    end })
+    section:AddKeybind({ Name = "Menu key", Default = self.ToggleKey, Flag = opts.KeyFlag or "UI_MenuKey",
+        Callback = function(key) if key then self:SetToggleKey(key) end end })
+    section:AddToggle({ Name = "Swipebar", Default = self.WantsButton, Flag = opts.ButtonFlag or "UI_Swipebar",
+        Callback = function(on) self:SetSwipebar(on) end })
+    section:AddSegmented({ Name = "Swipebar edge", Options = { "Left", "Right", "Top", "Bottom" },
+        Default = (NutriexLibrary.DockObj and NutriexLibrary.DockObj.Edge) or (self.SwipeCfg and self.SwipeCfg.Edge) or "Bottom",
+        Flag = opts.EdgeFlag or "UI_SwipebarEdge",
+        Callback = function(edge) if NutriexLibrary.DockObj then NutriexLibrary.DockObj:SetEdge(edge) end end })
+    section:AddDivider()
+    section:AddButton({ Name = "Unload UI", Callback = function() NutriexLibrary:Destroy() end })
+    return section
+end
+
+local function Commas(n)
+    local text = tostring(math.floor(tonumber(n) or 0))
+    local out = text:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+    return (out:gsub("^,", ""))
+end
+
+local function SetClipboard(text)
+    local fn = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
+    if not fn then return false end
+    return pcall(fn, text)
+end
+
+function Window:AddDiscord(title, desc, invite)
+    local opts = type(title) == "table" and title or { Title = title, Desc = desc, Invite = invite }
+    local root, M = self.Root, self.Root.Metrics
+    self.Order = self.Order + 1
+    local code = tostring(opts.Invite or ""):match("discord%.gg/([%w%-_]+)") or tostring(opts.Invite or ""):match("discord%.com/invite/([%w%-_]+)")
+        or tostring(opts.Invite or ""):match("^([%w%-_]+)$")
+    local link = code and ("https://discord.gg/" .. code) or nil
+
+    local frame = Create("Frame", {
+        Name = "Discord", Size = UDim2.new(1, 0, 0, 62), LayoutOrder = self.Order, Parent = self.Content,
+    })
+    root:Bind(frame, { BackgroundColor3 = "Surface" })
+    frame.BackgroundTransparency = root.Alpha.Section
+    root:Round(frame, 0.8)
+    root:Stroke(frame, "Stroke", 1, 0.3)
+
+    local icon = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 10, 0.5, 0), Size = UDim2.fromOffset(40, 40),
+        BackgroundColor3 = Color3.new(1, 1, 1), ClipsDescendants = true, Parent = frame,
+    })
+    Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = icon })
+    root:Gradient(icon, "Soft", { Rotation = 45 })
+    local letter = Create("TextLabel", {
+        Text = "D", Font = Enum.Font.GothamBold, TextSize = 18, Size = UDim2.fromScale(1, 1), Parent = icon,
+    })
+    root:Bind(letter, { TextColor3 = "OnAccent" })
+    local image = Create("ImageLabel", { Size = UDim2.fromScale(1, 1), ImageTransparency = 1, ZIndex = 2, Parent = icon })
+
+    local nameLabel = Create("TextLabel", {
+        Text = tostring(opts.Title or "Discord"), Font = Enum.Font.GothamBold, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(60, 9), Size = UDim2.new(1, -140, 0, 16), Parent = frame,
+    })
+    root:Bind(nameLabel, { TextColor3 = "Text" })
+    local descLabel = Create("TextLabel", {
+        Text = tostring(opts.Desc or ""), TextSize = M.Text - 3, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(60, 26), Size = UDim2.new(1, -140, 0, 14), Parent = frame,
+    })
+    root:Bind(descLabel, { TextColor3 = "SubText" })
+    local stats = Create("TextLabel", {
+        Text = link and "Contacting Discord..." or "No invite set", TextSize = M.Text - 3, TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd, Position = UDim2.fromOffset(60, 41), Size = UDim2.new(1, -140, 0, 14), Parent = frame,
+    })
+    root:Bind(stats, { TextColor3 = "Muted" })
+
+    local join = Create("TextButton", {
+        BackgroundTransparency = 1, ClipsDescendants = true,
+        AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.fromOffset(62, M.Field), Parent = frame,
+    })
+    root:Round(join, 0.6)
+    local joinLabel = AccentFill(root, join, "Join", M.Text - 1)
+
+    local card = { Frame = frame, Invite = link }
+    local resetTick = 0
+    join.Activated:Connect(function()
+        if not card.Invite then return end
+        local ok = SetClipboard(card.Invite)
+        joinLabel.Text = ok and "Copied" or "No clip"
+        resetTick = resetTick + 1
+        local tick = resetTick
+        self:Notify({ Title = "Discord", Content = ok and "Invite link copied to your clipboard." or card.Invite, Type = ok and "Success" or "Info", Duration = 3 })
+        task.delay(1.6, function() if resetTick == tick and join.Parent then joinLabel.Text = "Join" end end)
+    end)
+
+    function card:Refresh()
+        if not self.Invite then return end
+        task.spawn(function()
+            local code2 = self.Invite:match("([%w%-_]+)$")
+            local body, err = Http("https://discord.com/api/v10/invites/" .. code2 .. "?with_counts=true")
+            local ok, data = pcall(function() return HttpService:JSONDecode(body or "") end)
+            if not body or not ok or type(data) ~= "table" or not data.guild then
+                if frame.Parent then stats.Text = body and "Invite not found" or ("Couldn't reach Discord" .. (err and (" (" .. err .. ")") or "")) end
+                return
+            end
+            if not frame.Parent then return end
+            local guild = data.guild
+            if not opts.Title or opts.Title == "" then nameLabel.Text = tostring(guild.name) end
+            if (not opts.Desc or opts.Desc == "") and guild.description then descLabel.Text = tostring(guild.description) end
+            letter.Text = tostring(guild.name or "D"):sub(1, 1):upper()
+            stats.Text = ("%s members  \xC2\xB7  %s online"):format(Commas(data.approximate_member_count), Commas(data.approximate_presence_count))
+            root:Bind(stats, { TextColor3 = "SubText" })
+            stats.TextColor3 = root.Theme.SubText
+            if guild.icon and writefile and (getcustomasset or getsynasset) then
+                local icon_url = ("https://cdn.discordapp.com/icons/%s/%s.png?size=128"):format(guild.id, guild.icon)
+                EnsureFolder("NutriexLibrary"); EnsureFolder("NutriexLibrary/cache")
+                local path = ("NutriexLibrary/cache/discord_%s_%s.png"):format(guild.id, guild.icon)
+                if not (isfile and isfile(path)) then
+                    local bytes = Http(icon_url)
+                    if bytes then pcall(writefile, path, bytes) end
+                end
+                local asset = (isfile and isfile(path)) and AssetOf(path)
+                if asset and frame.Parent then
+                    image.Image = asset
+                    letter.Visible = false
+                    Tween(image, { ImageTransparency = 0 }, 0.35)
+                end
+            end
+        end)
+    end
+    function card:SetInvite(value)
+        local c = tostring(value):match("discord%.gg/([%w%-_]+)") or tostring(value):match("discord%.com/invite/([%w%-_]+)") or tostring(value):match("^([%w%-_]+)$")
+        self.Invite = c and ("https://discord.gg/" .. c) or nil
+        self:Refresh()
+    end
+    function card:Destroy() frame:Destroy() end
+    card:Refresh()
+    return card
+end
+
+function Window:AddSection(title, sopts)
+    sopts = sopts or {}
+    local root, M = self.Root, self.Root.Metrics
+    self.Order = self.Order + 1
+
+    local frame = Create("Frame", {
+        Name = "Section", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = self.Order, Parent = self.Content,
+    })
+
+    frame.BackgroundColor3 = Color3.new(1, 1, 1)
+    root:Gradient(frame, "Pane", { Rotation = 90 })
+    frame.BackgroundTransparency = root.Alpha.Section
+    root:Round(frame, 0.8)
+    local cardStroke = root:Stroke(frame, "Stroke", 1, 0.2)
+    Create("UIGradient", { Rotation = 90, Parent = cardStroke, Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.4, 0.45), NumberSequenceKeypoint.new(1, 0.85),
+    }) })
+    Pad(frame, M.Pad, 5, M.Pad, 8)
+    Create("UIListLayout", { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder, Parent = frame })
+
+    local section = setmetatable({
+        Root = root, Clip = self.Content, Order = 0, Expanded = sopts.Collapsed ~= true,
+        Collapsible = sopts.Collapsible ~= false,
+    }, Section)
+
+    local header = Create("TextButton", {
+        Name = "Header", Size = UDim2.new(1, 0, 0, M.Header), LayoutOrder = 0, Parent = frame,
+    })
+    Create("Frame", {
+        Name = "Highlight", Size = UDim2.new(1, 2 * M.Pad - 16, 0, 1), Position = UDim2.fromOffset(-(M.Pad - 8), -4),
+        BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.88, ZIndex = 2, Parent = header,
+    }, { Create("UIGradient", { Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(1, 1),
+    }) }) })
+    local accent = Create("Frame", {
+        AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 0, 0.5, 0), Size = UDim2.fromOffset(3, 12),
+        BackgroundColor3 = Color3.new(1, 1, 1), Parent = header,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    root:Gradient(accent, "Soft", { Rotation = 90 })
+    local text = Create("TextLabel", {
+        Text = tostring(title or "Section"), Font = Enum.Font.GothamBold, TextSize = M.Text - 2,
+        TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(12, 0), Size = UDim2.new(1, -40, 1, 0),
+        Fit = true, Parent = header,
+    })
+    root:Bind(text, { TextColor3 = "SubText" })
+    header.MouseEnter:Connect(function()
+        Tween(text, { TextColor3 = root.Theme.Text }, 0.15)
+        Tween(accent, { Size = UDim2.fromOffset(3, 18) }, 0.3, Enum.EasingStyle.Back)
+    end)
+    header.MouseLeave:Connect(function()
+        Tween(text, { TextColor3 = root.Theme.SubText }, 0.2)
+        Tween(accent, { Size = UDim2.fromOffset(3, 12) }, 0.25)
+    end)
+
+    local chevron = Create("Frame", {
+        BackgroundTransparency = 1, AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -2, 0.5, 0),
+        Size = UDim2.fromOffset(14, 14), Rotation = section.Expanded and 180 or 0, Parent = header,
+    })
+    Bar(root, chevron, 4.6, 7, 7, 2, 45, "Muted")
+    Bar(root, chevron, 9.4, 7, 7, 2, -45, "Muted")
+    section.ChevronHolder = chevron
+    chevron.Visible = section.Collapsible
+
+    local clipper = Create("Frame", {
+        Name = "Clipper", BackgroundTransparency = 1, ClipsDescendants = true, LayoutOrder = 1,
+        Size = UDim2.new(1, 0, 0, 0), Parent = frame,
+    })
+    local body = Create("Frame", {
+        Name = "Body", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
+        Parent = clipper,
+    })
+    Create("UIListLayout", { Padding = UDim.new(0, 5), SortOrder = Enum.SortOrder.LayoutOrder, Parent = body })
+    section.Body, section.Clipper = body, clipper
+    section.Frame = frame
+
+    body:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        if section.Expanded and os.clock() > (section.Animating or 0) then
+            clipper.Size = UDim2.new(1, 0, 0, body.AbsoluteSize.Y)
+        end
+    end)
+    if section.Collapsible then
+        header.Activated:Connect(function() section:SetCollapsed(section.Expanded) end)
+    end
+
+    return section
+end
+
+local function StandaloneRoot()
+    if not NutriexLibrary.Standalone or not NutriexLibrary.Standalone.Gui or not NutriexLibrary.Standalone.Gui.Parent then
+        NutriexLibrary.Standalone = Root.new({})
+    end
+    return NutriexLibrary.Standalone
+end
+
+function NutriexLibrary:CreateDropdown(parent, opts)
+    return Dropdown.new(StandaloneRoot(), parent, opts, nil)
+end
+
+function NutriexLibrary:Notify(opts) StandaloneRoot():Notify(opts) end
+function NutriexLibrary:Dialog(opts) return StandaloneRoot():Dialog(opts) end
+
+function NutriexLibrary:SetSwipebar(edge, along)
+    local dock = NutriexLibrary.DockObj
+    if not (dock and dock.Root.Gui.Parent) then return false end
+    return dock:SetEdge(edge, along)
+end
+
+function NutriexLibrary:SetTheme(name)
+    for _, root in ipairs(self.Roots) do root:SetTheme(name) end
+    if self.DockObj and self.DockObj.Root.Gui.Parent then self.DockObj:Update() end
+end
+
+function NutriexLibrary:SetCorner(name)
+    for _, root in ipairs(self.Roots) do root:SetCorner(name) end
+end
+
+local CONFIG_DIR = "NutriexLibrary"
+
+local function ConfigName(name)
+    return (tostring(name or ""):gsub("[^%w%-_ ]", ""))
+end
+
+function NutriexLibrary:SaveConfig(name)
+    name = ConfigName(name)
+    if name == "" then return false, "Enter A Config Name" end
+    if not (writefile and isfolder and makefolder) then return false, "Executor Has No File Api" end
+    local data = {}
+    for flag, object in pairs(self.FlagObjects) do
+        if object.Save then data[flag] = object:Save() else data[flag] = object:Get() end
+    end
+    return pcall(function()
+        if not isfolder(CONFIG_DIR) then makefolder(CONFIG_DIR) end
+        writefile(CONFIG_DIR .. "/" .. name .. ".json", HttpService:JSONEncode(data))
+    end)
+end
+
+function NutriexLibrary:LoadConfig(name)
+    name = ConfigName(name)
+    if not (readfile and isfile) then return false, "executor has no file API" end
+    local path = CONFIG_DIR .. "/" .. name .. ".json"
+    if name == "" or not isfile(path) then return false, "config not found" end
+    local ok, data = pcall(function() return HttpService:JSONDecode(readfile(path)) end)
+    if not ok then return false, data end
+    for flag, value in pairs(data) do
+        local object = self.FlagObjects[flag]
+        if object then
+            if object.Load then object:Load(value) else object:Set(value) end
+        end
+    end
+    return true
+end
+
+function NutriexLibrary:ListConfigs()
+    local names = {}
+    if listfiles and isfolder and isfolder(CONFIG_DIR) then
+        local ok, files = pcall(listfiles, CONFIG_DIR)
+        if ok then
+            for _, path in ipairs(files) do
+                local n = tostring(path):match("([^/\\]+)%.json$")
+                if n then names[#names + 1] = n end
+            end
+        end
+    end
+    table.sort(names)
+    return names
+end
+
+function NutriexLibrary:DeleteConfig(name)
+    name = ConfigName(name)
+    if not (delfile and isfile) then return false, "executor has no file API" end
+    local path = CONFIG_DIR .. "/" .. name .. ".json"
+    if name == "" or not isfile(path) then return false, "config not found" end
+    return pcall(delfile, path)
+end
+
+function NutriexLibrary:SetAutoload(name)
+    if not (writefile and isfolder and makefolder) then return false, "executor has no file API" end
+    return pcall(function()
+        if not isfolder(CONFIG_DIR) then makefolder(CONFIG_DIR) end
+        if name and ConfigName(name) ~= "" then
+            writefile(CONFIG_DIR .. "/autoload.txt", ConfigName(name))
+        elseif isfile(CONFIG_DIR .. "/autoload.txt") and delfile then
+            delfile(CONFIG_DIR .. "/autoload.txt")
+        end
+    end)
+end
+
+function NutriexLibrary:GetAutoload()
+    if not (readfile and isfile) or not isfile(CONFIG_DIR .. "/autoload.txt") then return nil end
+    local ok, text = pcall(readfile, CONFIG_DIR .. "/autoload.txt")
+    if ok and text and ConfigName(text) ~= "" then return ConfigName(text) end
+    return nil
+end
+
+function NutriexLibrary:AutoLoad()
+    local name = self:GetAutoload()
+    if name then return self:LoadConfig(name) end
+    return false, "no autoload config"
+end
+
+function NutriexLibrary:Destroy()
+    for i = #self.Roots, 1, -1 do self.Roots[i]:Destroy() end
+    self.Roots = {}
+    self.Windows = {}
+    self.DockObj = nil
+    self.Standalone = nil
+    if genv.__NutriexLibrary == self then genv.__NutriexLibrary = nil end
+end
+
+return NutriexLibrary
