@@ -2007,7 +2007,7 @@ end
 
 local function Maximise(Window)
 	Window.Controls.ToggleSize.ImageLabel.Image = "rbxassetid://10137941941"
-	tween(Window, {Size = MainSize})
+	tween(Window, {Size = MainSize}, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out))
 	Window.Elements.Visible = true
 	Window.Navigation.Visible = true
 end
@@ -2016,7 +2016,7 @@ local function Minimize(Window)
 	Window.Controls.ToggleSize.ImageLabel.Image = "rbxassetid://11036884234"
 	Window.Elements.Visible = false
 	Window.Navigation.Visible = false
-	tween(Window, {Size = MinSize})
+	tween(Window, {Size = MinSize}, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out))
 end
 
 function Nutriex:CreateWindow(WindowSettings)
@@ -2044,20 +2044,19 @@ function Nutriex:CreateWindow(WindowSettings)
 		Title = WindowSettings.Name,
 		Subtitle = "Key System",
 		Note = "No Instructions",
-		SaveInRoot = false,
-		SaveKey = true,
-		Key = {""},
+		SaveInRoot = false, 
+		SaveKey = true, 
+		Key = {""}, 
 		SecondAction = {}	
 	}, WindowSettings.KeySettings or {})
 
 	WindowSettings.KeySettings.SecondAction = SetPrase({
 		Enabled = false,
-		Type = "Discord",
-		Parameter = ""
+		Type = "Discord", 
+		Parameter = "" 
 	}, WindowSettings.KeySettings.SecondAction)
 
 	local Passthrough = false
-
 	local Window = { Bind = Enum.KeyCode.K, CurrentTab = nil, State = true, Size = false, Settings = nil }
 
 	Main.Title.Title.Text = WindowSettings.Name
@@ -2067,7 +2066,11 @@ function Nutriex:CreateWindow(WindowSettings)
 	Main.BackgroundTransparency = 1
 	Main.Size = MainSize
 	Main.Size = UDim2.fromOffset(Main.Size.X.Offset - 70, Main.Size.Y.Offset - 55)
-	Main.Parent.ShadowHolder.Size = Main.Size
+	
+	if Main.Parent and Main.Parent:FindFirstChild("ShadowHolder") then
+		Main.Parent.ShadowHolder.Size = Main.Size
+	end
+
 	LoadingFrame.Frame.Frame.Title.TextTransparency = 1
 	LoadingFrame.Frame.Frame.Subtitle.TextTransparency = 1
 	LoadingFrame.Version.TextTransparency = 1
@@ -2080,31 +2083,38 @@ function Nutriex:CreateWindow(WindowSettings)
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
 	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Nutriex Interface Suite" and Release or "NutriexLibrary"
 
-	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+	pcall(function()
+		Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+	end)
 	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
 	Navigation.Player.TextLabel.Text = Players.LocalPlayer.Name
 
-	for i,v in pairs(Main.Controls:GetChildren()) do
+	for _, v in pairs(Main.Controls:GetChildren()) do
 		v.Visible = false
 	end
 
 	Main:GetPropertyChangedSignal("Position"):Connect(function()
-		Main.Parent.ShadowHolder.Position = Main.Position
+		if Main.Parent and Main.Parent:FindFirstChild("ShadowHolder") then
+			Main.Parent.ShadowHolder.Position = Main.Position
+		end
 	end)
 	Main:GetPropertyChangedSignal("Size"):Connect(function()
-		Main.Parent.ShadowHolder.Size = Main.Size
+		if Main.Parent and Main.Parent:FindFirstChild("ShadowHolder") then
+			Main.Parent.ShadowHolder.Size = Main.Size
+		end
 	end)
 
 	LoadingFrame.Visible = true
-
 	NutriexLibrary.Enabled = true
 
 	if WindowSettings.KeySystem then
 		local KeySettings = WindowSettings.KeySettings
 		
 		Draggable(Dragger, Main)
-		Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-		if dragBar then Draggable(dragInteract, Main, true, 255) end
+		if NutriexLibrary:FindFirstChild("MobileSupport") then
+			Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
+		end
+		if dragBar and dragInteract then Draggable(dragInteract, Main, true, 255) end
 
 		if not WindowSettings.KeySettings then
 			Passthrough = true
@@ -2112,22 +2122,25 @@ function Nutriex:CreateWindow(WindowSettings)
 		end
 		
 		WindowSettings.KeySettings.FileName = "key"
+		if typeof(WindowSettings.KeySettings.Key) == "string" then 
+			WindowSettings.KeySettings.Key = {WindowSettings.KeySettings.Key} 
+		end
 
-		if typeof(WindowSettings.KeySettings.Key) == "string" then WindowSettings.KeySettings.Key = {WindowSettings.KeySettings.Key} end
-
-		local direc = WindowSettings.KeySettings.SaveInRoot and "Nutriex/Configurations/" .. WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/" or "Nutriex/Configurations/" ..  WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
+		local direc = "Nutriex/Configurations/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
 
 		if isfile and isfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex") then
-			for i, Key in ipairs(WindowSettings.KeySettings.Key) do
-				if string.find(readfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex"), Key) then
-					Passthrough = true
-					break
+			pcall(function()
+				local savedKey = readfile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex")
+				for _, Key in ipairs(WindowSettings.KeySettings.Key) do
+					if string.find(savedKey, Key) then
+						Passthrough = true
+						break
+					end
 				end
-			end
+			end)
 		end
 
 		if not Passthrough then
-
 			local Btn = KeySystem.Action.Copy
 			local typesys = KeySettings.SecondAction.Type
 			
@@ -2135,7 +2148,7 @@ function Nutriex:CreateWindow(WindowSettings)
 				Btn = KeySystem.Action.Discord
 			end
 
-			local AttemptsRemaining = math.random(2, 5)
+			local AttemptsRemaining = math.random(3, 5)
 
 			KeySystem.Visible = true
 			KeySystem.Title.Text = WindowSettings.KeySettings.Title
@@ -2148,22 +2161,24 @@ function Nutriex:CreateWindow(WindowSettings)
 			
 			Btn.Interact.MouseButton1Click:Connect(function()
 				if typesys == "Discord" then
-					setclipboard(tostring("https://discord.gg/"..KeySettings.SecondAction.Parameter))
-					if request then
-						request({
-							Url = 'http://127.0.0.1:6463/rpc?v=1',
-							Method = 'POST',
-							Headers = {
-								['Content-Type'] = 'application/json',
-								Origin = 'https://discord.com'
-							},
-							Body = HttpService:JSONEncode({
-								cmd = 'INVITE_BROWSER',
-								nonce = HttpService:GenerateGUID(false),
-								args = {code = KeySettings.SecondAction.Parameter}
+					setclipboard(tostring("https://discord.gg/" .. KeySettings.SecondAction.Parameter))
+					pcall(function()
+						if request then
+							request({
+								Url = 'http://127.0.0.1:6463/rpc?v=1',
+								Method = 'POST',
+								Headers = {
+									['Content-Type'] = 'application/json',
+									Origin = 'https://discord.com'
+								},
+								Body = HttpService:JSONEncode({
+									cmd = 'INVITE_BROWSER',
+									nonce = HttpService:GenerateGUID(false),
+									args = {code = KeySettings.SecondAction.Parameter}
+								})
 							})
-						})
-					end
+						end
+					end)
 				else
 					setclipboard(tostring(KeySettings.SecondAction.Parameter))
 				end
@@ -2184,31 +2199,33 @@ function Nutriex:CreateWindow(WindowSettings)
 					for _, instance in pairs(KeySystem:GetDescendants()) do
 						if instance.ClassName ~= "UICorner" and instance.ClassName ~= "UIPadding" then
 							if instance.ClassName ~= "UIStroke" and instance.ClassName ~= "UIListLayout" then
-								tween(instance, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
+								tween(instance, {BackgroundTransparency = 1}, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "ImageButton" then
-								tween(instance, {ImageTransparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+								tween(instance, {ImageTransparency = 1}, TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "TextLabel" then
-								tween(instance, {TextTransparency = 1}, nil, TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
+								tween(instance, {TextTransparency = 1}, TweenInfo.new(0.3, Enum.EasingStyle.Exponential))
 							end
 							if instance.ClassName == "UIStroke" then
-								tween(instance, {Transparency = 1}, nil, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+								tween(instance, {Transparency = 1}, TweenInfo.new(0.4, Enum.EasingStyle.Exponential))
 							end
 						end
 					end
-					tween(KeySystem, {BackgroundTransparency = 1}, nil, TweenInfo.new(0.6, Enum.EasingStyle.Exponential))
-					task.wait(0.51)
+					tween(KeySystem, {BackgroundTransparency = 1}, TweenInfo.new(0.5, Enum.EasingStyle.Exponential))
+					task.wait(0.45)
 					Passthrough = true
 					KeySystem.Visible = false
 					if WindowSettings.KeySettings.SaveKey then
-						if writefile then
-							writefile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex", FoundKey)
-						end
+						pcall(function()
+							if writefile then
+								writefile(direc .. WindowSettings.KeySettings.FileName .. ".Nutriex", FoundKey)
+							end
+						end)
 						Nutriex:Notification({Title = "Key System", Content = "The key for this script has been saved successfully.", Icon = "lock_open"})
 					end
 				else
-					if AttemptsRemaining == 0 then
+					if AttemptsRemaining <= 0 then
 						game.Players.LocalPlayer:Kick("No Attempts Remaining")
 						game:Shutdown()
 					end
@@ -2229,61 +2246,74 @@ function Nutriex:CreateWindow(WindowSettings)
 		repeat task.wait() until Passthrough
 	end
 
+	-- Sequência de Carregamento Polida
 	if WindowSettings.LoadingEnabled then
-		task.wait(0.3)
-		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
+		task.wait(0.2)
+		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
 		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 0}):Play()
-		task.wait(0.05)
-		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
-		task.wait(0.29)
-		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(1.7, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 2, false, 0.2), {Rotation = 450}):Play()
+		task.wait(0.04)
+		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
+		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.5, Enum.EasingStyle.Exponential), {TextTransparency = 0}):Play()
+		task.wait(0.2)
+		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out, 2, false, 0.2), {Rotation = 360}):Play()
 
-		task.wait(3.32)
+		task.wait(2.2)
 
-		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(0.3, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
-		task.wait(0.05)
-		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
-		wait(0.3)
-		TweenService:Create(LoadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+		TweenService:Create(LoadingFrame.Frame.Frame.Title, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
+		TweenService:Create(LoadingFrame.Frame.ImageLabel, TweenInfo.new(0.25, Enum.EasingStyle.Exponential), {ImageTransparency = 1}):Play()
+		task.wait(0.03)
+		TweenService:Create(LoadingFrame.Frame.Frame.Subtitle, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
+		TweenService:Create(LoadingFrame.Version, TweenInfo.new(0.4, Enum.EasingStyle.Exponential), {TextTransparency = 1}):Play()
+		task.wait(0.25)
+		TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
 	end
 
-	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 0.2, Size = MainSize}):Play()
-	TweenService:Create(Main.Parent.ShadowHolder, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = MainSize}):Play()
-	TweenService:Create(Main.Title.Title, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-	TweenService:Create(Main.Title.subtitle, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-	TweenService:Create(Main.Logo, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-	TweenService:Create(Navigation.Player.icon.ImageLabel, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {ImageTransparency = 0}):Play()
-	TweenService:Create(Navigation.Player.icon.UIStroke, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Transparency = 0}):Play()
-	TweenService:Create(Main.Line, TweenInfo.new(0.35, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
-	wait(0.4)
+	-- Entrada Principal Fluida (Glassmorphism Effect)
+	local entryTweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
+	TweenService:Create(Main, entryTweenInfo, {BackgroundTransparency = 0.22, Size = MainSize}):Play()
+	if Main.Parent and Main.Parent:FindFirstChild("ShadowHolder") then
+		TweenService:Create(Main.Parent.ShadowHolder, entryTweenInfo, {Size = MainSize}):Play()
+	end
+	TweenService:Create(Main.Title.Title, entryTweenInfo, {TextTransparency = 0}):Play()
+	TweenService:Create(Main.Title.subtitle, entryTweenInfo, {TextTransparency = 0}):Play()
+	TweenService:Create(Main.Logo, entryTweenInfo, {ImageTransparency = 0}):Play()
+	TweenService:Create(Navigation.Player.icon.ImageLabel, entryTweenInfo, {ImageTransparency = 0}):Play()
+	if Navigation.Player.icon:FindFirstChild("UIStroke") then
+		TweenService:Create(Navigation.Player.icon.UIStroke, entryTweenInfo, {Transparency = 0}):Play()
+	end
+	TweenService:Create(Main.Line, entryTweenInfo, {BackgroundTransparency = 0}):Play()
+	
+	task.wait(0.35)
 	LoadingFrame.Visible = false
 
 	Draggable(Dragger, Main)
-	Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
-	if dragBar then Draggable(dragInteract, Main, true, 255) end
+	if NutriexLibrary:FindFirstChild("MobileSupport") then
+		Draggable(NutriexLibrary.MobileSupport, NutriexLibrary.MobileSupport)
+	end
+	if dragBar and dragInteract then Draggable(dragInteract, Main, true, 255) end
 
-	Elements.Template.LayoutOrder = 1000000000
-	Elements.Template.Visible = false
-	Navigation.Tabs["InActive Template"].LayoutOrder = 1000000000
-	Navigation.Tabs["InActive Template"].Visible = false
+	if Elements:FindFirstChild("Template") then
+		Elements.Template.LayoutOrder = 1000000000
+		Elements.Template.Visible = false
+	end
+	if Navigation.Tabs:FindFirstChild("InActive Template") then
+		Navigation.Tabs["InActive Template"].LayoutOrder = 1000000000
+		Navigation.Tabs["InActive Template"].Visible = false
+	end
 
 	local FirstTab = true
 
 	function Window:CreateHomeTab(HomeTabSettings)
-
 		HomeTabSettings = SetPrase({
 			Icon = 1,
 			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"},
-			DiscordInvite = "noinvitelink"
+			DiscordInvite = ""
 		}, HomeTabSettings or {})
 
 		local HomeTab = {}
-
 		local HomeTabButton = Navigation.Tabs.Home
 		HomeTabButton.Visible = true
+		
 		if HomeTabSettings.Icon == 2 then
 			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
 		end
@@ -2292,125 +2322,117 @@ function Nutriex:CreateWindow(WindowSettings)
 		HomeTabPage.Visible = true
 
 		function HomeTab:Activate()
-			Window.CurrentTab = "Home"
-
-			-- Transição ultra-rápida e fluida (sem travamentos)
-			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, tweenInfo)
-			tween(HomeTabButton, {BackgroundTransparency = 0}, tweenInfo)
-			tween(HomeTabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, tweenInfo)
+			local activeTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255, 255, 255)}, activeTweenInfo)
+			tween(HomeTabButton, {BackgroundTransparency = 0}, activeTweenInfo)
+			if HomeTabButton:FindFirstChild("UIStroke") then
+				tween(HomeTabButton.UIStroke, {Transparency = 0.41, Color = Color3.fromRGB(130, 120, 160)}, activeTweenInfo)
+			end
 
 			Elements.UIPageLayout:JumpTo(HomeTabPage)
 
 			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
 				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton:IsA("GuiObject") and OtherTabButton ~= HomeTabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, tweenInfo)
-					tween(OtherTabButton, {BackgroundTransparency = 1}, tweenInfo)
-					tween(OtherTabButton.UIStroke, {Transparency = 1}, tweenInfo)
+					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(170, 165, 185)}, activeTweenInfo)
+					tween(OtherTabButton, {BackgroundTransparency = 1}, activeTweenInfo)
+					if OtherTabButton:FindFirstChild("UIStroke") then
+						tween(OtherTabButton.UIStroke, {Transparency = 1}, activeTweenInfo)
+					end
 				end
 			end
+
+			Window.CurrentTab = "Home"
 		end
 
 		HomeTab:Activate()
 		FirstTab = false
-
-		-- Clique seguro com task.defer para evitar micro-stutters
 		HomeTabButton.Interact.MouseButton1Click:Connect(function()
-			if Window.CurrentTab ~= "Home" then
-				task.defer(function()
-					HomeTab:Activate()
-				end)
-			end
+			HomeTab:Activate()
 		end)
 
-		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+		pcall(function()
+			HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+		end)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
+		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - " .. WindowSettings.Name
 
-		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
-		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Nutriex Interface Suite - Debugging Mode" break end
-			if v == identifyexecutor() then
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
-				break
-			else
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Isn't Officialy Supported By This Script."
+		local currentExec = (identifyexecutor and identifyexecutor()) or "Unknown"
+		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or currentExec)
+		
+		local supported = false
+		for _, v in pairs(HomeTabSettings.SupportedExecutors) do
+			if isStudio or v == currentExec then
+				supported = true
 				break
 			end
 		end
+		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = supported and "Your Executor Supports This Script." or "Your Executor Isn't Officially Supported."
 
 		HomeTabPage.detailsholder.dashboard.Discord.Interact.MouseButton1Click:Connect(function()
-			setclipboard(tostring("https://discord.gg/"..HomeTabSettings.DiscordInvite))
-			if request then
-				request({
-					Url = 'http://127.0.0.1:6463/rpc?v=1',
-					Method = 'POST',
-					Headers = {
-						['Content-Type'] = 'application/json',
-						Origin = 'https://discord.com'
-					},
-					Body = HttpService:JSONEncode({
-						cmd = 'INVITE_BROWSER',
-						nonce = HttpService:GenerateGUID(false),
-						args = {code = HomeTabSettings.DiscordInvite}
-					})
-				})
+			if HomeTabSettings.DiscordInvite ~= "" then
+				setclipboard(tostring("https://discord.gg/" .. HomeTabSettings.DiscordInvite))
+				pcall(function()
+					if request then
+						request({
+							Url = 'http://127.0.0.1:6463/rpc?v=1',
+							Method = 'POST',
+							Headers = {
+								['Content-Type'] = 'application/json',
+								Origin = 'https://discord.com'
+							},
+							Body = HttpService:JSONEncode({
+								cmd = 'INVITE_BROWSER',
+								nonce = HttpService:GenerateGUID(false),
+								args = {code = HomeTabSettings.DiscordInvite}
+							})
+						})
+					end
+				end)
 			end
 		end)
 
 		local friendsCooldown = 0
-		local function getPing() return math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700) end
+		local function getPing() 
+			local success, ping = pcall(function()
+				return game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+			end)
+			return success and math.clamp(ping, 10, 700) or 50
+		end
 
 		local function checkFriends()
-			if friendsCooldown == 0 then
-				friendsCooldown = 25
-
-				local playersFriends = {}
-				local friendsInTotal = 0
-				local onlineFriends = 0 
-				local friendsInGame = 0 
-
-				local success, list = pcall(function()
-					return Players:GetFriendsAsync(Player.UserId)
-				end)
+			if friendsCooldown <= 0 then
+				friendsCooldown = 30 -- Cooldown otimizado para evitar spam de requisições
 				
-				if success and list then
+				pcall(function()
+					local playersFriends = {}
+					local friendsInTotal = 0
+					local onlineFriends = 0 
+					local friendsInGame = 0 
+
+					local list = Players:GetFriendsAsync(Players.LocalPlayer.UserId)
 					while true do
 						for _, data in ipairs(list:GetCurrentPage()) do
 							friendsInTotal += 1
 							table.insert(playersFriends, data)
 						end
-
-						if list.IsFinished then
-							break
-						else 
-							list:AdvanceToNextPageAsync()
-						end
+						if list.IsFinished then break else list:AdvanceToNextPageAsync() end
 					end
 					
-					local successOnline, onlineList = pcall(function()
-						return Player:GetFriendsOnline()
-					end)
-					
-					if successOnline and onlineList then
-						for i, v in pairs(onlineList) do
-							onlineFriends += 1
-						end
+					for _, _ in pairs(Players.LocalPlayer:GetFriendsOnline()) do
+						onlineFriends += 1
 					end
 
-					for i,v in pairs(playersFriends) do
+					for _, v in pairs(playersFriends) do
 						if Players:FindFirstChild(v.Username) then
-							friendsInGame = friendsInGame + 1
+							friendsInGame += 1
 						end
 					end
-				end
 
-				HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = tostring(friendsInTotal).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(max(0, friendsInTotal - onlineFriends)).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = tostring(onlineFriends).." friends"
-				HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = tostring(friendsInGame).." friends"
-
+					HomeTabPage.detailsholder.dashboard.Friends.All.Value.Text = tostring(friendsInTotal) .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.Offline.Value.Text = tostring(math.max(0, friendsInTotal - onlineFriends)) .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.Online.Value.Text = tostring(onlineFriends) .. " friends"
+					HomeTabPage.detailsholder.dashboard.Friends.InGame.Value.Text = tostring(friendsInGame) .. " friends"
+				end)
 			else
 				friendsCooldown -= 1
 			end
@@ -2421,36 +2443,34 @@ function Nutriex:CreateWindow(WindowSettings)
 		end
 
 		local function convertToHMS(Seconds)
-			local Minutes = (Seconds - Seconds%60)/60
-			Seconds = Seconds - Minutes*60
-			local Hours = (Minutes - Minutes%60)/60
-			Minutes = Minutes - Hours*60
-			return format(Hours)..":"..format(Minutes)..":"..format(Seconds)
+			local Minutes = (Seconds - Seconds % 60) / 60
+			Seconds = Seconds - Minutes * 60
+			local Hours = (Minutes - Minutes % 60) / 60
+			Minutes = Minutes - Hours * 60
+			return format(Hours) .. ":" .. format(Minutes) .. ":" .. format(Seconds)
 		end
 
 		coroutine.wrap(function()
 			while task.wait(1) do
-				-- Players
-				HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers().." playing"
-				HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers.." players can join this server"
-
-				-- Ping
-				HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and tostring(math.round((Players.LocalPlayer:GetNetworkPing() * 2 ) / 0.01)) .."ms" or tostring(math.floor(getPing()) .."ms")
-
-				-- Time
-				HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(time())
-
-				-- Region
 				pcall(function()
-					HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = Localization:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
-				end)
+					HomeTabPage.detailsholder.dashboard.Server.Players.Value.Text = #Players:GetPlayers() .. " playing"
+					HomeTabPage.detailsholder.dashboard.Server.MaxPlayers.Value.Text = Players.MaxPlayers .. " players max"
 
-				checkFriends()
+					HomeTabPage.detailsholder.dashboard.Server.Latency.Value.Text = isStudio and "0ms" or tostring(math.floor(getPing()) .. "ms")
+					HomeTabPage.detailsholder.dashboard.Server.Time.Value.Text = convertToHMS(os.time() - (os.time() - time()))
+					
+					local region = "Unknown"
+					pcall(function()
+						region = LocalizationService:GetCountryRegionForPlayerAsync(Players.LocalPlayer)
+					end)
+					HomeTabPage.detailsholder.dashboard.Server.Region.Value.Text = region
+
+					checkFriends()
+				end)
 			end
 		end)()
 	end
 end
-
 
 function Window:CreateTab(TabSettings)
 
