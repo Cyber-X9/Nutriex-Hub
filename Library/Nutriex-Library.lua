@@ -2440,7 +2440,7 @@ function Nutriex:CreateWindow(WindowSettings)
 end
 
    function Window:CreateTab(TabSettings)
-		local Tab = {}
+		local Tab = {} 		
 		TabSettings = SetPrase({
 			Name = "Tab",
 			ShowTitle = true,
