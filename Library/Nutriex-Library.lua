@@ -1,5 +1,5 @@
 local Library = {
-    Version = "1.0.1",
+    Version = "2.1.0",
     CustomFonts = {},
     Windows = {},
     Flags = {},
@@ -36,6 +36,12 @@ local Semantic = {
 }
 
 local Themes = {
+	 Darker = {
+        Background = RGB(7, 7, 9), Surface = RGB(12, 12, 15), Elevated = RGB(18, 18, 22),
+        Hover = RGB(26, 26, 32), Stroke = RGB(38, 38, 48), Accent = RGB(200, 165, 110), Accent2 = RGB(235, 205, 150),
+        OnAccent = RGB(20, 14, 6), Text = RGB(240, 238, 235), SubText = RGB(150, 147, 142),
+        Muted = RGB(95, 93, 89),
+    },
     Obsidian = {
         Background = RGB(12, 12, 13), Surface = RGB(20, 20, 22), Elevated = RGB(28, 28, 31),
         Hover = RGB(37, 37, 41), Stroke = RGB(52, 52, 58), Accent = RGB(232, 232, 238), Accent2 = RGB(130, 130, 146),
