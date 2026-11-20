@@ -1,3 +1,13 @@
+--[[
+  _  _      _       _           _  _      _     
+ | \| |_  _| |_ _ _(_)_____ __ | || |_  _| |__  
+ | .` | || |  _| '_| / -_) \ / | __ | || | '_ \ 
+ |_|\_|\_,_|\__|_| |_\___/_\_\ |_||_|\_,_|_.__/  
+  -------------------------------------------
+ • Nutriex UI library - By CyberX      
+ • Version: 2.1.5
+ • Nutriex Security Version: 2.0               
+]]
 local Library = {
     Version = "2.1.0",
     CustomFonts = {},
@@ -10,12 +20,16 @@ local Library = {
 
 local genv = (getgenv and getgenv()) or _G
 if genv.__NutriexLibrary then
-    pcall(function() genv.__NutriexLibrary:Destroy() end)
+    pcall(function()
+        genv.__NutriexLibrary:Destroy()
+    end)
 end
 genv.__NutriexLibrary = Library
 
 local cloneref = cloneref or function(o) return o end
-local function Service(name) return cloneref(game:GetService(name)) end
+local function Service(name)
+    return cloneref(game:GetService(name))
+end
 
 local Players = Service("Players")
 local TweenService = Service("TweenService")
@@ -27,7 +41,9 @@ local TextService = Service("TextService")
 
 local LocalPlayer = Players.LocalPlayer
 
-local function RGB(r, g, b) return Color3.fromRGB(r, g, b) end
+local function RGB(r, g, b)
+    return Color3.fromRGB(r, g, b)
+end
 
 local Semantic = {
     Success = RGB(74, 222, 128),
@@ -36,18 +52,15 @@ local Semantic = {
 }
 
 local Themes = {
-     Obsidian = {
+    Obsidian = {
         Background = RGB(7, 7, 9), Surface = RGB(12, 12, 15), Elevated = RGB(18, 18, 22),
         Hover = RGB(26, 26, 32), Stroke = RGB(38, 38, 48), Accent = RGB(200, 165, 110), Accent2 = RGB(235, 205, 150),
         OnAccent = RGB(20, 14, 6), Text = RGB(240, 238, 235), SubText = RGB(150, 147, 142),
         Muted = RGB(95, 93, 89),
     },
     Midnight = {
-        Background = RGB(11, 11, 15), 
-        Surface = RGB(18, 18, 24), 
-        Elevated = RGB(25, 25, 33),
-        Hover = RGB(33, 33, 43), 
-        Stroke = RGB(46, 46, 62), Accent = RGB(139, 108, 255), Accent2 = RGB(70, 170, 255),
+        Background = RGB(11, 11, 15), Surface = RGB(18, 18, 24), Elevated = RGB(25, 25, 33),
+        Hover = RGB(33, 33, 43), Stroke = RGB(46, 46, 62), Accent = RGB(139, 108, 255), Accent2 = RGB(70, 170, 255),
         OnAccent = RGB(255, 255, 255), Text = RGB(238, 238, 246), SubText = RGB(148, 148, 168),
         Muted = RGB(92, 92, 110),
     },
@@ -80,12 +93,6 @@ local Themes = {
         Hover = RGB(33, 43, 58), Stroke = RGB(52, 66, 86), Accent = RGB(150, 205, 255), Accent2 = RGB(205, 228, 255),
         OnAccent = RGB(10, 20, 34), Text = RGB(236, 243, 252), SubText = RGB(144, 160, 182),
         Muted = RGB(92, 106, 126),
-    },
-    Noir = {
-        Background = RGB(10, 9, 8), Surface = RGB(18, 16, 14), Elevated = RGB(27, 24, 21),
-        Hover = RGB(37, 33, 28), Stroke = RGB(58, 51, 42), Accent = RGB(226, 190, 120), Accent2 = RGB(255, 228, 178),
-        OnAccent = RGB(28, 20, 8), Text = RGB(246, 240, 230), SubText = RGB(168, 158, 142),
-        Muted = RGB(106, 98, 86),
     },
     Platinum = {
         Background = RGB(13, 14, 16), Surface = RGB(21, 23, 26), Elevated = RGB(30, 32, 36),
@@ -126,51 +133,63 @@ local Themes = {
 }
 
 for _, theme in pairs(Themes) do
-    for key, value in pairs(Semantic) do theme[key] = value end
+    for key, value in pairs(Semantic) do
+        theme[key] = value
+    end
 end
 
-local Corners = { 
-    Rounded = 12, 
-    Soft = 7, 
-    Sharp = 2, 
-    Square = 0 
+local Corners = {
+    Rounded = 12,
+    Soft = 7,
+    Sharp = 2,
+    Square = 0,
 }
 
 Library.Themes = Themes
 Library.Corners = Corners
 
 function Library:AddTheme(name, colors)
-    colors = colors or {}
+    local cfg = colors or {}
+    local base = Themes.Midnight
     local theme = {}
-    for key, value in pairs(Themes.Midnight) do theme[key] = value end
-    for key, value in pairs(colors) do theme[key] = value end
-    if colors.Accent and not colors.Accent2 then
-        local h, s, v = colors.Accent:ToHSV()
+    for key, value in pairs(base) do
+        theme[key] = value
+    end
+    for key, value in pairs(cfg) do
+        theme[key] = value
+    end
+    if typeof(cfg.Accent) == "Color3" and cfg.Accent2 == nil then
+        local h, s, v = cfg.Accent:ToHSV()
         theme.Accent2 = Color3.fromHSV((h + 0.1) % 1, s, v)
     end
     Themes[name] = theme
     return theme
 end
 
-local function KP(t, c) return ColorSequenceKeypoint.new(t, c) end
+local function KP(t, c)
+    return ColorSequenceKeypoint.new(t, c)
+end
 
 local Builders = {
-
-    Flow = function(T) return ColorSequence.new({ KP(0, T.Accent), KP(0.5, T.Accent2), KP(1, T.Accent) }) end,
-    Soft = function(T) return ColorSequence.new(T.Accent, T.Accent2) end,
-
+    Flow = function(T)
+        return ColorSequence.new({ KP(0, T.Accent), KP(0.5, T.Accent2), KP(1, T.Accent) })
+    end,
+    Soft = function(T)
+        return ColorSequence.new(T.Accent, T.Accent2)
+    end,
     Metal = function(T)
-        local function steel(v) return Color3.fromRGB(v, v, v + 6):Lerp(T.Accent, 0.1) end
+        local acc = T.Accent
+        local function steel(v)
+            return Color3.fromRGB(v, v, v + 6):Lerp(acc, 0.1)
+        end
         return ColorSequence.new({
             KP(0, steel(238)), KP(0.16, steel(118)), KP(0.34, steel(214)), KP(0.52, steel(66)),
             KP(0.7, steel(196)), KP(0.86, steel(104)), KP(1, steel(238)),
         })
     end,
-
     Pane = function(T)
         return ColorSequence.new(T.Surface:Lerp(Color3.new(1, 1, 1), 0.07), T.Surface)
     end,
-
     Rim = function(T)
         return ColorSequence.new({
             KP(0, T.Accent), KP(0.22, T.Accent2), KP(0.5, T.Stroke), KP(0.78, T.Stroke), KP(1, T.Accent),
@@ -178,19 +197,25 @@ local Builders = {
     end,
 }
 
+local BlendKeys = { "Accent", "Accent2", "Stroke", "Surface", "Elevated", "Background", "Hover" }
+
 local function LerpTheme(a, b, t)
     local out = {}
-    for _, key in ipairs({ "Accent", "Accent2", "Stroke", "Surface", "Elevated", "Background", "Hover" }) do out[key] = a[key]:Lerp(b[key], t) end
+    for _, key in ipairs(BlendKeys) do
+        out[key] = a[key]:Lerp(b[key], t)
+    end
     return out
 end
 
 local function RandomName()
-    return (HttpService:GenerateGUID(false):gsub("%-", ""))
+    return (string.gsub(HttpService:GenerateGUID(false), "%-", ""))
 end
 
 local function Mount(gui)
     local protect = (syn and syn.protect_gui) or protect_gui or protectgui
-    if protect then pcall(protect, gui) end
+    if protect then
+        pcall(protect, gui)
+    end
     local ok = pcall(function()
         gui.Parent = (gethui and gethui()) or CoreGui
     end)
@@ -205,12 +230,18 @@ local function Http(url)
         local ok, res = pcall(req, { Url = url, Method = "GET" })
         if ok and type(res) == "table" then
             local code = res.StatusCode or res.Status_Code
-            if res.Body and res.Success ~= false and (code == nil or code == 200) then return res.Body end
+            if res.Body and res.Success ~= false and (code == nil or code == 200) then
+                return res.Body
+            end
             return nil, "HTTP " .. tostring(code)
         end
     end
-    local ok, body = pcall(function() return game:HttpGet(url) end)
-    if ok and type(body) == "string" and body ~= "" then return body end
+    local ok, body = pcall(function()
+        return game:HttpGet(url)
+    end)
+    if ok and type(body) == "string" and body ~= "" then
+        return body
+    end
     return nil, "no executor http function available"
 end
 Library.Http = Http
@@ -224,20 +255,43 @@ end
 
 local function Hash(text)
     local h = 5381
-    for i = 1, #text do h = (h * 33 + text:byte(i)) % 4294967296 end
+    for i = 1, #text do
+        h = (h * 33 + string.byte(text, i)) % 4294967296
+    end
     return string.format("%x", h)
 end
 
 local function EnsureFolder(path)
-    if makefolder and isfolder and not isfolder(path) then pcall(makefolder, path) end
+    if makefolder and isfolder and not isfolder(path) then
+        pcall(makefolder, path)
+    end
 end
 
-local FontSys = { Tracked = setmetatable({}, { __mode = "k" }), Active = false }
-local FontPresets = {
-    Gotham = "GothamSSm", ["Builder Sans"] = "BuilderSans", Montserrat = "Montserrat", Ubuntu = "Ubuntu",
-    Nunito = "Nunito", Roboto = "Roboto", ["Source Sans"] = "SourceSansPro", Arimo = "Arimo", ["Roboto Mono"] = "RobotoMono",
+local FontSys = {
+    Tracked = setmetatable({}, { __mode = "k" }),
+    Active = false,
+    Family = nil,
+    Preset = nil,
+    Name = "Default",
 }
-local BoldFonts = { [Enum.Font.GothamBold] = true, [Enum.Font.GothamBlack] = true, [Enum.Font.SourceSansBold] = true }
+
+local FontPresets = {
+    Gotham = "GothamSSm",
+    ["Builder Sans"] = "BuilderSans",
+    Montserrat = "Montserrat",
+    Ubuntu = "Ubuntu",
+    Nunito = "Nunito",
+    Roboto = "Roboto",
+    ["Source Sans"] = "SourceSansPro",
+    Arimo = "Arimo",
+    ["Roboto Mono"] = "RobotoMono",
+}
+
+local BoldFonts = {
+    [Enum.Font.GothamBold] = true,
+    [Enum.Font.GothamBlack] = true,
+    [Enum.Font.SourceSansBold] = true,
+}
 
 local function FontFace(bold)
     if FontSys.Family then
@@ -245,93 +299,155 @@ local function FontFace(bold)
     elseif FontSys.Preset then
         return Font.fromName(FontSys.Preset, bold and Enum.FontWeight.Bold or Enum.FontWeight.Medium)
     end
+    return nil
 end
 
 local function FontPaint(inst)
+    if not inst or not inst.Parent then return end
     local bold = FontSys.Tracked[inst] == true
     if FontSys.Active then
         local ok, face = pcall(FontFace, bold)
-        if ok and face then pcall(function() inst.FontFace = face end) end
+        if ok and face then
+            pcall(function()
+                inst.FontFace = face
+            end)
+        end
     else
-        pcall(function() inst.Font = bold and Enum.Font.GothamBold or Enum.Font.GothamMedium end)
+        pcall(function()
+            inst.Font = bold and Enum.Font.GothamBold or Enum.Font.GothamMedium
+        end)
     end
 end
 
 function FontSys.Track(inst)
-    if inst.Font ~= Enum.Font.Unknown then FontSys.Tracked[inst] = BoldFonts[inst.Font] == true end
-    if FontSys.Active then FontPaint(inst) end
+    if inst.Font ~= Enum.Font.Unknown then
+        FontSys.Tracked[inst] = BoldFonts[inst.Font] == true
+    end
+    if FontSys.Active then
+        FontPaint(inst)
+    end
 end
 
 function FontSys.Refresh()
-    for inst in pairs(FontSys.Tracked) do FontPaint(inst) end
+    for inst in pairs(FontSys.Tracked) do
+        FontPaint(inst)
+    end
 end
 
 function Library:LoadFont(name, source, bold)
-    name = tostring(name or "Custom")
+    local fontName = tostring(name or "Custom")
     if not (writefile and (getcustomasset or getsynasset)) then
         return nil, "this executor has no writefile / getcustomasset"
     end
-    local safe = name:gsub("[^%w_%-]", "_")
-    EnsureFolder("NutriexLibrary"); EnsureFolder("NutriexLibrary/fonts")
+
+    local safe = string.gsub(fontName, "[^%w_%-]", "_")
+    EnsureFolder("NutriexLibrary")
+    EnsureFolder("NutriexLibrary/fonts")
+
     local function resolve(src, tag)
-        src = tostring(src)
-        if src:match("^https?://") then
-            local ext = src:lower():match("%.(otf)[%?#]?") or "ttf"
-            local path = ("NutriexLibrary/fonts/%s_%s_%s.%s"):format(safe, tag, Hash(src), ext)
+        local str = tostring(src)
+        if string.match(str, "^https?://") then
+            local ext = string.match(string.lower(str), "%.(otf)[%?#]?") or "ttf"
+            local path = string.format("NutriexLibrary/fonts/%s_%s_%s.%s", safe, tag, Hash(str), ext)
             if not (isfile and isfile(path)) then
-                local body, err = Http(src)
-                if not body then return nil, "download failed: " .. tostring(err) end
+                local body, err = Http(str)
+                if not body then
+                    return nil, "download failed: " .. tostring(err)
+                end
                 writefile(path, body)
             end
             return path
         end
-        if isfile and isfile(src) then return src end
-        return nil, "file not found: " .. src
+        if isfile and isfile(str) then
+            return str
+        end
+        return nil, "file not found: " .. str
     end
+
     local regular, err = resolve(source, "r")
     if not regular then return nil, err end
+
     local heavy = regular
-    if bold then heavy, err = resolve(bold, "b"); if not heavy then return nil, err end end
-    local regularId, heavyId = AssetOf(regular), AssetOf(heavy)
-    if not regularId then return nil, "getcustomasset failed" end
-    local jsonPath = ("NutriexLibrary/fonts/%s_%s.json"):format(safe, Hash(tostring(source) .. tostring(bold)))
-    writefile(jsonPath, HttpService:JSONEncode({ name = name, faces = {
-        { name = "Regular", weight = 400, style = "normal", assetId = regularId },
-        { name = "Bold", weight = 700, style = "normal", assetId = heavyId or regularId },
-    } }))
+    if bold then
+        heavy, err = resolve(bold, "b")
+        if not heavy then return nil, err end
+    end
+
+    local regularId = AssetOf(regular)
+    local heavyId = AssetOf(heavy)
+    if not regularId then
+        return nil, "getcustomasset failed"
+    end
+
+    local jsonPath = string.format("NutriexLibrary/fonts/%s_%s.json", safe, Hash(tostring(source) .. tostring(bold)))
+    writefile(jsonPath, HttpService:JSONEncode({
+        name = fontName,
+        faces = {
+            { name = "Regular", weight = 400, style = "normal", assetId = regularId },
+            { name = "Bold", weight = 700, style = "normal", assetId = heavyId or regularId },
+        },
+    }))
+
     local family = AssetOf(jsonPath)
-    if not family then return nil, "could not register font family" end
-    self.CustomFonts[name] = family
+    if not family then
+        return nil, "could not register font family"
+    end
+
+    self.CustomFonts[fontName] = family
     return family
 end
 
 function Library:SetFont(font, opts)
-    opts = opts or {}
-    font = font or "Default"
-    if font == "Default" then
-        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = false, nil, nil, "Default"
-    elseif FontPresets[font] then
-        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, nil, FontPresets[font], font
-    elseif self.CustomFonts[font] then
-        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, self.CustomFonts[font], nil, font
+    local cfg = opts or {}
+    local target = font or "Default"
+
+    if target == "Default" then
+        FontSys.Active = false
+        FontSys.Family = nil
+        FontSys.Preset = nil
+        FontSys.Name = "Default"
+    elseif FontPresets[target] then
+        FontSys.Active = true
+        FontSys.Family = nil
+        FontSys.Preset = FontPresets[target]
+        FontSys.Name = target
+    elseif self.CustomFonts[target] then
+        FontSys.Active = true
+        FontSys.Family = self.CustomFonts[target]
+        FontSys.Preset = nil
+        FontSys.Name = target
     else
-        local name = opts.Name or tostring(font):match("([^/\\]+)%.%a+[%?#]?.*$") or "Custom"
-        local family, err = self:LoadFont(name, font, opts.Bold)
-        if not family then return false, err end
-        FontSys.Active, FontSys.Family, FontSys.Preset, FontSys.Name = true, family, nil, name
+        local str = tostring(target)
+        local name = cfg.Name or string.match(str, "([^/\\]+)%.%a+[%?#]?.*$") or "Custom"
+        local family, err = self:LoadFont(name, str, cfg.Bold)
+        if not family then
+            return false, err
+        end
+        FontSys.Active = true
+        FontSys.Family = family
+        FontSys.Preset = nil
+        FontSys.Name = name
     end
+
     FontSys.Refresh()
     return true
 end
 
-function Library:GetFont() return FontSys.Name or "Default" end
+function Library:GetFont()
+    return FontSys.Name or "Default"
+end
 
 function Library:GetFonts()
     local list = { "Default" }
-    for name in pairs(FontPresets) do list[#list + 1] = name end
-    for name in pairs(self.CustomFonts) do list[#list + 1] = name end
+    for name in pairs(FontPresets) do
+        list[#list + 1] = name
+    end
+    for name in pairs(self.CustomFonts) do
+        list[#list + 1] = name
+    end
     table.sort(list, function(a, b)
-        if a == "Default" then return true elseif b == "Default" then return false end
+        if a == "Default" then return true end
+        if b == "Default" then return false end
         return a < b
     end)
     return list
@@ -339,63 +455,104 @@ end
 
 local TEXT_CLASSES = { TextLabel = true, TextButton = true, TextBox = true }
 local TRANSPARENT_CLASSES = {
-    TextLabel = true, TextButton = true, TextBox = true,
-    ImageLabel = true, ImageButton = true, ScrollingFrame = true,
+    TextLabel = true,
+    TextButton = true,
+    TextBox = true,
+    ImageLabel = true,
+    ImageButton = true,
+    ScrollingFrame = true,
 }
+
+local SharedBoundsParams
+local function GetBoundsParams()
+    if not SharedBoundsParams then
+        SharedBoundsParams = Instance.new("GetTextBoundsParams")
+    end
+    return SharedBoundsParams
+end
 
 local function Create(class, props, children)
     local inst = Instance.new(class)
     if inst:IsA("GuiObject") then
         inst.BorderSizePixel = 0
-        if TRANSPARENT_CLASSES[class] then inst.BackgroundTransparency = 1 end
-        if inst:IsA("GuiButton") then inst.AutoButtonColor = false end
+        if TRANSPARENT_CLASSES[class] then
+            inst.BackgroundTransparency = 1
+        end
+        if inst:IsA("GuiButton") then
+            inst.AutoButtonColor = false
+        end
     end
+
     if TEXT_CLASSES[class] then
         inst.Text = ""
         inst.Font = Enum.Font.GothamMedium
         inst.TextSize = 14
         inst.TextColor3 = Color3.new(1, 1, 1)
-        if class == "TextBox" then inst.ClearTextOnFocus = false end
+        if class == "TextBox" then
+            inst.ClearTextOnFocus = false
+        end
     end
+
     local parent, fit, grow
     if props then
         for key, value in pairs(props) do
-            if key == "Parent" then parent = value
-            elseif key == "Fit" then fit = value
-            elseif key == "Grow" then grow = value
-            else inst[key] = value end
+            if key == "Parent" then
+                parent = value
+            elseif key == "Fit" then
+                fit = value
+            elseif key == "Grow" then
+                grow = value
+            else
+                inst[key] = value
+            end
         end
+        if fit == nil and props.TextTruncate == Enum.TextTruncate.AtEnd and not props.TextWrapped then
+            fit = true
+        end
+    end
 
-        if fit == nil and props.TextTruncate == Enum.TextTruncate.AtEnd and not props.TextWrapped then fit = true end
-    end
     if children then
-        for _, child in ipairs(children) do child.Parent = inst end
+        for _, child in ipairs(children) do
+            child.Parent = inst
+        end
     end
-    if TEXT_CLASSES[class] then FontSys.Track(inst) end
+
+    if TEXT_CLASSES[class] then
+        FontSys.Track(inst)
+    end
+
     if fit and TEXT_CLASSES[class] and class ~= "TextBox" then
         local max = inst.TextSize
         inst.TextTruncate = Enum.TextTruncate.None
         inst.TextScaled = true
-        Create("UITextSizeConstraint", { MaxTextSize = max, MinTextSize = 7, Parent = inst })
+        local constraint = Instance.new("UITextSizeConstraint")
+        constraint.MaxTextSize = max
+        constraint.MinTextSize = 7
+        constraint.Parent = inst
 
         local busy = false
         local function measure(size, width)
             local ok, bounds = pcall(function()
-                local params = Instance.new("GetTextBoundsParams")
-                params.Text, params.Font, params.Size, params.Width = inst.Text, inst.FontFace, size, width
+                local params = GetBoundsParams()
+                params.Text = inst.Text
+                params.Font = inst.FontFace
+                params.Size = size
+                params.Width = width
                 return TextService:GetTextBoundsAsync(params)
             end)
             return ok and bounds or nil
         end
+
         local function refit()
-            if busy or inst.RichText then return end
+            if busy or inst.RichText or not inst.Parent then return end
             local width = inst.AbsoluteSize.X
             if width < 8 or inst.Text == "" then return end
+
             busy = true
             local bounds = measure(max, 100000)
             if bounds and bounds.X > 0 then
                 local ratio = math.min(1, width / bounds.X)
-                local wrap = max * ratio < math.min(10, max)
+                local wrap = (max * ratio) < math.min(10, max)
                 if wrap and grow then
                     local size = math.max(10, max - 1)
                     if inst.TextScaled then inst.TextScaled = false end
@@ -411,31 +568,42 @@ local function Create(class, props, children)
             end
             busy = false
         end
+
         inst:GetPropertyChangedSignal("Text"):Connect(refit)
         inst:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
         inst:GetPropertyChangedSignal("FontFace"):Connect(refit)
         task.defer(refit)
     end
-    if parent then inst.Parent = parent end
+
+    if parent then
+        inst.Parent = parent
+    end
     return inst
 end
 
-local Motion = { Out = Enum.EasingStyle.Exponential, In = Enum.EasingStyle.Quart, Smooth = Enum.EasingStyle.Sine }
+local Motion = {
+    Out = Enum.EasingStyle.Exponential,
+    In = Enum.EasingStyle.Quart,
+    Smooth = Enum.EasingStyle.Sine,
+}
 Library.Motion = Motion
 
 local function Tween(inst, props, time, style, direction)
-    direction = direction or Enum.EasingDirection.Out
-    if style == nil or style == Enum.EasingStyle.Back or style == Enum.EasingStyle.Quint then
-        style = direction == Enum.EasingDirection.In and Motion.In or Motion.Out
+    local dir = direction or Enum.EasingDirection.Out
+    local ease = style
+    if ease == nil or ease == Enum.EasingStyle.Back or ease == Enum.EasingStyle.Quint then
+        ease = (dir == Enum.EasingDirection.In) and Motion.In or Motion.Out
     end
-    local tween = TweenService:Create(inst, TweenInfo.new(time or 0.28, style, direction), props)
+    local tween = TweenService:Create(inst, TweenInfo.new(time or 0.28, ease, dir), props)
     tween:Play()
     return tween
 end
 
 local function Apply(inst, props, instant, time, style, direction)
     if instant then
-        for key, value in pairs(props) do inst[key] = value end
+        for key, value in pairs(props) do
+            inst[key] = value
+        end
         return nil
     end
     return Tween(inst, props, time, style, direction)
@@ -443,20 +611,22 @@ end
 
 local function Pad(parent, left, top, right, bottom)
     return Create("UIPadding", {
-        PaddingLeft = UDim.new(0, left), PaddingTop = UDim.new(0, top),
-        PaddingRight = UDim.new(0, right or left), PaddingBottom = UDim.new(0, bottom or top),
+        PaddingLeft = UDim.new(0, left),
+        PaddingTop = UDim.new(0, top),
+        PaddingRight = UDim.new(0, right or left),
+        PaddingBottom = UDim.new(0, bottom or top),
         Parent = parent,
     })
 end
 
 local function IsPointerDown(input)
-    return input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch
+    local t = input.UserInputType
+    return t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch
 end
 
 local function IsPointerMove(input)
-    return input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch
+    local t = input.UserInputType
+    return t == Enum.UserInputType.MouseMovement or t == Enum.UserInputType.Touch
 end
 
 local reporting = false
@@ -464,21 +634,35 @@ local function Fire(label, name, fn, ...)
     if not fn then return end
     local ok, err = pcall(fn, ...)
     if ok then return end
+
     warn("[NutriexLibrary] " .. label .. " error in '" .. tostring(name) .. "': " .. tostring(err))
     if reporting then return end
+
     reporting = true
-    local message = tostring(err):gsub("^[^\n]-:%d+:%s*", "")
+    local message = string.gsub(tostring(err), "^[^\n]-:%d+:%s*", "")
     pcall(function()
         local window = Library.Windows[#Library.Windows]
-        local opts = { Title = "Error in " .. tostring(name), Content = message, Type = "Error", Duration = 6 }
-        if window then window:Notify(opts) else Library:Notify(opts) end
+        local opts = {
+            Title = "Error in " .. tostring(name),
+            Content = message,
+            Type = "Error",
+            Duration = 6,
+        }
+        if window then
+            window:Notify(opts)
+        else
+            Library:Notify(opts)
+        end
     end)
     reporting = false
 end
 
 local function Decimals(step)
     local d, s = 0, step
-    while math.abs(s - math.floor(s + 0.5)) > 1e-9 and d < 5 do s = s * 10; d = d + 1 end
+    while math.abs(s - math.floor(s + 0.5)) > 1e-9 and d < 5 do
+        s *= 10
+        d += 1
+    end
     return d
 end
 
@@ -489,10 +673,11 @@ end
 local function StepSpring(sp, dt)
     local n = math.max(1, math.ceil(dt / (1 / 120)))
     local h = dt / n
-    local k, c = sp.w * sp.w, 2 * sp.z * sp.w
+    local k = sp.w * sp.w
+    local c = 2 * sp.z * sp.w
     for _ = 1, n do
-        sp.v = sp.v + (-k * (sp.x - sp.g) - c * sp.v) * h
-        sp.x = sp.x + sp.v * h
+        sp.v += (-k * (sp.x - sp.g) - c * sp.v) * h
+        sp.x += sp.v * h
     end
 end
 
@@ -501,29 +686,31 @@ local function SpringRest(sp)
 end
 
 local function Smooth(t)
-    t = math.clamp(t, 0, 1)
-    return t * t * t * (t * (t * 6 - 15) + 10)
+    local x = math.clamp(t, 0, 1)
+    return x * x * x * (x * (x * 6 - 15) + 10)
 end
 
 local Bar
 
+--// Root \\--
 local Root = {}
 Root.__index = Root
 
 function Root.new(opts)
-    opts = opts or {}
+    local cfg = opts or {}
     local self = setmetatable({}, Root)
 
     local defaults = Library.Defaults
-    self.ThemeName = Themes[opts.Theme] and opts.Theme or (Themes[defaults.Theme] and defaults.Theme or "Midnight")
+    self.ThemeName = Themes[cfg.Theme] and cfg.Theme or (Themes[defaults.Theme] and defaults.Theme or "Midnight")
     self.Theme = Themes[self.ThemeName]
-    self.CornerName = Corners[opts.Corner] and opts.Corner or defaults.Corner
-    self.Animated = opts.Animated ~= false
+    self.CornerName = Corners[cfg.Corner] and cfg.Corner or defaults.Corner
+    self.Animated = cfg.Animated ~= false
 
     self.Alpha = { Main = 0, Section = 0.35, Popup = 0 }
 
-    self.Mobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-    if opts.Mobile ~= nil then self.Mobile = opts.Mobile end
+    local touchMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+    self.Mobile = (cfg.Mobile ~= nil) and (cfg.Mobile == true) or touchMobile
+
     if self.Mobile then
         self.Metrics = { Row = 44, Field = 32, Item = 38, Text = 14, Title = 46, Pad = 12, Width = 276, Header = 36, Knob = 44 }
     else
@@ -538,53 +725,85 @@ function Root.new(opts)
     self.Elements = {}
     self.OpenDropdown = nil
     self.Time = 0
+    self.Acc = 0
     self.Animating = true
 
     self.Gui = Create("ScreenGui", {
-        Name = RandomName(), ResetOnSpawn = false, IgnoreGuiInset = true,
-        ZIndexBehavior = Enum.ZIndexBehavior.Sibling, DisplayOrder = 1000,
+        Name = RandomName(),
+        ResetOnSpawn = false,
+        IgnoreGuiInset = true,
+        ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+        DisplayOrder = 1000,
     })
     Mount(self.Gui)
 
     self.Catcher = Create("TextButton", {
-        Name = "Catcher", Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 50, Parent = self.Gui,
+        Name = "Catcher",
+        Size = UDim2.fromScale(1, 1),
+        Visible = false,
+        ZIndex = 50,
+        Parent = self.Gui,
     })
+
     self.Overlay = Create("Frame", {
-        Name = "Overlay", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 60, Parent = self.Gui,
+        Name = "Overlay",
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 60,
+        Parent = self.Gui,
     })
 
     self:Connect(self.Catcher.InputBegan, function(input)
-        if IsPointerDown(input) then self:CloseDropdown() end
+        if IsPointerDown(input) then
+            self:CloseDropdown()
+        end
     end)
+
     self:Connect(UserInputService.InputBegan, function(input)
-        if input.KeyCode == Enum.KeyCode.Escape then self:CloseDropdown() end
+        if input.KeyCode == Enum.KeyCode.Escape then
+            self:CloseDropdown()
+        end
     end)
 
     self:Connect(RunService.RenderStepped, function(dt)
-        if not self.Animating then return end
+        if not self.Animating or not self.Gui or not self.Gui.Parent then return end
 
-        self.Acc = (self.Acc or 0) + dt
-        if self.Acc < 0.025 then return end
-        dt, self.Acc = self.Acc, 0
-        self.Time = self.Time + dt
+        local acc = self.Acc + dt
+        if acc < 0.025 then
+            self.Acc = acc
+            return
+        end
+        self.Acc = 0
+
+        local stepDt = math.min(acc, 0.1)
+        self.Time += stepDt
         local t = self.Time
+
         for entry in pairs(self.Anim) do
             if entry.On then
                 local gradient = entry.G
-                if entry.Spin then gradient.Rotation = (entry.Base + t * entry.Spin) % 360 end
+                if entry.Spin then
+                    gradient.Rotation = (entry.Base + t * entry.Spin) % 360
+                end
                 if entry.Sweep then
                     local v = math.sin(t * entry.Sweep + entry.Phase) * entry.Range
                     gradient.Offset = (entry.Axis == "Y") and Vector2.new(0, v) or Vector2.new(v, 0)
                 end
             end
         end
+
         local blend = self.Blend
         if blend then
-            blend.t = blend.t + dt / 0.4
+            blend.t += stepDt / 0.4
             local a = math.min(1, blend.t)
-            local theme = LerpTheme(blend.from, blend.to, a * a * (3 - 2 * a))
-            for gradient, kind in pairs(self.Flows) do gradient.Color = Builders[kind](theme) end
-            if a >= 1 then self.Blend = nil end
+            local smoothA = a * a * (3 - 2 * a)
+            local theme = LerpTheme(blend.from, blend.to, smoothA)
+            for gradient, kind in pairs(self.Flows) do
+                gradient.Color = Builders[kind](theme)
+            end
+            if a >= 1 then
+                self.Blend = nil
+            end
         end
     end)
 
@@ -599,7 +818,9 @@ function Root:Connect(signal, fn)
 end
 
 function Root:CloseDropdown()
-    if self.OpenDropdown then self.OpenDropdown:Close() end
+    if self.OpenDropdown then
+        self.OpenDropdown:Close()
+    end
 end
 
 function Root:Bind(inst, map)
@@ -607,143 +828,222 @@ function Root:Bind(inst, map)
     if not entry then
         entry = {}
         self.Bound[inst] = entry
-        inst.Destroying:Connect(function() self.Bound[inst] = nil end)
+        inst.Destroying:Connect(function()
+            self.Bound[inst] = nil
+        end)
     end
+    local theme = self.Theme
     for prop, key in pairs(map) do
         entry[prop] = key
-        inst[prop] = self.Theme[key]
+        inst[prop] = theme[key]
     end
     return inst
 end
 
 function Root:Round(inst, mult)
-    mult = mult or 1
+    local m = mult or 1
+    local radius = math.max(0, math.floor(Corners[self.CornerName] * m + 0.5))
     local corner = Create("UICorner", {
-        CornerRadius = UDim.new(0, math.max(0, math.floor(Corners[self.CornerName] * mult + 0.5))),
+        CornerRadius = UDim.new(0, radius),
         Parent = inst,
     })
-    self.Rounds[corner] = mult
-    corner.Destroying:Connect(function() self.Rounds[corner] = nil end)
+    self.Rounds[corner] = m
+    corner.Destroying:Connect(function()
+        self.Rounds[corner] = nil
+    end)
     return corner
 end
 
 function Root:Stroke(inst, key, thickness, transparency)
     local stroke = Create("UIStroke", {
-        Thickness = thickness or 1, Transparency = transparency or 0,
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = inst,
+        Thickness = thickness or 1,
+        Transparency = transparency or 0,
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Parent = inst,
     })
     self:Bind(stroke, { Color = key })
     return stroke
 end
 
 function Root:Animate(gradient, o)
-    if not self.Animated then return { On = false } end
+    if not self.Animated then
+        return { On = false }
+    end
     local entry = {
-        G = gradient, Spin = o.Spin, Sweep = o.Sweep, Range = o.Range or 1, Phase = o.Phase or 0,
-        Axis = o.Axis or "X", Base = o.Base or gradient.Rotation, On = o.On ~= false,
+        G = gradient,
+        Spin = o.Spin,
+        Sweep = o.Sweep,
+        Range = o.Range or 1,
+        Phase = o.Phase or 0,
+        Axis = o.Axis or "X",
+        Base = o.Base or gradient.Rotation,
+        On = o.On ~= false,
     }
     self.Anim[entry] = true
-    gradient.Destroying:Connect(function() self.Anim[entry] = nil end)
+    gradient.Destroying:Connect(function()
+        self.Anim[entry] = nil
+    end)
     return entry
 end
 
 function Root:Gradient(parent, kind, props, anim)
-    local gradient = Create("UIGradient", { Color = Builders[kind](self.Theme), Parent = parent })
+    local gradient = Create("UIGradient", {
+        Color = Builders[kind](self.Theme),
+        Parent = parent,
+    })
     if props then
-        for key, value in pairs(props) do gradient[key] = value end
+        for key, value in pairs(props) do
+            gradient[key] = value
+        end
     end
     self.Flows[gradient] = kind
-    gradient.Destroying:Connect(function() self.Flows[gradient] = nil end)
+    gradient.Destroying:Connect(function()
+        self.Flows[gradient] = nil
+    end)
     local entry = anim and self:Animate(gradient, anim) or nil
     return gradient, entry
 end
 
 function Root:Shadow(parent, transparency, spread)
-    spread = spread or 24
+    local sp = spread or 24
     return Create("ImageLabel", {
-        Name = "Shadow", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(0.5, 0, 0.5, 3),
-        Size = UDim2.new(1, spread * 2, 1, spread * 2), Image = "rbxassetid://6014261993",
-        ImageColor3 = Color3.new(0, 0, 0), ImageTransparency = transparency or 0.5,
-        ScaleType = Enum.ScaleType.Slice, SliceCenter = Rect.new(49, 49, 450, 450),
-        ZIndex = 0, Parent = parent,
+        Name = "Shadow",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.new(0.5, 0, 0.5, 3),
+        Size = UDim2.new(1, sp * 2, 1, sp * 2),
+        Image = "rbxassetid://6014261993",
+        ImageColor3 = Color3.new(0, 0, 0),
+        ImageTransparency = transparency or 0.5,
+        ScaleType = Enum.ScaleType.Slice,
+        SliceCenter = Rect.new(49, 49, 450, 450),
+        ZIndex = 0,
+        Parent = parent,
     })
 end
 
 function Root:SetTheme(name, instant)
     local theme = Themes[name]
     if not theme then return false end
+
     local old = self.Theme
-    self.ThemeName, self.Theme = name, theme
+    self.ThemeName = name
+    self.Theme = theme
+
     for inst, map in pairs(self.Bound) do
-        local props = {}
-        for prop, key in pairs(map) do props[prop] = theme[key] end
-        Apply(inst, props, instant, 0.35)
+        for prop, key in pairs(map) do
+            Apply(inst, { [prop] = theme[key] }, instant, 0.35)
+        end
     end
+
     if instant or not (self.Animating and self.Animated) then
         self.Blend = nil
-        for gradient, kind in pairs(self.Flows) do gradient.Color = Builders[kind](theme) end
+        for gradient, kind in pairs(self.Flows) do
+            gradient.Color = Builders[kind](theme)
+        end
     else
         self.Blend = { from = old, to = theme, t = 0 }
     end
+
     for _, element in ipairs(self.Elements) do
-        if element._Restyle then element:_Restyle(instant) end
+        if element._Restyle then
+            element:_Restyle(instant)
+        end
     end
     return true
 end
 
 function Root:SetCorner(name, instant)
-    if not Corners[name] then return false end
+    local baseRadius = Corners[name]
+    if not baseRadius then return false end
+
     self.CornerName = name
     for corner, mult in pairs(self.Rounds) do
-        Apply(corner, { CornerRadius = UDim.new(0, math.max(0, math.floor(Corners[name] * mult + 0.5))) }, instant, 0.3)
+        local radius = math.max(0, math.floor(baseRadius * mult + 0.5))
+        Apply(corner, { CornerRadius = UDim.new(0, radius) }, instant, 0.3)
     end
     return true
 end
 
+local SemanticMap = {
+    Success = "Success",
+    Warning = "Warning",
+    Error = "Danger",
+    Danger = "Danger",
+}
+
+local function MakeRamp(...)
+    local args = { ... }
+    local points = table.create(#args * 0.5)
+    local idx = 0
+    for i = 1, #args, 2 do
+        idx += 1
+        points[idx] = NumberSequenceKeypoint.new(args[i], args[i + 1])
+    end
+    return NumberSequence.new(points)
+end
+
 function Root:Notify(opts)
-    if type(opts) == "string" then opts = { Content = opts } end
-    opts = opts or {}
+    local config = opts
+    if type(config) == "string" then
+        config = { Content = config }
+    elseif type(config) ~= "table" then
+        config = {}
+    end
+
     local M = self.Metrics
-    local kind = opts.Type or "Info"
-    local duration = opts.Duration or 4
+    local kind = config.Type or "Info"
+    local duration = config.Duration or 4
     local sticky = duration <= 0
-    local semantic = ({ Success = "Success", Warning = "Warning", Error = "Danger", Danger = "Danger" })[kind]
+    local semantic = SemanticMap[kind]
     local isInfo = semantic == nil
     local key = semantic or "Accent"
-    local function ramp(...)
-        local points, args = {}, { ... }
-        for i = 1, #args, 2 do points[#points + 1] = NumberSequenceKeypoint.new(args[i], args[i + 1]) end
-        return NumberSequence.new(points)
-    end
 
     if not self.Toasts then
         local width = self.Mobile and 252 or 296
         self.ToastList = {}
+        self.ToastCount = 0
         self.Toasts = Create("Frame", {
-            Name = "Toasts", BackgroundTransparency = 1, ZIndex = 70, AutomaticSize = Enum.AutomaticSize.Y,
+            Name = "Toasts",
+            BackgroundTransparency = 1,
+            ZIndex = 70,
+            AutomaticSize = Enum.AutomaticSize.Y,
             AnchorPoint = self.Mobile and Vector2.new(0.5, 0) or Vector2.new(1, 0),
             Position = self.Mobile and UDim2.new(0.5, 0, 0, 12) or UDim2.new(1, -16, 0, 16),
-            Size = UDim2.fromOffset(width, 0), Parent = self.Gui,
+            Size = UDim2.fromOffset(width, 0),
+            Parent = self.Gui,
         }, {
             Create("UIListLayout", {
-                Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
+                Padding = UDim.new(0, 8),
+                SortOrder = Enum.SortOrder.LayoutOrder,
                 HorizontalAlignment = self.Mobile and Enum.HorizontalAlignment.Center or Enum.HorizontalAlignment.Right,
             }),
         })
     end
-    self.ToastCount = (self.ToastCount or 0) + 1
+
+    self.ToastCount += 1
 
     local slot = Create("Frame", {
-        Name = "Slot", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), LayoutOrder = self.ToastCount,
+        Name = "Slot",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        LayoutOrder = self.ToastCount,
         Parent = self.Toasts,
     })
 
     local shell = Create("Frame", {
-        Name = "Shell", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
-        Position = UDim2.fromOffset(40, 0), Parent = slot,
+        Name = "Shell",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Position = UDim2.fromOffset(40, 0),
+        Parent = slot,
     })
+
     local toast = Create("CanvasGroup", {
-        Name = "Toast", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, GroupTransparency = 1,
+        Name = "Toast",
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        GroupTransparency = 1,
         Parent = shell,
     })
 
@@ -753,28 +1053,54 @@ function Root:Notify(opts)
     local scale = Create("UIScale", { Scale = 0.96, Parent = shell })
     self:Round(shell, 0.8)
     self:Round(toast, 0.8)
+
     local stroke = self:Stroke(shell, key, 1, 1)
     local STROKE_ON = 0.5
 
-    local wash = Create("Frame", { Name = "Wash", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = toast })
+    local wash = Create("Frame", {
+        Name = "Wash",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 0,
+        Parent = toast,
+    })
     if isInfo then
-        self:Gradient(wash, "Soft", { Rotation = 0, Transparency = ramp(0, 0.8, 0.65, 1, 1, 1) })
+        self:Gradient(wash, "Soft", { Rotation = 0, Transparency = MakeRamp(0, 0.8, 0.65, 1, 1, 1) })
     else
         self:Bind(wash, { BackgroundColor3 = semantic })
-        Create("UIGradient", { Rotation = 0, Transparency = ramp(0, 0.8, 0.65, 1, 1, 1), Parent = wash })
+        Create("UIGradient", { Rotation = 0, Transparency = MakeRamp(0, 0.8, 0.65, 1, 1, 1), Parent = wash })
     end
 
-    Create("Frame", { Name = "Sheen", Size = UDim2.new(1, 0, 0.6, 0), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = toast }, {
-        Create("UIGradient", { Rotation = 90, Transparency = ramp(0, 0.93, 1, 1) }),
+    Create("Frame", {
+        Name = "Sheen",
+        Size = UDim2.new(1, 0, 0.6, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 0,
+        Parent = toast,
+    }, {
+        Create("UIGradient", { Rotation = 90, Transparency = MakeRamp(0, 0.93, 1, 1) }),
     })
-    Create("Frame", { Name = "Highlight", Size = UDim2.new(1, 0, 0, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 1, Parent = toast }, {
-        Create("UIGradient", { Transparency = ramp(0, 1, 0.5, 0.7, 1, 1) }),
+
+    Create("Frame", {
+        Name = "Highlight",
+        Size = UDim2.new(1, 0, 0, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 1,
+        Parent = toast,
+    }, {
+        Create("UIGradient", { Transparency = MakeRamp(0, 1, 0.5, 0.7, 1, 1) }),
     })
 
     local tile = Create("Frame", {
-        Name = "Icon", Position = UDim2.fromOffset(14, 13), Size = UDim2.fromOffset(28, 28), BackgroundTransparency = 0.8, ZIndex = 2, Parent = toast,
+        Name = "Icon",
+        Position = UDim2.fromOffset(14, 13),
+        Size = UDim2.fromOffset(28, 28),
+        BackgroundTransparency = 0.8,
+        ZIndex = 2,
+        Parent = toast,
     }, { Create("UICorner", { CornerRadius = UDim.new(0, 9) }) })
     self:Bind(tile, { BackgroundColor3 = key })
+
     if kind == "Success" then
         Bar(self, tile, 11.5, 15.5, 6, 2.4, 45, key)
         Bar(self, tile, 16.5, 13.5, 12, 2.4, -50, key)
@@ -790,124 +1116,220 @@ function Root:Notify(opts)
     end
 
     local body = Create("Frame", {
-        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = toast,
-    }, { Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }) })
-    Create("UIPadding", {
-        PaddingLeft = UDim.new(0, 54), PaddingRight = UDim.new(0, 34), PaddingTop = UDim.new(0, opts.Title and 12 or 17),
-        PaddingBottom = UDim.new(0, sticky and 14 or 19), Parent = body,
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        ZIndex = 2,
+        Parent = toast,
+    }, {
+        Create("UIListLayout", { Padding = UDim.new(0, 2), SortOrder = Enum.SortOrder.LayoutOrder }),
     })
-    if opts.Title then
+    Create("UIPadding", {
+        PaddingLeft = UDim.new(0, 54),
+        PaddingRight = UDim.new(0, 34),
+        PaddingTop = UDim.new(0, config.Title and 12 or 17),
+        PaddingBottom = UDim.new(0, sticky and 14 or 19),
+        Parent = body,
+    })
+
+    if config.Title then
         local t = Create("TextLabel", {
-            Text = opts.Title, Font = Enum.Font.GothamBold, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
-            TextWrapped = true, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
-            AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = body,
+            Text = tostring(config.Title),
+            Font = Enum.Font.GothamBold,
+            TextSize = M.Text,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextWrapped = true,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            LayoutOrder = 1,
+            Parent = body,
         })
         self:Bind(t, { TextColor3 = "Text" })
     end
+
     local c = Create("TextLabel", {
-        Text = opts.Content or "", TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y,
-        LayoutOrder = 2, Parent = body,
+        Text = tostring(config.Content or ""),
+        TextSize = M.Text - 1,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = 2,
+        Parent = body,
     })
-    self:Bind(c, { TextColor3 = opts.Title and "SubText" or "Text" })
+    self:Bind(c, { TextColor3 = config.Title and "SubText" or "Text" })
 
     local close = Create("TextButton", {
-        Name = "Close", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 8), Size = UDim2.fromOffset(20, 20),
-        BackgroundTransparency = 1, ZIndex = 8, Parent = toast,
+        Name = "Close",
+        AnchorPoint = Vector2.new(1, 0),
+        Position = UDim2.new(1, -8, 0, 8),
+        Size = UDim2.fromOffset(20, 20),
+        BackgroundTransparency = 1,
+        ZIndex = 8,
+        Parent = toast,
     })
     self:Bind(close, { BackgroundColor3 = "Hover" })
     self:Round(close, 0.5)
     Bar(self, close, 10, 10, 8, 1.8, 45, "Muted")
     Bar(self, close, 10, 10, 8, 1.8, -45, "Muted")
-    close.MouseEnter:Connect(function() Tween(close, { BackgroundTransparency = 0.3 }, 0.15) end)
-    close.MouseLeave:Connect(function() Tween(close, { BackgroundTransparency = 1 }, 0.2) end)
+
+    close.MouseEnter:Connect(function()
+        Tween(close, { BackgroundTransparency = 0.3 }, 0.15)
+    end)
+
+    close.MouseLeave:Connect(function()
+        Tween(close, { BackgroundTransparency = 1 }, 0.2)
+    end)
 
     local track = Create("Frame", {
-        AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 14, 1, -8), Size = UDim2.new(1, -28, 0, 2), ZIndex = 3,
-        Visible = not sticky, BackgroundTransparency = 0.2, Parent = toast,
+        AnchorPoint = Vector2.new(0, 1),
+        Position = UDim2.new(0, 14, 1, -8),
+        Size = UDim2.new(1, -28, 0, 2),
+        ZIndex = 3,
+        Visible = not sticky,
+        BackgroundTransparency = 0.2,
+        Parent = toast,
     }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
     self:Bind(track, { BackgroundColor3 = "Elevated" })
-    local fill = Create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 4, Parent = track },
-        { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
-    if isInfo then self:Gradient(fill, "Flow", nil, { Sweep = 1.4, Range = 0.5 }) else self:Bind(fill, { BackgroundColor3 = semantic }) end
+
+    local fill = Create("Frame", {
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 4,
+        Parent = track,
+    }, { Create("UICorner", { CornerRadius = UDim.new(1, 0) }) })
+    if isInfo then
+        self:Gradient(fill, "Flow", nil, { Sweep = 1.4, Range = 0.5 })
+    else
+        self:Bind(fill, { BackgroundColor3 = semantic })
+    end
 
     local closed, hovered = false, false
     local toasts = self.ToastList
+
     local function dismiss()
         if closed then return end
         closed = true
-        for i, entry in ipairs(toasts) do if entry.Slot == slot then table.remove(toasts, i) break end end
+        for i = #toasts, 1, -1 do
+            if toasts[i].Slot == slot then
+                table.remove(toasts, i)
+                break
+            end
+        end
 
         Tween(stroke, { Transparency = 1 }, 0.16, Enum.EasingStyle.Quad)
         Tween(toast, { GroupTransparency = 1 }, 0.28, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
         Tween(shell, { Position = UDim2.fromOffset(40, 0) }, 0.32, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
         Tween(scale, { Scale = 0.96 }, 0.3)
         task.delay(0.2, function()
-            if slot.Parent then Tween(slot, { Size = UDim2.new(1, 0, 0, 0) }, 0.36, Enum.EasingStyle.Quint) end
+            if slot.Parent then
+                Tween(slot, { Size = UDim2.new(1, 0, 0, 0) }, 0.36, Enum.EasingStyle.Quint)
+            end
         end)
-        task.delay(0.6, function() slot:Destroy() end)
+        task.delay(0.6, function()
+            if slot.Parent then
+                slot:Destroy()
+            end
+        end)
     end
+
     close.Activated:Connect(dismiss)
 
-    local hit = Create("TextButton", { Size = UDim2.fromScale(1, 1), ZIndex = 6, Parent = toast })
+    local hit = Create("TextButton", {
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 6,
+        Parent = toast,
+    })
+
     hit.MouseEnter:Connect(function()
         hovered = true
-        if closed then return end
-        Tween(stroke, { Transparency = 0.1 }, 0.2)
+        if not closed then
+            Tween(stroke, { Transparency = 0.1 }, 0.2)
+        end
     end)
+
     hit.MouseLeave:Connect(function()
         hovered = false
-        if closed then return end
-        Tween(stroke, { Transparency = STROKE_ON }, 0.25)
+        if not closed then
+            Tween(stroke, { Transparency = STROKE_ON }, 0.25)
+        end
     end)
+
     hit.Activated:Connect(function()
-        Fire("toast", opts.Title or "toast", opts.Callback)
+        Fire("toast", config.Title or "toast", config.Callback)
         dismiss()
     end)
 
     toasts[#toasts + 1] = { Slot = slot, Dismiss = dismiss }
-    if #toasts > 5 then toasts[1].Dismiss() end
+    if #toasts > 5 and toasts[1] then
+        toasts[1].Dismiss()
+    end
 
     task.spawn(function()
-
         local height = 0
         for _ = 1, 12 do
+            if closed or not slot.Parent then return end
             RunService.RenderStepped:Wait()
             height = shell.AbsoluteSize.Y / math.max(scale.Scale, 0.01)
             if height > 4 then break end
         end
         if closed or not slot.Parent then return end
+
         height = math.max(height, 40)
         Tween(slot, { Size = UDim2.new(1, 0, 0, height) }, 0.45, Enum.EasingStyle.Quint)
         Tween(toast, { GroupTransparency = 0 }, 0.45, Enum.EasingStyle.Quint)
         Tween(stroke, { Transparency = STROKE_ON }, 0.45, Enum.EasingStyle.Quint)
         Tween(shell, { Position = UDim2.fromOffset(0, 0) }, 0.55, Enum.EasingStyle.Quint)
         Tween(scale, { Scale = 1 }, 0.55, Enum.EasingStyle.Quint)
+
         if sticky then return end
 
         local elapsed = 0
-        while not closed and elapsed < duration do
+        while not closed and slot.Parent and elapsed < duration do
             local dt = RunService.RenderStepped:Wait()
-            if not hovered then elapsed = elapsed + dt end
-            if fill.Parent then fill.Size = UDim2.fromScale(math.max(0, 1 - elapsed / duration), 1) end
+            if not hovered then
+                elapsed += dt
+            end
+            if fill.Parent then
+                fill.Size = UDim2.fromScale(math.max(0, 1 - elapsed / duration), 1)
+            end
         end
         dismiss()
     end)
 end
 
 function Root:Destroy()
-    for _, connection in ipairs(self.Connections) do pcall(function() connection:Disconnect() end) end
+    self.Animating = false
+    for _, connection in ipairs(self.Connections) do
+        if connection and connection.Connected then
+            connection:Disconnect()
+        end
+    end
     self.Connections = {}
+
     for _, element in ipairs(self.Elements) do
         if element.Flag and Library.FlagObjects[element.Flag] == element then
             Library.FlagObjects[element.Flag] = nil
             Library.Flags[element.Flag] = nil
         end
-        if element._Cleanup then pcall(element._Cleanup, element) end
+        if element._Cleanup then
+            pcall(element._Cleanup, element)
+        end
     end
-    if self.Gui then self.Gui:Destroy() end
-    for i, root in ipairs(Library.Roots) do
-        if root == self then table.remove(Library.Roots, i) break end
+    self.Elements = {}
+
+    if self.Gui then
+        self.Gui:Destroy()
+        self.Gui = nil
+    end
+
+    for i = #Library.Roots, 1, -1 do
+        if Library.Roots[i] == self then
+            table.remove(Library.Roots, i)
+            break
+        end
     end
 end
 
@@ -921,8 +1343,11 @@ local function Register(root, element, flag)
 end
 
 local function Unregister(root, element)
-    for i, e in ipairs(root.Elements) do
-        if e == element then table.remove(root.Elements, i) break end
+    for i = #root.Elements, 1, -1 do
+        if root.Elements[i] == element then
+            table.remove(root.Elements, i)
+            break
+        end
     end
     if element.Flag and Library.FlagObjects[element.Flag] == element then
         Library.FlagObjects[element.Flag] = nil
@@ -932,8 +1357,11 @@ end
 
 function Bar(root, parent, x, y, length, thickness, rotation, colorKey)
     local bar = Create("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromOffset(x, y),
-        Size = UDim2.fromOffset(length, thickness), Rotation = rotation, Parent = parent,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromOffset(x, y),
+        Size = UDim2.fromOffset(length, thickness),
+        Rotation = rotation,
+        Parent = parent,
     })
     Create("UICorner", { CornerRadius = UDim.new(1, 0), Parent = bar })
     root:Bind(bar, { BackgroundColor3 = colorKey })
@@ -942,54 +1370,96 @@ end
 
 local function MakeRow(root, parent, name, height, order, labelWidth)
     local M = root.Metrics
-    local row = Create("Frame", {
-        Name = "Row_" .. name, BackgroundTransparency = 1, LayoutOrder = order or 0,
-        Size = UDim2.new(1, 0, 0, height or M.Row), Parent = parent,
-    })
     local base = height or M.Row
+    local row = Create("Frame", {
+        Name = "Row_" .. tostring(name),
+        BackgroundTransparency = 1,
+        LayoutOrder = order or 0,
+        Size = UDim2.new(1, 0, 0, base),
+        Parent = parent,
+    })
+
     local label = Create("TextLabel", {
-        Text = name, TextSize = M.Text, TextXAlignment = Enum.TextXAlignment.Left,
-        TextTruncate = Enum.TextTruncate.AtEnd, AnchorPoint = Vector2.new(0, 0.5),
-        Position = UDim2.new(0, 2, 0.5, 0), Size = UDim2.new(labelWidth or 0.42, -8, 1, 0), Parent = row,
+        Text = tostring(name),
+        TextSize = M.Text,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextTruncate = Enum.TextTruncate.AtEnd,
+        AnchorPoint = Vector2.new(0, 0.5),
+        Position = UDim2.new(0, 2, 0.5, 0),
+        Size = UDim2.new(labelWidth or 0.42, -8, 1, 0),
+        Parent = row,
         Grow = function(h)
+            if not row.Parent then return end
             local target = h and math.max(base, h + 14) or base
-            if row.Size.Y.Offset ~= target then row.Size = UDim2.new(1, 0, 0, target) end
+            if row.Size.Y.Offset ~= target then
+                row.Size = UDim2.new(1, 0, 0, target)
+            end
         end,
     })
     root:Bind(label, { TextColor3 = "Text" })
 
     local plate = Create("Frame", {
-        Name = "Plate", Size = UDim2.new(1, 8, 1, -2), Position = UDim2.fromOffset(-4, 1), ZIndex = 0,
-        BackgroundTransparency = 1, Parent = row,
+        Name = "Plate",
+        Size = UDim2.new(1, 8, 1, -2),
+        Position = UDim2.fromOffset(-4, 1),
+        ZIndex = 0,
+        BackgroundTransparency = 1,
+        Parent = row,
     })
     root:Bind(plate, { BackgroundColor3 = "Hover" })
     root:Round(plate, 0.6)
-    row.MouseEnter:Connect(function() Tween(plate, { BackgroundTransparency = 0.72 }, 0.18) end)
-    row.MouseLeave:Connect(function() Tween(plate, { BackgroundTransparency = 1 }, 0.25) end)
+
+    row.MouseEnter:Connect(function()
+        Tween(plate, { BackgroundTransparency = 0.72 }, 0.18)
+    end)
+
+    row.MouseLeave:Connect(function()
+        Tween(plate, { BackgroundTransparency = 1 }, 0.25)
+    end)
+
     return row, label
 end
 
 local function MakeRim(root, parent, mult)
     local rim = Create("Frame", {
-        Name = "Rim", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 3, Parent = parent,
+        Name = "Rim",
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 3,
+        Parent = parent,
     })
     root:Round(rim, mult or 0.6)
+
     local stroke = Create("UIStroke", {
-        Thickness = 1.5, Transparency = 1, Color = Color3.new(1, 1, 1),
-        ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = rim,
+        Thickness = 1.5,
+        Transparency = 1,
+        Color = Color3.new(1, 1, 1),
+        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        Parent = rim,
     })
     local _, entry = root:Gradient(stroke, "Rim", nil, { Spin = 150, On = false })
-    local control = {}
+
+    local control = { State = false }
+    local fadeTick = 0
+
     function control.Set(state)
-        control.State = state
-        if state then entry.On = true end
-        Tween(stroke, { Transparency = state and 0.05 or 1 }, 0.25)
-        if not state then
+        local active = state == true
+        control.State = active
+        fadeTick += 1
+        local tick = fadeTick
+        if active then
+            entry.On = true
+        end
+        Tween(stroke, { Transparency = active and 0.05 or 1 }, 0.25)
+        if not active then
             task.delay(0.3, function()
-                if not control.State then entry.On = false end
+                if fadeTick == tick and not control.State then
+                    entry.On = false
+                end
             end)
         end
     end
+
     return control
 end
 
@@ -997,75 +1467,163 @@ local function AccentFill(root, button, text, size, mult)
     button.BackgroundTransparency = 1
     button.Text = ""
     local fill = Create("Frame", {
-        Name = "Fill", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 1, Parent = button,
+        Name = "Fill",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 1,
+        Parent = button,
     })
     root:Round(fill, mult or 0.6)
     root:Gradient(fill, "Flow", nil, { Sweep = 1.1, Range = 0.6 })
+
     local label = Create("TextLabel", {
-        Name = "Label", Text = text, Font = Enum.Font.GothamBold, TextSize = size, Size = UDim2.fromScale(1, 1), ZIndex = 3,
-        Fit = true, Parent = button,
+        Name = "Label",
+        Text = text,
+        Font = Enum.Font.GothamBold,
+        TextSize = size,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 3,
+        Fit = true,
+        Parent = button,
     })
     root:Bind(label, { TextColor3 = "OnAccent" })
     return label
 end
 
 function Root:Dialog(opts)
-    if type(opts) == "string" then opts = { Content = opts } end
-    opts = opts or {}
+    local config = opts
+    if type(config) == "string" then
+        config = { Content = config }
+    elseif type(config) ~= "table" then
+        config = {}
+    end
+
     local M = self.Metrics
-    local kind = opts.Type or "Info"
-    local semantic = ({ Success = "Success", Warning = "Warning", Error = "Danger", Danger = "Danger" })[kind]
+    local kind = config.Type or "Info"
+    local semantic = SemanticMap[kind]
     local key = semantic or "Accent"
-    local buttons = opts.Buttons
-    if type(buttons) ~= "table" or #buttons == 0 then buttons = { { Name = "OK", Style = "Accent" } } end
-    local dismissible = opts.Dismissible ~= false
+
+    local rawButtons = config.Buttons
+    local buttons = (type(rawButtons) == "table" and #rawButtons > 0) and rawButtons or { { Name = "OK", Style = "Accent" } }
+    local dismissible = config.Dismissible ~= false
+
     local view = self.Gui.AbsoluteSize
-    if view.X < 10 then view = Vector2.new(1280, 720) end
-    local width = math.min(opts.Width or (self.Mobile and 280 or 330), view.X - 24)
+    if view.X < 10 then
+        view = Vector2.new(1280, 720)
+    end
+    local width = math.min(config.Width or (self.Mobile and 280 or 330), view.X - 24)
 
     self.DialogStack = self.DialogStack or {}
     local dialog = { Closed = false }
 
-    local layer = Create("Frame", { Name = "Dialog", BackgroundTransparency = 1, Size = UDim2.fromScale(1, 1), ZIndex = 80, Parent = self.Gui })
+    local layer = Create("Frame", {
+        Name = "Dialog",
+        BackgroundTransparency = 1,
+        Size = UDim2.fromScale(1, 1),
+        ZIndex = 80,
+        Parent = self.Gui,
+    })
+
     local scrim = Create("TextButton", {
-        Name = "Scrim", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 1, ZIndex = 1, Parent = layer,
+        Name = "Scrim",
+        Size = UDim2.fromScale(1, 1),
+        BackgroundColor3 = Color3.new(0, 0, 0),
+        BackgroundTransparency = 1,
+        ZIndex = 1,
+        Parent = layer,
     })
+
     local shell = Create("Frame", {
-        Name = "Shell", BackgroundTransparency = 1, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-        Size = UDim2.fromOffset(width, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = layer,
+        Name = "Shell",
+        BackgroundTransparency = 1,
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(width, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        ZIndex = 2,
+        Parent = layer,
     })
+
     local scale = Create("UIScale", { Scale = 0.93, Parent = shell })
     self:Round(shell, 1)
     local stroke = self:Stroke(shell, key, 1, 1)
+
     local card = Create("CanvasGroup", {
-        Name = "Card", Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, GroupTransparency = 1,
-        Active = true, Parent = shell,
+        Name = "Card",
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        GroupTransparency = 1,
+        Active = true,
+        Parent = shell,
     })
 
     self:Bind(card, { BackgroundColor3 = "Surface" })
     card.BackgroundTransparency = 0
     self:Round(card, 1)
-    Create("Frame", { Name = "Sheen", Size = UDim2.new(1, 0, 0.5, 0), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = card }, {
-        Create("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.93), NumberSequenceKeypoint.new(1, 1) }) }),
+
+    Create("Frame", {
+        Name = "Sheen",
+        Size = UDim2.new(1, 0, 0.5, 0),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 0,
+        Parent = card,
+    }, {
+        Create("UIGradient", {
+            Rotation = 90,
+            Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.93), NumberSequenceKeypoint.new(1, 1) }),
+        }),
     })
-    local wash = Create("Frame", { Name = "Wash", Size = UDim2.new(1, 0, 0, 90), BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 0, Parent = card })
+
+    local wash = Create("Frame", {
+        Name = "Wash",
+        Size = UDim2.new(1, 0, 0, 90),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+        ZIndex = 0,
+        Parent = card,
+    })
     if semantic then
         self:Bind(wash, { BackgroundColor3 = semantic })
-        Create("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.82), NumberSequenceKeypoint.new(1, 1) }), Parent = wash })
+        Create("UIGradient", {
+            Rotation = 90,
+            Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.82), NumberSequenceKeypoint.new(1, 1) }),
+            Parent = wash,
+        })
     else
-        self:Gradient(wash, "Soft", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.84), NumberSequenceKeypoint.new(1, 1) }) })
+        self:Gradient(wash, "Soft", {
+            Rotation = 90,
+            Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.84), NumberSequenceKeypoint.new(1, 1) }),
+        })
     end
 
     local content = Create("Frame", {
-        Name = "Content", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, ZIndex = 2, Parent = card,
-    }, { Create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder }) })
+        Name = "Content",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        ZIndex = 2,
+        Parent = card,
+    }, {
+        Create("UIListLayout", { Padding = UDim.new(0, 14), SortOrder = Enum.SortOrder.LayoutOrder }),
+    })
     Pad(content, 18, 18, 18, 16)
 
-    local head = Create("Frame", { Name = "Head", BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = content })
+    local head = Create("Frame", {
+        Name = "Head",
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = 1,
+        Parent = content,
+    })
+
     local tile = Create("Frame", {
-        Position = UDim2.fromOffset(0, 0), Size = UDim2.fromOffset(34, 34), BackgroundTransparency = 0.8, Parent = head,
+        Position = UDim2.fromOffset(0, 0),
+        Size = UDim2.fromOffset(34, 34),
+        BackgroundTransparency = 0.8,
+        Parent = head,
     }, { Create("UICorner", { CornerRadius = UDim.new(0, 11) }) })
     self:Bind(tile, { BackgroundColor3 = key })
+
     if kind == "Success" then
         Bar(self, tile, 14, 19, 7, 2.6, 45, key)
         Bar(self, tile, 20, 16.5, 14, 2.6, -50, key)
@@ -1079,132 +1637,260 @@ function Root:Dialog(opts)
         Bar(self, tile, 17, 11, 3.2, 3.2, 0, key)
         Bar(self, tile, 17, 20, 11, 3, 90, key)
     end
+
     local text = Create("Frame", {
-        BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, Parent = head,
-    }, { Create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }) })
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        Parent = head,
+    }, {
+        Create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }),
+    })
     Create("UIPadding", { PaddingLeft = UDim.new(0, 46), PaddingTop = UDim.new(0, 1), Parent = text })
     Create("UISizeConstraint", { MinSize = Vector2.new(0, 34), Parent = head })
-    if opts.Title then
+
+    if config.Title then
         local t = Create("TextLabel", {
-            Text = tostring(opts.Title), Font = Enum.Font.GothamBold, TextSize = M.Text + 2, TextWrapped = true,
-            TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0),
-            AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 1, Parent = text,
+            Text = tostring(config.Title),
+            Font = Enum.Font.GothamBold,
+            TextSize = M.Text + 2,
+            TextWrapped = true,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Top,
+            Size = UDim2.new(1, 0, 0, 0),
+            AutomaticSize = Enum.AutomaticSize.Y,
+            LayoutOrder = 1,
+            Parent = text,
         })
         self:Bind(t, { TextColor3 = "Text" })
     end
+
     local body = Create("TextLabel", {
-        Text = tostring(opts.Content or ""), TextSize = M.Text - 1, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
-        TextYAlignment = Enum.TextYAlignment.Top, Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, LayoutOrder = 2,
-        RichText = opts.RichText == true, Parent = text,
+        Text = tostring(config.Content or ""),
+        TextSize = M.Text - 1,
+        TextWrapped = true,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextYAlignment = Enum.TextYAlignment.Top,
+        Size = UDim2.new(1, 0, 0, 0),
+        AutomaticSize = Enum.AutomaticSize.Y,
+        LayoutOrder = 2,
+        RichText = config.RichText == true,
+        Parent = text,
     })
-    self:Bind(body, { TextColor3 = opts.Title and "SubText" or "Text" })
+    self:Bind(body, { TextColor3 = config.Title and "SubText" or "Text" })
 
     local box
-    if opts.Input then
-        local io = type(opts.Input) == "table" and opts.Input or {}
-        local field = Create("Frame", { Name = "Input", Size = UDim2.new(1, 0, 0, M.Field + 8), LayoutOrder = 2, Parent = content })
+    if config.Input then
+        local io = type(config.Input) == "table" and config.Input or {}
+        local field = Create("Frame", {
+            Name = "Input",
+            Size = UDim2.new(1, 0, 0, M.Field + 8),
+            LayoutOrder = 2,
+            Parent = content,
+        })
         self:Bind(field, { BackgroundColor3 = "Elevated" })
         self:Round(field, 0.6)
         local fieldStroke = self:Stroke(field, "Stroke", 1, 0.1)
+
         box = Create("TextBox", {
-            Text = tostring(io.Default or ""), PlaceholderText = io.Placeholder or "Type here...", TextSize = M.Text,
-            TextXAlignment = Enum.TextXAlignment.Left, Position = UDim2.fromOffset(12, 0), Size = UDim2.new(1, -24, 1, 0),
-            ClearTextOnFocus = false, Parent = field,
+            Text = tostring(io.Default or ""),
+            PlaceholderText = io.Placeholder or "Type here...",
+            TextSize = M.Text,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Position = UDim2.fromOffset(12, 0),
+            Size = UDim2.new(1, -24, 1, 0),
+            ClearTextOnFocus = false,
+            Parent = field,
         })
         self:Bind(box, { TextColor3 = "Text", PlaceholderColor3 = "Muted" })
-        box.Focused:Connect(function() Tween(fieldStroke, { Color = self.Theme.Accent }, 0.2) end)
-        box.FocusLost:Connect(function() Tween(fieldStroke, { Color = self.Theme.Stroke }, 0.25) end)
+
+        box.Focused:Connect(function()
+            Tween(fieldStroke, { Color = self.Theme.Accent }, 0.2)
+        end)
+
+        box.FocusLost:Connect(function()
+            Tween(fieldStroke, { Color = self.Theme.Stroke }, 0.25)
+        end)
     end
 
     local n = #buttons
     local stacked = n > 3
     local row = Create("Frame", {
-        Name = "Buttons", BackgroundTransparency = 1, LayoutOrder = 3, Size = UDim2.new(1, 0, 0, stacked and 0 or (M.Field + 8)),
-        AutomaticSize = stacked and Enum.AutomaticSize.Y or Enum.AutomaticSize.None, Parent = content,
-    }, { Create("UIListLayout", {
-        Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder,
-        FillDirection = stacked and Enum.FillDirection.Vertical or Enum.FillDirection.Horizontal,
-    }) })
+        Name = "Buttons",
+        BackgroundTransparency = 1,
+        LayoutOrder = 3,
+        Size = UDim2.new(1, 0, 0, stacked and 0 or (M.Field + 8)),
+        AutomaticSize = stacked and Enum.AutomaticSize.Y or Enum.AutomaticSize.None,
+        Parent = content,
+    }, {
+        Create("UIListLayout", {
+            Padding = UDim.new(0, 8),
+            SortOrder = Enum.SortOrder.LayoutOrder,
+            FillDirection = stacked and Enum.FillDirection.Vertical or Enum.FillDirection.Horizontal,
+        }),
+    })
 
     local primary
     local function close(silent)
         if dialog.Closed then return end
         dialog.Closed = true
-        for i, d in ipairs(self.DialogStack) do if d == dialog then table.remove(self.DialogStack, i) break end end
-        if dialog.Esc then dialog.Esc:Disconnect() end
+        for i = #self.DialogStack, 1, -1 do
+            if self.DialogStack[i] == dialog then
+                table.remove(self.DialogStack, i)
+                break
+            end
+        end
+        if dialog.Esc and dialog.Esc.Connected then
+            dialog.Esc:Disconnect()
+            dialog.Esc = nil
+        end
+
         Tween(scrim, { BackgroundTransparency = 1 }, 0.22, Enum.EasingStyle.Quad)
         Tween(stroke, { Transparency = 1 }, 0.12, Enum.EasingStyle.Quad)
         Tween(card, { GroupTransparency = 1 }, 0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
         Tween(scale, { Scale = 0.95 }, 0.26)
-        task.delay(0.34, function() layer:Destroy() end)
-        if not silent then Fire("dialog", opts.Title or "dialog", opts.OnClose) end
-    end
-    dialog.Close = function(_, silent) close(silent) end
+        task.delay(0.34, function()
+            if layer.Parent then
+                layer:Destroy()
+            end
+        end)
 
+        if not silent then
+            Fire("dialog", config.Title or "dialog", config.OnClose)
+        end
+    end
+
+    dialog.Close = function(_, silent)
+        close(silent)
+    end
+
+    local btnSize = stacked and UDim2.new(1, 0, 0, M.Field + 8) or UDim2.new(1 / n, -(8 * (n - 1)) / n, 1, 0)
     for i, spec in ipairs(buttons) do
-        if type(spec) == "string" then spec = { Name = spec } end
-        local style = spec.Style or (i == n and n > 1 and "Accent") or (n == 1 and "Accent") or "Default"
+        local item = type(spec) == "string" and { Name = spec } or spec
+        local style = item.Style or (i == n and n > 1 and "Accent") or (n == 1 and "Accent") or "Default"
+
         local btn = Create("TextButton", {
-            Name = "Button_" .. tostring(spec.Name), LayoutOrder = i, ClipsDescendants = true,
-            Size = stacked and UDim2.new(1, 0, 0, M.Field + 8) or UDim2.new(1 / n, -(8 * (n - 1)) / n, 1, 0), Parent = row,
+            Name = "Button_" .. tostring(item.Name),
+            LayoutOrder = i,
+            ClipsDescendants = true,
+            Size = btnSize,
+            Parent = row,
         })
         self:Round(btn, 0.6)
         local press = Create("UIScale", { Scale = 1, Parent = btn })
+
         if style == "Accent" then
-            AccentFill(self, btn, tostring(spec.Name or "OK"), M.Text)
-            primary = primary or spec
+            AccentFill(self, btn, tostring(item.Name or "OK"), M.Text)
+            primary = primary or item
         elseif style == "Danger" then
             btn.BackgroundTransparency = 0
             self:Bind(btn, { BackgroundColor3 = "Danger" })
-            local label = Create("TextLabel", {
-                Text = tostring(spec.Name or "OK"), Font = Enum.Font.GothamBold, TextSize = M.Text, Size = UDim2.fromScale(1, 1),
-                TextColor3 = Color3.fromRGB(44, 10, 10), Fit = true, ZIndex = 3, Parent = btn,
+            Create("TextLabel", {
+                Text = tostring(item.Name or "OK"),
+                Font = Enum.Font.GothamBold,
+                TextSize = M.Text,
+                Size = UDim2.fromScale(1, 1),
+                TextColor3 = Color3.fromRGB(44, 10, 10),
+                Fit = true,
+                ZIndex = 3,
+                Parent = btn,
             })
-            primary = primary or spec
+            primary = primary or item
         else
             btn.BackgroundTransparency = 0
             self:Bind(btn, { BackgroundColor3 = "Elevated" })
             local btnStroke = self:Stroke(btn, "Stroke", 1, 0.1)
             local label = Create("TextLabel", {
-                Text = tostring(spec.Name or "OK"), TextSize = M.Text, Size = UDim2.fromScale(1, 1), Fit = true, ZIndex = 3, Parent = btn,
+                Text = tostring(item.Name or "OK"),
+                TextSize = M.Text,
+                Size = UDim2.fromScale(1, 1),
+                Fit = true,
+                ZIndex = 3,
+                Parent = btn,
             })
             self:Bind(label, { TextColor3 = "Text" })
+
             btn.MouseEnter:Connect(function()
-                Tween(btn, { BackgroundColor3 = self.Theme.Hover }, 0.15)
-                Tween(btnStroke, { Color = self.Theme.Accent }, 0.2)
+                local T = self.Theme
+                Tween(btn, { BackgroundColor3 = T.Hover }, 0.15)
+                Tween(btnStroke, { Color = T.Accent }, 0.2)
             end)
+
             btn.MouseLeave:Connect(function()
-                Tween(btn, { BackgroundColor3 = self.Theme.Elevated }, 0.2)
-                Tween(btnStroke, { Color = self.Theme.Stroke }, 0.2)
+                local T = self.Theme
+                Tween(btn, { BackgroundColor3 = T.Elevated }, 0.2)
+                Tween(btnStroke, { Color = T.Stroke }, 0.2)
             end)
         end
-        btn.MouseButton1Down:Connect(function() Tween(press, { Scale = 0.96 }, 0.08) end)
-        btn.MouseButton1Up:Connect(function() Tween(press, { Scale = 1 }, 0.22) end)
-        btn.MouseLeave:Connect(function() Tween(press, { Scale = 1 }, 0.2) end)
-        spec._Fire = function()
-            Fire("dialog button", spec.Name, spec.Callback, box and box.Text or nil)
-            if not spec.Keep then close(true) end
+
+        btn.MouseButton1Down:Connect(function()
+            Tween(press, { Scale = 0.96 }, 0.08)
+        end)
+
+        btn.MouseButton1Up:Connect(function()
+            Tween(press, { Scale = 1 }, 0.22)
+        end)
+
+        btn.MouseLeave:Connect(function()
+            Tween(press, { Scale = 1 }, 0.2)
+        end)
+
+        item._Fire = function()
+            Fire("dialog button", item.Name, item.Callback, box and box.Text or nil)
+            if not item.Keep then
+                close(true)
+            end
         end
-        btn.Activated:Connect(spec._Fire)
+
+        btn.Activated:Connect(item._Fire)
     end
 
-    if box then box.FocusLost:Connect(function(enter) if enter and primary and primary._Fire then primary._Fire() end end) end
-    if dismissible then
-        scrim.Activated:Connect(function() close() end)
+    if box then
+        box.FocusLost:Connect(function(enter)
+            if enter and primary and primary._Fire then
+                primary._Fire()
+            end
+        end)
     end
+
+    if dismissible then
+        scrim.Activated:Connect(function()
+            close()
+        end)
+    end
+
     dialog.Esc = self:Connect(UserInputService.InputBegan, function(input)
-        if input.KeyCode == Enum.KeyCode.Escape and dismissible and self.DialogStack[#self.DialogStack] == dialog then close() end
+        if input.KeyCode == Enum.KeyCode.Escape and dismissible and self.DialogStack[#self.DialogStack] == dialog then
+            close()
+        end
     end)
     self.DialogStack[#self.DialogStack + 1] = dialog
 
-    function dialog:SetContent(value) body.Text = tostring(value) end
-    function dialog:GetInput() return box and box.Text or nil end
+    function dialog:SetContent(value)
+        if not dialog.Closed and body.Parent then
+            body.Text = tostring(value or "")
+        end
+    end
+
+    function dialog:GetInput()
+        return box and box.Text or nil
+    end
 
     Tween(scrim, { BackgroundTransparency = 0.5 }, 0.28, Enum.EasingStyle.Quad)
     Tween(card, { GroupTransparency = 0 }, 0.32, Enum.EasingStyle.Quint)
     Tween(stroke, { Transparency = 0.45 }, 0.4, Enum.EasingStyle.Quint)
     Tween(scale, { Scale = 1 }, 0.5, Enum.EasingStyle.Quint)
-    if box then task.delay(0.2, function() if not dialog.Closed and box.Parent then pcall(function() box:CaptureFocus() end) end end) end
+
+    if box then
+        task.delay(0.2, function()
+            if not dialog.Closed and box.Parent then
+                pcall(function()
+                    box:CaptureFocus()
+                end)
+            end
+        end)
+    end
+
     return dialog
 end
 
