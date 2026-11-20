@@ -15,7 +15,7 @@ local Library = {
     Flags = {},
     FlagObjects = {},
     Roots = {},
-    Defaults = { Theme = "Obsidian", Corner = "Soft" },
+    Defaults = { Theme = "Obsidian", Corner = "Rounded" },
 }
 
 local genv = (getgenv and getgenv()) or _G
@@ -53,10 +53,10 @@ local Semantic = {
 
 local Themes = {
     Obsidian = {
-        Background = RGB(7, 7, 9), Surface = RGB(12, 12, 15), Elevated = RGB(18, 18, 22),
-        Hover = RGB(26, 26, 32), Stroke = RGB(38, 38, 48), Accent = RGB(200, 165, 110), Accent2 = RGB(235, 205, 150),
-        OnAccent = RGB(20, 14, 6), Text = RGB(240, 238, 235), SubText = RGB(150, 147, 142),
-        Muted = RGB(95, 93, 89),
+        Background = RGB(13, 14, 16), Surface = RGB(21, 23, 26), Elevated = RGB(30, 32, 36),
+        Hover = RGB(40, 43, 48), Stroke = RGB(60, 64, 72), Accent = RGB(196, 206, 224), Accent2 = RGB(150, 164, 190),
+        OnAccent = RGB(0, 0, 0), Text = RGB(242, 244, 248), SubText = RGB(152, 160, 174),
+        Muted = RGB(0, 0, 0),
     },
     Midnight = {
         Background = RGB(11, 11, 15), Surface = RGB(18, 18, 24), Elevated = RGB(25, 25, 33),
@@ -6481,7 +6481,7 @@ function Library:CreateWindow(opts)
     })
     self.Holder = holder
 
-    local transName = Transitions[config.Transition] and config.Transition or "Drop"
+    local transName = Transitions[config.Transition] and config.Transition or "fade"
     self.TransitionName = transName
     self.Scale = Create("UIScale", { Scale = Transitions[transName].scale, Parent = holder })
 
