@@ -52,19 +52,19 @@ local Semantic = {
 }
 
 local Themes = {
-    Darker = {
+     Darker = {
         Background = RGB(0, 0, 0),
         Surface = RGB(4, 4, 6),
         Elevated = RGB(9, 10, 14),
         Hover = RGB(15, 17, 22),
         Stroke = RGB(26, 30, 38),
-        Accent = RGB(56, 189, 248),
-        Accent2 = RGB(129, 140, 248),
+        Accent = RGB(0, 0, 0),
+        Accent2 = RGB(0, 0, 0),
         OnAccent = RGB(6, 10, 18),
         Text = RGB(240, 244, 250),
         SubText = RGB(135, 145, 165),
         Muted = RGB(76, 84, 100),
-    },
+    },    
     Midnight = {
         Background = RGB(11, 11, 15), Surface = RGB(18, 18, 24), Elevated = RGB(25, 25, 33),
         Hover = RGB(33, 33, 43), Stroke = RGB(46, 46, 62), Accent = RGB(139, 108, 255), Accent2 = RGB(70, 170, 255),
@@ -6508,6 +6508,7 @@ function Library:CreateWindow(opts)
         Name = "Glare",
         Size = UDim2.fromScale(1, 1),
         BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
         ZIndex = 2,
         Parent = main,
     })
