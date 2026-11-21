@@ -52,18 +52,18 @@ local Semantic = {
 }
 
 local Themes = {
-  Darker = {
+    Darker = {
         Background = RGB(0, 0, 0),
-        Surface = RGB(4, 4, 5),
-        Elevated = RGB(9, 10, 12),
-        Hover = RGB(14, 15, 18),
-        Stroke = RGB(24, 26, 30),
-        Accent = RGB(120, 128, 142),
-        Accent2 = RGB(75, 82, 95),
-        OnAccent = RGB(5, 5, 7),
-        Text = RGB(235, 238, 244),
-        SubText = RGB(125, 132, 145),
-        Muted = RGB(72, 77, 88),
+        Surface = RGB(4, 4, 6),
+        Elevated = RGB(9, 10, 14),
+        Hover = RGB(15, 17, 22),
+        Stroke = RGB(26, 30, 38),
+        Accent = RGB(56, 189, 248),
+        Accent2 = RGB(129, 140, 248),
+        OnAccent = RGB(6, 10, 18),
+        Text = RGB(240, 244, 250),
+        SubText = RGB(135, 145, 165),
+        Muted = RGB(76, 84, 100),
     },
     Midnight = {
         Background = RGB(11, 11, 15), Surface = RGB(18, 18, 24), Elevated = RGB(25, 25, 33),
