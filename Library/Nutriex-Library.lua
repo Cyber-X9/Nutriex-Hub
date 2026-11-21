@@ -6497,17 +6497,25 @@ function Library:CreateWindow(opts)
     root:Round(main, 1)
     self.Main = main
 
-    self.Glare = Create("Frame", {
+        self.Glare = Create("Frame", {
         Name = "Glare",
         Size = UDim2.fromScale(1, 1),
         BackgroundColor3 = Color3.new(1, 1, 1),
+        BackgroundTransparency = 1,
         ZIndex = 2,
         Parent = main,
     })
-    self.GlareGradient = Create("UIGradient", { Rotation = 28, Parent = self.Glare })
-    root:Animate(self.GlareGradient, { Sweep = 0.22, Range = 0.95 })
-    self.Reflective = true
-    self.ReflectStrength = 1
+    self.GlareGradient = Create("UIGradient", {
+        Rotation = 28,
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.45, 0.95),
+            NumberSequenceKeypoint.new(0.5, 0.9),
+            NumberSequenceKeypoint.new(0.55, 0.95),
+            NumberSequenceKeypoint.new(1, 1),
+        }),
+        Parent = self.Glare,
+    })
 
     do
         local function layer(name, kind, rotation, fade, anim)
